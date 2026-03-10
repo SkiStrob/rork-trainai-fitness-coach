@@ -1,95 +1,72 @@
 import SwiftUI
 
-@Observable
-@MainActor
-class ThemeManager {
-    static let shared = ThemeManager()
+struct WelcomeStepView: View {
+    let viewModel: OnboardingViewModel
 
-    var isDarkMode: Bool {
-        get { UserDefaults.standard.object(forKey: "isDarkMode") as? Bool ?? false }
-        set { UserDefaults.standard.set(newValue, forKey: "isDarkMode") }
-    }
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
 
-    var colorScheme: ColorScheme {
-        isDarkMode ? .dark : .light
-    }
-}
+            VStack(spacing: 0) {
+                Spacer()
 
-struct AppColors {
-    let colorScheme: ColorScheme
+                VStack(spacing: 16) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .strokeBorder(Color.white.opacity(0.6), style: StrokeStyle(lineWidth: 2, dash: [12, 8]))
+                            .frame(width: 100, height: 100)
+                        Image(systemName: "figure.stand")
+                            .font(.system(size: 48, weight: .light))
+                            .foregroundStyle(.white)
+                    }
 
-    var background: Color {
-        colorScheme == .dark ? Color.black : Color(red: 0.96, green: 0.96, blue: 0.97)
-    }
+                    Text("TrainAI")
+                        .font(.system(size: 48, weight: .bold))
+                        .foregroundStyle(.white)
 
-    var cardBackground: Color {
-        colorScheme == .dark ? Color(white: 0.11) : Color.white
-    }
+                    Text("Your AI Physique Coach")
+                        .font(.title3)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
 
-    var cardShadow: Color {
-        colorScheme == .dark ? Color.clear : Color.black.opacity(0.06)
-    }
+                Spacer()
 
-    var primaryText: Color {
-        colorScheme == .dark ? .white : .black
-    }
+                VStack(spacing: 12) {
+                    Button {
+                        HapticManager.light()
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                            viewModel.nextStep()
+                        }
+                    } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: "apple.logo")
+                                .font(.title3)
+                            Text("Continue with Apple")
+                                .font(.headline)
+                        }
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.white)
+                        .clipShape(.rect(cornerRadius: 14))
+                    }
 
-    var secondaryText: Color {
-        colorScheme == .dark ? Color(.secondaryLabel) : Color(.secondaryLabel)
-    }
-
-    var separator: Color {
-        colorScheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.06)
-    }
-
-    var inputBackground: Color {
-        colorScheme == .dark ? Color.white.opacity(0.08) : Color(white: 0.95)
-    }
-
-    var ctaBackground: Color {
-        colorScheme == .dark ? Color.white : Color.black
-    }
-
-    var ctaForeground: Color {
-        colorScheme == .dark ? Color.black : Color.white
-    }
-
-    var secondaryButton: Color {
-        colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.06)
-    }
-
-    var selectedCard: Color {
-        colorScheme == .dark ? Color.white : Color.black
-    }
-
-    var selectedCardText: Color {
-        colorScheme == .dark ? Color.black : Color.white
-    }
-
-    var unselectedCard: Color {
-        colorScheme == .dark ? Color(white: 0.11) : Color(white: 0.95)
-    }
-
-    var unselectedCardText: Color {
-        colorScheme == .dark ? Color.white : Color.black
-    }
-
-    var tabBarTint: Color {
-        colorScheme == .dark ? .white : .black
-    }
-
-    var progressTrack: Color {
-        colorScheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.06)
-    }
-}
-
-struct AppColorsKey: EnvironmentKey {
-    static let defaultValue = AppColors(colorScheme: .light)
-}
-
-extension EnvironmentValues {
-    var appColors: AppColors {
-        get { self[AppColorsKey.self] }
-        set { self[AppColorsKey.self] = newValue }
+                    Button {
+                        HapticManager.light()
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                            viewModel.nextStep()
+                        }
+                    } label: {
+                        Text("Other sign-in options")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.5))
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 32)
+            }
+        }
+        .preferredColorScheme(.dark)
     }
 }
