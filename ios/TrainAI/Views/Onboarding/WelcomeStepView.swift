@@ -39,11 +39,11 @@ struct WelcomeStepView: View {
                 VStack(spacing: 16) {
                     ZStack {
                         ScanBrackets()
-                            .stroke(Color.primary.opacity(0.5), lineWidth: 2)
-                            .frame(width: 90, height: 90)
+                            .stroke(Color.primary.opacity(0.6), lineWidth: 2.5)
+                            .frame(width: 100, height: 100)
 
-                        Image(systemName: "figure.stand")
-                            .font(.system(size: 42, weight: .light))
+                        Image(systemName: "figure.strengthtraining.traditional")
+                            .font(.system(size: 44, weight: .regular))
                             .foregroundStyle(.primary)
                     }
                     .blur(radius: contentVisible ? 0 : 3)
