@@ -129,6 +129,8 @@ struct ProgressTabView: View {
                     .cardStyle()
                 }
 
+                BodyAnalysisView(scan: latest, gender: profile?.gender ?? "Male")
+
                 RadarChartView(
                     values: [latest.symmetry, latest.definition, latest.mass, latest.proportions, latest.vtaper, latest.core],
                     labels: ["Symmetry", "Definition", "Mass", "Proportions", "V-Taper", "Core"],
@@ -263,11 +265,11 @@ struct ProgressTabView: View {
                 .foregroundStyle(colors.primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            PRRow(exercise: "Bench Press", pr: "185 lbs × 8", date: "Feb 28")
-            PRRow(exercise: "Barbell Squats", pr: "245 lbs × 6", date: "Mar 5")
-            PRRow(exercise: "Barbell Rows", pr: "155 lbs × 10", date: "Mar 8")
-            PRRow(exercise: "Overhead Press", pr: "115 lbs × 8", date: "Mar 1")
-            PRRow(exercise: "Romanian Deadlifts", pr: "205 lbs × 8", date: "Mar 6")
+            PRRow(exercise: "Bench Press", pr: "185 lbs x 8", date: "Feb 28")
+            PRRow(exercise: "Barbell Squats", pr: "245 lbs x 6", date: "Mar 5")
+            PRRow(exercise: "Barbell Rows", pr: "155 lbs x 10", date: "Mar 8")
+            PRRow(exercise: "Overhead Press", pr: "115 lbs x 8", date: "Mar 1")
+            PRRow(exercise: "Romanian Deadlifts", pr: "205 lbs x 8", date: "Mar 6")
         }
         .cardStyle()
     }

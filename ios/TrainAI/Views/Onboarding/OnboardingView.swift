@@ -86,27 +86,22 @@ struct OnboardingOptionCard: View {
             if let icon {
                 Image(systemName: icon)
                     .font(.title3)
-                    .foregroundStyle(isSelected ? .white : .primary)
+                    .foregroundStyle(isSelected ? Color(.systemBackground) : .primary)
                     .frame(width: 28)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.body.weight(.semibold))
-                    .foregroundStyle(isSelected ? .white : .primary)
+                    .foregroundStyle(isSelected ? Color(.systemBackground) : .primary)
                 if let subtitle {
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundStyle(isSelected ? .white.opacity(0.7) : .secondary)
+                        .foregroundStyle(isSelected ? Color(.systemBackground).opacity(0.7) : .secondary)
                 }
             }
 
             Spacer()
-
-            if let emoji {
-                Text(emoji)
-                    .font(.title3)
-            }
         }
         .padding(16)
         .background(

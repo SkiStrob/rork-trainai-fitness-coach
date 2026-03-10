@@ -9,6 +9,9 @@ struct ScoreResultsStepView: View {
     @State private var showRadar: Bool = false
     @State private var showDetails: Bool = false
     @State private var tierPulse: Bool = false
+    @State private var showAnalysis: Bool = false
+    @State private var cardBlur: Double = 20
+    @State private var cardOpacity: Double = 0
 
     private var scan: BodyScan {
         viewModel.scanResult ?? BodyScan(
@@ -36,13 +39,21 @@ struct ScoreResultsStepView: View {
 
                         ZStack {
                             RoundedRectangle(cornerRadius: 24)
-                                .fill(Color.white.opacity(0.08))
+                                .fill(
+                                    RadialGradient(
+                                        colors: [Color(white: 0.12), Color(white: 0.06)],
+                                        center: .center,
+                                        startRadius: 0,
+                                        endRadius: 200
+                                    )
+                                )
                                 .shadow(color: .white.opacity(0.05), radius: 30)
 
                             VStack(spacing: 16) {
                                 Text(String(format: "%.1f", displayedScore))
                                     .font(.system(size: 72, weight: .bold))
                                     .foregroundStyle(.white)
+                                    .shadow(color: .white.opacity(0.08), radius: 20)
                                     .contentTransition(.numericText(countsDown: false))
                                     .animation(.spring(response: 0.3, dampingFraction: 0.8), value: displayedScore)
 
@@ -61,6 +72,13 @@ struct ScoreResultsStepView: View {
                             .padding(.horizontal, 24)
                         }
                         .padding(.horizontal, 8)
+                        .blur(radius: cardBlur)
+                        .opacity(cardOpacity)
+
+                        if showAnalysis {
+                            BodyAnalysisView(scan: scan, gender: viewModel.selectedGender)
+                                .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        }
 
                         if showRadar {
                             RadarChartView(
@@ -149,6 +167,13 @@ struct ScoreResultsStepView: View {
 
     private func animateReveal() {
         Task {
+            withAnimation(.easeOut(duration: 0.8)) {
+                cardBlur = 0
+                cardOpacity = 1
+            }
+
+            try? await Task.sleep(for: .milliseconds(400))
+
             let targetScore = scan.overallScore
             let steps = 20
             for i in 1...steps {
@@ -174,6 +199,11 @@ struct ScoreResultsStepView: View {
             }
 
             try? await Task.sleep(for: .milliseconds(400))
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                showAnalysis = true
+            }
+
+            try? await Task.sleep(for: .milliseconds(500))
             withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
                 showRadar = true
             }

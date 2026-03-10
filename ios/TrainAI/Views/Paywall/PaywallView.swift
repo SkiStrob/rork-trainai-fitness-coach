@@ -3,10 +3,11 @@ import SwiftUI
 struct PaywallView: View {
     let onComplete: () -> Void
     @State private var showSubscriptionOptions: Bool = false
+    @State private var contentVisible: Bool = false
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color(.systemBackground).ignoresSafeArea()
 
             VStack(spacing: 0) {
                 ScrollView {
@@ -15,15 +16,17 @@ struct PaywallView: View {
 
                         Text("How Your Free Trial Works")
                             .font(.largeTitle.bold())
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.primary)
                             .multilineTextAlignment(.center)
+                            .blurFadeIn(visible: contentVisible, delay: 0)
 
                         VStack(alignment: .leading, spacing: 0) {
                             TimelineStep(icon: "checkmark.circle.fill", iconColor: .green, title: "Today", subtitle: "Full body analysis + personalized program", isLast: false)
                             TimelineStep(icon: "bell.fill", iconColor: .blue, title: "Day 5", subtitle: "We'll send you a reminder", isLast: false)
-                            TimelineStep(icon: "lock.open.fill", iconColor: .white.opacity(0.6), title: "Day 7", subtitle: "Trial ends. Cancel anytime.", isLast: true)
+                            TimelineStep(icon: "lock.open.fill", iconColor: .secondary, title: "Day 7", subtitle: "Trial ends. Cancel anytime.", isLast: true)
                         }
                         .padding(.horizontal, 8)
+                        .blurFadeIn(visible: contentVisible, delay: 0.1)
 
                         VStack(alignment: .leading, spacing: 14) {
                             FeatureCheckRow(text: "AI-personalized workout programs")
@@ -32,25 +35,26 @@ struct PaywallView: View {
                             FeatureCheckRow(text: "Progressive overload suggestions")
                             FeatureCheckRow(text: "Realistic timeline to your goal")
                         }
+                        .blurFadeIn(visible: contentVisible, delay: 0.15)
 
                         HStack(spacing: 16) {
                             HStack(spacing: 4) {
-                                Text("⭐")
+                                Image(systemName: "star.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.yellow)
                                 Text("4.8")
                                     .font(.subheadline.bold())
-                                    .foregroundStyle(.white)
-                                Text("· App Store")
+                                    .foregroundStyle(.primary)
+                                Text("App Store")
                                     .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.5))
+                                    .foregroundStyle(.secondary)
                             }
-
-                            Text("·")
-                                .foregroundStyle(.white.opacity(0.3))
 
                             Text("50K+ users")
                                 .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.5))
+                                .foregroundStyle(.secondary)
                         }
+                        .blurFadeIn(visible: contentVisible, delay: 0.2)
                     }
                     .padding(.horizontal, 16)
                 }
@@ -61,17 +65,21 @@ struct PaywallView: View {
                 } label: {
                     Text("Start Free Week")
                         .font(.headline)
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Color(.systemBackground))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color.white)
+                        .background(Color.primary)
                         .clipShape(.rect(cornerRadius: 14))
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
             }
         }
-        .preferredColorScheme(.dark)
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                contentVisible = true
+            }
+        }
         .sheet(isPresented: $showSubscriptionOptions) {
             SubscriptionOptionsSheet {
                 showSubscriptionOptions = false
@@ -100,7 +108,7 @@ struct TimelineStep: View {
 
                 if !isLast {
                     Rectangle()
-                        .fill(Color.white.opacity(0.15))
+                        .fill(Color(.systemGray4))
                         .frame(width: 2, height: 40)
                 }
             }
@@ -108,10 +116,10 @@ struct TimelineStep: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(.secondary)
             }
             .padding(.bottom, isLast ? 0 : 16)
 
@@ -130,7 +138,7 @@ struct FeatureCheckRow: View {
                 .foregroundStyle(.green)
             Text(text)
                 .font(.subheadline)
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
         }
     }
 }
@@ -143,7 +151,7 @@ struct SubscriptionOptionsSheet: View {
         VStack(spacing: 20) {
             Text("Choose Your Plan")
                 .font(.title2.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
                 .padding(.top, 8)
 
             VStack(spacing: 12) {
@@ -181,10 +189,10 @@ struct SubscriptionOptionsSheet: View {
             } label: {
                 Text("Start Free Trial")
                     .font(.headline)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color(.systemBackground))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color.white)
+                    .background(Color.primary)
                     .clipShape(.rect(cornerRadius: 14))
             }
             .padding(.horizontal, 16)
@@ -192,19 +200,18 @@ struct SubscriptionOptionsSheet: View {
             HStack(spacing: 16) {
                 Button("Restore Purchases") {}
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.4))
-                Text("·").foregroundStyle(.white.opacity(0.3))
+                    .foregroundStyle(.secondary)
+                Text("·").foregroundStyle(.secondary.opacity(0.5))
                 Button("Terms") {}
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.4))
-                Text("·").foregroundStyle(.white.opacity(0.3))
+                    .foregroundStyle(.secondary)
+                Text("·").foregroundStyle(.secondary.opacity(0.5))
                 Button("Privacy") {}
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(.secondary)
             }
             .padding(.bottom, 8)
         }
-        .background(Color(white: 0.1))
     }
 }
 
@@ -220,7 +227,7 @@ struct PlanCard: View {
             if let badge {
                 Text(badge)
                     .font(.caption2.bold())
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(Color.blue)
@@ -229,27 +236,27 @@ struct PlanCard: View {
 
             Text(title)
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
             Text(price)
                 .font(.title3.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
             if let subtitle {
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Color.white.opacity(0.08))
+                .fill(Color(.systemGray6))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(isSelected ? Color.white.opacity(0.4) : Color.white.opacity(0.1), lineWidth: isSelected ? 2 : 1)
+                .stroke(isSelected ? Color.primary.opacity(0.4) : Color(.systemGray4), lineWidth: isSelected ? 2 : 1)
         )
     }
 }

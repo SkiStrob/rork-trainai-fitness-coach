@@ -10,6 +10,7 @@ struct HomeView: View {
     @Query(sort: \FoodEntry.date, order: .reverse) private var allFoodEntries: [FoodEntry]
     @State private var viewModel = HomeViewModel()
     @State private var ringsAppeared: Bool = false
+    @State private var cardsAppeared: Bool = false
 
     private var profile: UserProfile? { profiles.first }
     private var latestScan: BodyScan? { scans.first }
@@ -30,11 +31,17 @@ struct HomeView: View {
             ScrollView {
                 LazyVStack(spacing: 16) {
                     weekCalendarStrip
+                        .blurFadeIn(visible: cardsAppeared, delay: 0)
                     calorieCard
+                        .blurFadeIn(visible: cardsAppeared, delay: 0.05)
                     macroCards
+                        .blurFadeIn(visible: cardsAppeared, delay: 0.1)
                     todayWorkoutCard
+                        .blurFadeIn(visible: cardsAppeared, delay: 0.15)
                     recentlyLoggedSection
+                        .blurFadeIn(visible: cardsAppeared, delay: 0.2)
                     streakCard
+                        .blurFadeIn(visible: cardsAppeared, delay: 0.25)
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 20)
@@ -56,8 +63,9 @@ struct HomeView: View {
                     HStack(spacing: 12) {
                         if let streak = profile?.currentStreak, streak > 0 {
                             HStack(spacing: 3) {
-                                Text("🔥")
-                                    .font(.subheadline)
+                                Image(systemName: "flame.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.orange)
                                 Text("\(streak)")
                                     .font(.subheadline.bold())
                                     .foregroundStyle(colors.primaryText)
@@ -68,6 +76,9 @@ struct HomeView: View {
             }
             .onAppear {
                 viewModel.loadData(context: modelContext)
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.85).delay(0.1)) {
+                    cardsAppeared = true
+                }
             }
         }
     }
@@ -127,7 +138,7 @@ struct HomeView: View {
                     .stroke(colors.progressTrack, lineWidth: 10)
 
                 Circle()
-                    .trim(from: 0, to: progress)
+                    .trim(from: 0, to: ringsAppeared ? progress : 0)
                     .stroke(
                         AngularGradient(
                             colors: [Color(red: 0.13, green: 0.77, blue: 0.37), Color(red: 0.2, green: 0.9, blue: 0.4)],
@@ -138,7 +149,7 @@ struct HomeView: View {
                         style: StrokeStyle(lineWidth: 10, lineCap: .round)
                     )
                     .rotationEffect(.degrees(-90))
-                    .animation(.spring(response: 1.0, dampingFraction: 0.8), value: progress)
+                    .animation(.spring(response: 1.0, dampingFraction: 0.8).delay(0.3), value: ringsAppeared)
 
                 Image(systemName: "flame.fill")
                     .font(.title3)
@@ -148,6 +159,9 @@ struct HomeView: View {
         }
         .glassCardStyle()
         .pressable()
+        .onAppear {
+            ringsAppeared = true
+        }
     }
 
     private var macroCards: some View {
@@ -159,7 +173,8 @@ struct HomeView: View {
                 remaining: max(0, viewModel.proteinGoal - viewModel.todayProtein),
                 goal: viewModel.proteinGoal,
                 color: Color(red: 0.9, green: 0.3, blue: 0.3),
-                icon: "p.circle.fill"
+                icon: "p.circle.fill",
+                animated: ringsAppeared
             )
 
             MacroMiniCard(
@@ -169,7 +184,8 @@ struct HomeView: View {
                 remaining: max(0, 300 - Int(todayEntries.reduce(0.0) { $0 + $1.carbsGrams })),
                 goal: 300,
                 color: Color.orange,
-                icon: "c.circle.fill"
+                icon: "c.circle.fill",
+                animated: ringsAppeared
             )
 
             MacroMiniCard(
@@ -179,7 +195,8 @@ struct HomeView: View {
                 remaining: max(0, 80 - Int(todayEntries.reduce(0.0) { $0 + $1.fatGrams })),
                 goal: 80,
                 color: Color(red: 0.3, green: 0.5, blue: 0.9),
-                icon: "f.circle.fill"
+                icon: "f.circle.fill",
+                animated: ringsAppeared
             )
         }
     }
@@ -195,7 +212,9 @@ struct HomeView: View {
             if let day = todayWorkout {
                 if day.isRestDay {
                     HStack {
-                        Text("Rest Day 😴")
+                        Image(systemName: "bed.double.fill")
+                            .foregroundStyle(.secondary)
+                        Text("Rest Day")
                             .font(.headline)
                             .foregroundStyle(colors.primaryText)
                         Spacer()
@@ -292,9 +311,14 @@ struct HomeView: View {
     private var streakCard: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("📊 Next scan in 3 days")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(colors.primaryText)
+                HStack(spacing: 6) {
+                    Image(systemName: "chart.bar.fill")
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                    Text("Next scan in 3 days")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(colors.primaryText)
+                }
                 Text("Track your progress weekly")
                     .font(.caption)
                     .foregroundStyle(colors.secondaryText)
@@ -328,6 +352,7 @@ struct MacroMiniCard: View {
     let goal: Int
     let color: Color
     let icon: String
+    var animated: Bool = false
 
     private var progress: Double {
         guard goal > 0 else { return 0 }
@@ -350,9 +375,10 @@ struct MacroMiniCard: View {
                     .stroke(colors.progressTrack, lineWidth: 5)
 
                 Circle()
-                    .trim(from: 0, to: progress)
+                    .trim(from: 0, to: animated ? progress : 0)
                     .stroke(color, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     .rotationEffect(.degrees(-90))
+                    .animation(.spring(response: 1.0, dampingFraction: 0.8).delay(0.4), value: animated)
 
                 Image(systemName: icon)
                     .font(.caption)
@@ -365,5 +391,23 @@ struct MacroMiniCard: View {
         .background(colors.cardBackground)
         .clipShape(.rect(cornerRadius: 14))
         .shadow(color: colors.cardShadow, radius: 6, y: 2)
+    }
+}
+
+struct BlurFadeModifier: ViewModifier {
+    let visible: Bool
+    let delay: Double
+
+    func body(content: Content) -> some View {
+        content
+            .blur(radius: visible ? 0 : 6)
+            .opacity(visible ? 1 : 0)
+            .animation(.spring(response: 0.4, dampingFraction: 0.85).delay(delay), value: visible)
+    }
+}
+
+extension View {
+    func blurFadeIn(visible: Bool, delay: Double = 0) -> some View {
+        modifier(BlurFadeModifier(visible: visible, delay: delay))
     }
 }

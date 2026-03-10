@@ -116,9 +116,13 @@ struct ProgramView: View {
         if let day = selectedDay {
             if day.isRestDay {
                 VStack(spacing: 8) {
-                    Text("Rest Day 😴")
-                        .font(.title3.bold())
-                        .foregroundStyle(colors.primaryText)
+                    HStack(spacing: 8) {
+                        Image(systemName: "bed.double.fill")
+                            .foregroundStyle(.secondary)
+                        Text("Rest Day")
+                            .font(.title3.bold())
+                            .foregroundStyle(colors.primaryText)
+                    }
                     Text("Recovery is growth. Your muscles rebuild during rest.")
                         .font(.subheadline)
                         .foregroundStyle(colors.secondaryText)
@@ -199,7 +203,7 @@ struct ExerciseCard: View {
                         .foregroundStyle(colors.secondaryText)
                 }
                 Spacer()
-                Text("\(exercise.targetSets) × \(exercise.targetRepsMin)-\(exercise.targetRepsMax)")
+                Text("\(exercise.targetSets) x \(exercise.targetRepsMin)-\(exercise.targetRepsMax)")
                     .font(.subheadline.bold())
                     .foregroundStyle(.blue)
             }
@@ -211,7 +215,7 @@ struct ExerciseCard: View {
                         .foregroundStyle(colors.secondaryText)
                         .frame(width: 44, alignment: .leading)
 
-                    Text("— lbs × — reps")
+                    Text("-- lbs x -- reps")
                         .font(.subheadline)
                         .foregroundStyle(colors.primaryText.opacity(0.5))
 

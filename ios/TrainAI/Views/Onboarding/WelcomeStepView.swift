@@ -1,32 +1,65 @@
 import SwiftUI
 
+struct ScanBrackets: Shape {
+    nonisolated func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let cornerLength: CGFloat = 20
+
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY + cornerLength))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX + cornerLength, y: rect.minY))
+
+        path.move(to: CGPoint(x: rect.maxX - cornerLength, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + cornerLength))
+
+        path.move(to: CGPoint(x: rect.maxX, y: rect.maxY - cornerLength))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX - cornerLength, y: rect.maxY))
+
+        path.move(to: CGPoint(x: rect.minX + cornerLength, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY - cornerLength))
+
+        return path
+    }
+}
+
 struct WelcomeStepView: View {
     let viewModel: OnboardingViewModel
+    @State private var contentVisible: Bool = false
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color(.systemBackground).ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Spacer()
 
                 VStack(spacing: 16) {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .strokeBorder(Color.white.opacity(0.6), style: StrokeStyle(lineWidth: 2, dash: [12, 8]))
-                            .frame(width: 100, height: 100)
+                        ScanBrackets()
+                            .stroke(Color.primary.opacity(0.5), lineWidth: 2)
+                            .frame(width: 90, height: 90)
+
                         Image(systemName: "figure.stand")
-                            .font(.system(size: 48, weight: .light))
-                            .foregroundStyle(.white)
+                            .font(.system(size: 42, weight: .light))
+                            .foregroundStyle(.primary)
                     }
+                    .blur(radius: contentVisible ? 0 : 3)
+                    .opacity(contentVisible ? 1 : 0)
 
                     Text("TrainAI")
                         .font(.system(size: 48, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
+                        .blur(radius: contentVisible ? 0 : 3)
+                        .opacity(contentVisible ? 1 : 0)
 
                     Text("Your AI Physique Coach")
                         .font(.title3)
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(.secondary)
+                        .blur(radius: contentVisible ? 0 : 3)
+                        .opacity(contentVisible ? 1 : 0)
                 }
 
                 Spacer()
@@ -44,10 +77,10 @@ struct WelcomeStepView: View {
                             Text("Continue with Apple")
                                 .font(.headline)
                         }
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Color(.systemBackground))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color.white)
+                        .background(Color.primary)
                         .clipShape(.rect(cornerRadius: 14))
                     }
 
@@ -59,14 +92,20 @@ struct WelcomeStepView: View {
                     } label: {
                         Text("Other sign-in options")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.5))
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.top, 4)
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 32)
+                .blur(radius: contentVisible ? 0 : 3)
+                .opacity(contentVisible ? 1 : 0)
             }
         }
-        .preferredColorScheme(.dark)
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85).delay(0.1)) {
+                contentVisible = true
+            }
+        }
     }
 }

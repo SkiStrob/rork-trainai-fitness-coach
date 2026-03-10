@@ -4,12 +4,12 @@ struct GoalStepView: View {
     @Bindable var viewModel: OnboardingViewModel
 
     private let options: [(String, String)] = [
-        ("Build Muscle", "💪"),
-        ("Lose Fat", "🔥"),
-        ("Get Toned", "✨"),
-        ("Competition Prep", "🏆"),
-        ("Stay Healthy", "🌱"),
-        ("Get Stronger", "⚡")
+        ("Build Muscle", "dumbbell.fill"),
+        ("Lose Fat", "flame.fill"),
+        ("Get Toned", "figure.run"),
+        ("Competition Prep", "trophy.fill"),
+        ("Stay Healthy", "heart.fill"),
+        ("Get Stronger", "bolt.fill")
     ]
 
     var body: some View {
@@ -31,7 +31,7 @@ struct GoalStepView: View {
                             HapticManager.selection()
                             viewModel.selectedGoal = option.0
                         } label: {
-                            OnboardingOptionCard(title: option.0, isSelected: viewModel.selectedGoal == option.0, emoji: option.1)
+                            OnboardingOptionCard(title: option.0, isSelected: viewModel.selectedGoal == option.0, icon: option.1)
                         }
                     }
                 }

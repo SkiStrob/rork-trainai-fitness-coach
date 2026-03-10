@@ -8,7 +8,7 @@ enum NotificationService {
 
     static func scheduleWorkoutReminder(workoutName: String) {
         let content = UNMutableNotificationContent()
-        content.title = "Time to Train 💪"
+        content.title = "Time to Train"
         content.body = "Today's workout: \(workoutName)"
         content.sound = .default
 
@@ -21,8 +21,8 @@ enum NotificationService {
     }
 
     static func scheduleMealReminder() {
-        let times = [(12, 30, "lunch_reminder", "Lunch Time 🍽️", "Don't forget to log your lunch!"),
-                     (18, 30, "dinner_reminder", "Dinner Time 🍽️", "Log your dinner to stay on track!")]
+        let times = [(12, 30, "lunch_reminder", "Lunch Time", "Don't forget to log your lunch!"),
+                     (18, 30, "dinner_reminder", "Dinner Time", "Log your dinner to stay on track!")]
         for (hour, minute, id, title, body) in times {
             let content = UNMutableNotificationContent()
             content.title = title
@@ -39,7 +39,7 @@ enum NotificationService {
 
     static func scheduleWeeklyReport() {
         let content = UNMutableNotificationContent()
-        content.title = "Weekly Report Ready 📊"
+        content.title = "Weekly Report Ready"
         content.body = "Your weekly progress summary is ready. Check your gains!"
         content.sound = .default
         var dc = DateComponents()
@@ -52,7 +52,7 @@ enum NotificationService {
 
     static func scheduleScanReminder(daysFromNow: Int) {
         let content = UNMutableNotificationContent()
-        content.title = "Scan Day! 📸"
+        content.title = "Scan Day"
         content.body = "Time for your weekly body scan. Track your progress!"
         content.sound = .default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(daysFromNow * 86400), repeats: false)
@@ -62,7 +62,7 @@ enum NotificationService {
 
     static func sendPRCelebration(exercise: String, weight: Double) {
         let content = UNMutableNotificationContent()
-        content.title = "New PR! 🏆"
+        content.title = "New PR!"
         content.body = "You just set a new personal record on \(exercise): \(Int(weight)) lbs!"
         content.sound = .default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
@@ -72,7 +72,7 @@ enum NotificationService {
 
     static func scheduleStreakWarning() {
         let content = UNMutableNotificationContent()
-        content.title = "Streak at Risk! 🔥"
+        content.title = "Streak at Risk"
         content.body = "Don't lose your streak! Log a workout or meal today."
         content.sound = .default
         var dc = DateComponents()
