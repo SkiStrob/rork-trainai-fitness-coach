@@ -21,7 +21,7 @@ struct ProgramView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 16) {
+                VStack(spacing: 24) {
                     if let program = activeProgram {
                         programHeader(program)
                         weekCalendarStrip(program)
@@ -30,8 +30,9 @@ struct ProgramView: View {
                         emptyProgramView
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 20)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 32)
             }
             .background(colors.background)
             .navigationTitle("Program")
@@ -70,7 +71,6 @@ struct ProgramView: View {
                 .foregroundStyle(colors.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 8)
     }
 
     private func weekCalendarStrip(_ program: WorkoutProgram) -> some View {
@@ -90,14 +90,14 @@ struct ProgramView: View {
                     HapticManager.selection()
                     workoutVM.selectedDayIndex = i
                 } label: {
-                    VStack(spacing: 4) {
+                    VStack(spacing: 6) {
                         Text(dayLabels[i])
-                            .font(.caption2.bold())
-                            .foregroundStyle(isSelected ? colors.selectedCardText : isToday ? colors.primaryText : colors.secondaryText)
+                            .font(.caption2)
+                            .foregroundStyle(isSelected ? colors.selectedCardText : colors.secondaryText)
 
                         Circle()
-                            .fill(isWorkout ? Color.blue.opacity(0.6) : colors.progressTrack)
-                            .frame(width: 6, height: 6)
+                            .fill(isWorkout ? Color.blue.opacity(0.5) : colors.progressTrack)
+                            .frame(width: 5, height: 5)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -108,7 +108,10 @@ struct ProgramView: View {
                 }
             }
         }
-        .cardStyle()
+        .padding(16)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 
     @ViewBuilder
@@ -116,31 +119,35 @@ struct ProgramView: View {
         if let day = selectedDay {
             if day.isRestDay {
                 VStack(spacing: 8) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "bed.double.fill")
-                            .foregroundStyle(.secondary)
-                        Text("Rest Day")
-                            .font(.title3.bold())
-                            .foregroundStyle(colors.primaryText)
-                    }
-                    Text("Recovery is growth. Your muscles rebuild during rest.")
+                    Image(systemName: "bed.double.fill")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                    Text("Rest Day")
+                        .font(.title3.bold())
+                        .foregroundStyle(colors.primaryText)
+                    Text("Recovery is growth")
                         .font(.subheadline)
                         .foregroundStyle(colors.secondaryText)
-                        .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
-                .cardStyle()
+                .padding(24)
+                .background(colors.cardBackground)
+                .clipShape(.rect(cornerRadius: 20))
+                .shadow(color: colors.cardShadow, radius: 8, y: 2)
             } else {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(day.workoutName)
                         .font(.headline)
                         .foregroundStyle(colors.primaryText)
                     Text(day.muscleGroups)
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundStyle(colors.secondaryText)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .cardStyle()
+                .padding(20)
+                .background(colors.cardBackground)
+                .clipShape(.rect(cornerRadius: 20))
+                .shadow(color: colors.cardShadow, radius: 8, y: 2)
 
                 ForEach(day.exercises.sorted(by: { $0.orderIndex < $1.orderIndex })) { exercise in
                     ExerciseCard(exercise: exercise, workoutVM: workoutVM)
@@ -151,22 +158,24 @@ struct ProgramView: View {
                 .font(.subheadline)
                 .foregroundStyle(colors.secondaryText)
                 .frame(maxWidth: .infinity)
-                .cardStyle()
+                .padding(24)
+                .background(colors.cardBackground)
+                .clipShape(.rect(cornerRadius: 20))
+                .shadow(color: colors.cardShadow, radius: 8, y: 2)
         }
     }
 
     private var emptyProgramView: some View {
         VStack(spacing: 16) {
             Image(systemName: "dumbbell")
-                .font(.system(size: 48))
+                .font(.system(size: 44))
                 .foregroundStyle(.secondary)
             Text("No Active Program")
                 .font(.headline)
                 .foregroundStyle(colors.primaryText)
-            Text("Create or select a workout program to get started.")
+            Text("Create or select a workout program.")
                 .font(.subheadline)
                 .foregroundStyle(colors.secondaryText)
-                .multilineTextAlignment(.center)
             Button {
                 showProgramOptions = true
             } label: {
@@ -176,7 +185,7 @@ struct ProgramView: View {
                     .padding(.horizontal, 32)
                     .padding(.vertical, 12)
                     .background(colors.ctaBackground)
-                    .clipShape(.rect(cornerRadius: 12))
+                    .clipShape(.rect(cornerRadius: 14))
             }
         }
         .padding(.top, 60)
@@ -192,7 +201,7 @@ struct ExerciseCard: View {
     @State private var flashingSet: Int? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(exercise.name)
@@ -214,10 +223,6 @@ struct ExerciseCard: View {
                         .font(.subheadline)
                         .foregroundStyle(colors.secondaryText)
                         .frame(width: 44, alignment: .leading)
-
-                    Text("-- lbs x -- reps")
-                        .font(.subheadline)
-                        .foregroundStyle(colors.primaryText.opacity(0.5))
 
                     Spacer()
 
@@ -243,17 +248,13 @@ struct ExerciseCard: View {
                 .padding(.horizontal, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(flashingSet == setNum ? Color.green.opacity(0.12) : Color.clear)
+                        .fill(flashingSet == setNum ? Color.green.opacity(0.1) : Color.clear)
                 )
             }
-
-            Button {} label: {
-                Text("Swap Exercise")
-                    .font(.caption)
-                    .foregroundStyle(.blue)
-            }
         }
-        .cardStyle()
-        .pressable()
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 }

@@ -14,17 +14,16 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 16) {
+                VStack(spacing: 24) {
                     profileHeader
                     statsCard
-                    appearanceSection
                     settingsList
-                    subscriptionSection
                     shareButton
                     accountActions
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 20)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 32)
             }
             .background(colors.background)
             .navigationTitle("Profile")
@@ -36,15 +35,15 @@ struct ProfileView: View {
         VStack(spacing: 12) {
             Circle()
                 .fill(colors.inputBackground)
-                .frame(width: 80, height: 80)
+                .frame(width: 72, height: 72)
                 .overlay {
                     Image(systemName: "person.fill")
-                        .font(.system(size: 32))
+                        .font(.system(size: 28))
                         .foregroundStyle(.secondary)
                 }
 
             Text(profile?.name ?? "Athlete")
-                .font(.title2.bold())
+                .font(.title3.bold())
                 .foregroundStyle(colors.primaryText)
 
             if let created = profile?.createdAt {
@@ -58,87 +57,64 @@ struct ProfileView: View {
     }
 
     private var statsCard: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+        HStack(spacing: 0) {
             StatItem(label: "Height", value: formatHeight(profile?.heightInches ?? 70))
             StatItem(label: "Weight", value: "\(Int(profile?.weightLbs ?? 170)) lbs")
 
             if let scan = latestScan {
-                StatItem(label: "Body Score", value: String(format: "%.1f", scan.overallScore))
-                VStack(spacing: 4) {
-                    Text("Tier")
-                        .font(.caption)
-                        .foregroundStyle(colors.secondaryText)
-                    TierBadgeView(tierInfo: TierInfo.tier(for: scan.overallScore, gender: profile?.gender ?? "Male"))
-                }
+                StatItem(label: "Score", value: String(format: "%.1f", scan.overallScore))
             }
         }
-        .cardStyle()
-    }
-
-    private var appearanceSection: some View {
-        @Bindable var tm = themeManager
-        return HStack {
-            Image(systemName: "moon.fill")
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .frame(width: 24)
-            Text("Dark Mode")
-                .font(.body)
-                .foregroundStyle(colors.primaryText)
-            Spacer()
-            Toggle("", isOn: $tm.isDarkMode)
-                .labelsHidden()
-        }
-        .cardStyle()
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 
     private var settingsList: some View {
         VStack(spacing: 0) {
+            @Bindable var tm = themeManager
+            HStack {
+                Image(systemName: "moon.fill")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 24)
+                Text("Dark Mode")
+                    .font(.body)
+                    .foregroundStyle(colors.primaryText)
+                Spacer()
+                Toggle("", isOn: $tm.isDarkMode)
+                    .labelsHidden()
+            }
+            .padding(.vertical, 12)
+
+            Divider().background(colors.separator)
+
             SettingsRow(icon: "bell.fill", title: "Notifications") {}
             Divider().background(colors.separator)
             SettingsRow(icon: "ruler.fill", title: "Units") {}
             Divider().background(colors.separator)
             SettingsRow(icon: "target", title: "Update Goals") {}
-            Divider().background(colors.separator)
-            SettingsRow(icon: "figure.stand", title: "Update Stats") {}
         }
-        .cardStyle()
-    }
-
-    private var subscriptionSection: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Subscription")
-                    .font(.headline)
-                    .foregroundStyle(colors.primaryText)
-                Text("TrainAI Pro · Annual")
-                    .font(.subheadline)
-                    .foregroundStyle(colors.secondaryText)
-            }
-            Spacer()
-            Text("Active")
-                .font(.caption.bold())
-                .foregroundStyle(.green)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Color.green.opacity(0.12))
-                .clipShape(Capsule())
-        }
-        .cardStyle()
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 
     private var shareButton: some View {
         Button {
             shareScoreCard()
         } label: {
-            HStack {
+            HStack(spacing: 8) {
                 Image(systemName: "square.and.arrow.up")
-                Text("Share My Score Card")
+                Text("Share My Score")
             }
             .font(.headline)
             .foregroundStyle(colors.ctaForeground)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
             .background(colors.ctaBackground)
             .clipShape(.rect(cornerRadius: 14))
         }
@@ -199,6 +175,7 @@ struct StatItem: View {
                 .font(.headline)
                 .foregroundStyle(colors.primaryText)
         }
+        .frame(maxWidth: .infinity)
     }
 }
 

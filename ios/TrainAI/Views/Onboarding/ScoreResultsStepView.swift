@@ -5,11 +5,8 @@ struct ScoreResultsStepView: View {
     let onGetPlan: () -> Void
 
     @State private var displayedScore: Double = 0
-    @State private var showTier: Bool = false
-    @State private var showRadar: Bool = false
-    @State private var showDetails: Bool = false
-    @State private var tierPulse: Bool = false
-    @State private var showAnalysis: Bool = false
+    @State private var showContent: Bool = false
+    @State private var showButtons: Bool = false
     @State private var cardBlur: Double = 20
     @State private var cardOpacity: Double = 0
 
@@ -34,128 +31,25 @@ struct ScoreResultsStepView: View {
 
             VStack(spacing: 0) {
                 ScrollView {
-                    VStack(spacing: 24) {
-                        Spacer().frame(height: 20)
+                    VStack(spacing: 0) {
+                        scoreHeader
+                            .blur(radius: cardBlur)
+                            .opacity(cardOpacity)
+                            .padding(.top, 24)
 
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 24)
-                                .fill(
-                                    RadialGradient(
-                                        colors: [Color(white: 0.12), Color(white: 0.06)],
-                                        center: .center,
-                                        startRadius: 0,
-                                        endRadius: 200
-                                    )
-                                )
-                                .shadow(color: .white.opacity(0.05), radius: 30)
-
-                            VStack(spacing: 16) {
-                                Text(String(format: "%.1f", displayedScore))
-                                    .font(.system(size: 72, weight: .bold))
-                                    .foregroundStyle(.white)
-                                    .shadow(color: .white.opacity(0.08), radius: 20)
-                                    .contentTransition(.numericText(countsDown: false))
-                                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: displayedScore)
-
-                                if showTier {
-                                    TierBadgeView(tierInfo: tierInfo, large: true)
-                                        .scaleEffect(tierPulse ? 1.05 : 1.0)
-                                        .transition(.scale.combined(with: .opacity))
-
-                                    Text(tierInfo.message)
-                                        .font(.body)
-                                        .foregroundStyle(.white.opacity(0.6))
-                                        .transition(.opacity)
-                                }
-                            }
-                            .padding(.vertical, 32)
-                            .padding(.horizontal, 24)
-                        }
-                        .padding(.horizontal, 8)
-                        .blur(radius: cardBlur)
-                        .opacity(cardOpacity)
-
-                        if showAnalysis {
+                        if showContent {
                             BodyAnalysisView(scan: scan, gender: viewModel.selectedGender)
-                                .transition(.opacity.combined(with: .move(edge: .bottom)))
+                                .padding(.top, 8)
+                                .transition(.opacity)
                         }
 
-                        if showRadar {
-                            RadarChartView(
-                                values: [scan.symmetry, scan.definition, scan.mass, scan.proportions, scan.vtaper, scan.core],
-                                labels: ["Symmetry", "Definition", "Mass", "Proportions", "V-Taper", "Core"],
-                                maxValue: 10
-                            )
-                            .frame(height: 260)
-                            .padding(.horizontal, 8)
-                            .transition(.opacity)
-                        }
-
-                        if showDetails {
-                            VStack(spacing: 12) {
-                                BodyPartScoreRow(name: "Chest", score: scan.chestScore)
-                                BodyPartScoreRow(name: "Back", score: scan.backScore)
-                                BodyPartScoreRow(name: "Shoulders", score: scan.shoulderScore)
-                                BodyPartScoreRow(name: "Arms", score: scan.armScore)
-                                BodyPartScoreRow(name: "Core", score: scan.coreScore)
-                                BodyPartScoreRow(name: "Legs", score: scan.legScore)
-                            }
-                            .padding(16)
-                            .background(Color.white.opacity(0.08))
-                            .clipShape(.rect(cornerRadius: 16))
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-
-                            VStack(spacing: 8) {
-                                Text("Estimated Timeline")
-                                    .font(.headline)
-                                    .foregroundStyle(.white)
-                                Text("Based on your scan and goals, reaching \(TierInfo.tier(for: min(scan.overallScore + 0.5, 10), gender: viewModel.selectedGender).name) will take approximately 8-12 weeks")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.6))
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding(16)
-                            .background(Color.white.opacity(0.08))
-                            .clipShape(.rect(cornerRadius: 16))
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                        }
-
-                        Spacer().frame(height: 100)
+                        Spacer().frame(height: 120)
                     }
-                    .padding(.horizontal, 16)
                 }
 
-                if showDetails {
-                    VStack(spacing: 8) {
-                        Button {
-                            shareScoreCard()
-                        } label: {
-                            Text("Share My Score")
-                                .font(.headline)
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .background(Color.white.opacity(0.12))
-                                .clipShape(.rect(cornerRadius: 14))
-                        }
-                        .padding(.horizontal, 16)
-
-                        Button {
-                            HapticManager.light()
-                            onGetPlan()
-                        } label: {
-                            Text("Get My Plan")
-                                .font(.headline)
-                                .foregroundStyle(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(Color.white)
-                                .clipShape(.rect(cornerRadius: 14))
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
-                    }
-                    .transition(.move(edge: .bottom))
+                if showButtons {
+                    bottomButtons
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
         }
@@ -163,6 +57,59 @@ struct ScoreResultsStepView: View {
         .onAppear {
             animateReveal()
         }
+    }
+
+    private var scoreHeader: some View {
+        HStack(alignment: .top, spacing: 0) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(String(format: "%.1f", displayedScore))
+                    .font(.system(size: 56, weight: .bold))
+                    .foregroundStyle(.white)
+                    .contentTransition(.numericText(countsDown: false))
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: displayedScore)
+
+                TierBadgeView(tierInfo: tierInfo, large: false)
+
+                Text(tierInfo.message)
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.5))
+                    .padding(.top, 2)
+            }
+            .padding(.leading, 20)
+
+            Spacer()
+        }
+    }
+
+    private var bottomButtons: some View {
+        VStack(spacing: 8) {
+            Button {
+                shareScoreCard()
+            } label: {
+                Text("Share My Score")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.white.opacity(0.12))
+                    .clipShape(.rect(cornerRadius: 14))
+            }
+
+            Button {
+                HapticManager.light()
+                onGetPlan()
+            } label: {
+                Text("Get My Plan")
+                    .font(.headline)
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.white)
+                    .clipShape(.rect(cornerRadius: 14))
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
     }
 
     private func animateReveal() {
@@ -183,34 +130,16 @@ struct ScoreResultsStepView: View {
                 displayedScore = (targetScore * eased * 10).rounded() / 10
             }
             displayedScore = targetScore
-
-            try? await Task.sleep(for: .milliseconds(300))
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                showTier = true
-            }
             HapticManager.success()
-
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                tierPulse = true
-            }
-            try? await Task.sleep(for: .milliseconds(200))
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                tierPulse = false
-            }
 
             try? await Task.sleep(for: .milliseconds(400))
             withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-                showAnalysis = true
+                showContent = true
             }
 
-            try? await Task.sleep(for: .milliseconds(500))
+            try? await Task.sleep(for: .milliseconds(600))
             withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-                showRadar = true
-            }
-
-            try? await Task.sleep(for: .milliseconds(500))
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-                showDetails = true
+                showButtons = true
             }
         }
     }

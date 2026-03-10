@@ -24,23 +24,22 @@ struct BodyAnalysisView: View {
     @State private var dotsVisible: Bool = false
     @State private var labelsVisible: Bool = false
     @State private var selectedRatioID: UUID? = nil
-    @State private var focusBlurRadius: Double = 0
 
-    private let silhouetteHeight: CGFloat = 340
-    private let silhouetteWidth: CGFloat = 160
+    private let silhouetteHeight: CGFloat = 420
+    private let silhouetteWidth: CGFloat = 180
 
     private var ratios: [BodyRatio] {
         [
-            BodyRatio(name: "Shoulder to Waist Ratio", value: "1.62x", score: 9.2, ideal: "1.618", description: "Compares shoulder width to waist width. The golden ratio 1.618 is the ideal aesthetic proportion.", focusArea: CGRect(x: 0.15, y: 0.18, width: 0.7, height: 0.12), measurementType: .shoulders),
-            BodyRatio(name: "V-Taper Angle", value: "83.4\u{00B0}", score: 8.1, ideal: "80-85\u{00B0}", description: "The angle formed by your shoulder-to-waist taper. A sharper angle indicates a more dramatic V-shape.", focusArea: CGRect(x: 0.15, y: 0.18, width: 0.7, height: 0.25), measurementType: .vtaper),
-            BodyRatio(name: "Waist to Hip Ratio", value: "0.82x", score: 8.5, ideal: "0.80", description: "Lower ratios indicate a more defined waist relative to hips.", focusArea: CGRect(x: 0.2, y: 0.38, width: 0.6, height: 0.14), measurementType: .waist),
-            BodyRatio(name: "Chest to Waist Ratio", value: "1.38x", score: 7.2, ideal: "1.4", description: "Measures chest circumference relative to waist. Higher values indicate greater upper body development.", focusArea: CGRect(x: 0.18, y: 0.22, width: 0.64, height: 0.12), measurementType: .chest),
+            BodyRatio(name: "Shoulder to Waist", value: "1.62x", score: 9.2, ideal: "1.618", description: "Compares shoulder width to waist width. The golden ratio 1.618 is the ideal aesthetic proportion.", focusArea: CGRect(x: 0.15, y: 0.18, width: 0.7, height: 0.12), measurementType: .shoulders),
+            BodyRatio(name: "V-Taper Angle", value: "83.4\u{00B0}", score: 8.1, ideal: "80-85\u{00B0}", description: "The angle formed by your shoulder-to-waist taper.", focusArea: CGRect(x: 0.15, y: 0.18, width: 0.7, height: 0.25), measurementType: .vtaper),
+            BodyRatio(name: "Waist to Hip", value: "0.82x", score: 8.5, ideal: "0.80", description: "Lower ratios indicate a more defined waist relative to hips.", focusArea: CGRect(x: 0.2, y: 0.38, width: 0.6, height: 0.14), measurementType: .waist),
+            BodyRatio(name: "Chest to Waist", value: "1.38x", score: 7.2, ideal: "1.4", description: "Measures chest circumference relative to waist.", focusArea: CGRect(x: 0.18, y: 0.22, width: 0.64, height: 0.12), measurementType: .chest),
             BodyRatio(name: "Arm Symmetry", value: "96.2%", score: 8.8, ideal: ">95%", description: "Measures how evenly developed your left and right arms are.", focusArea: CGRect(x: 0.05, y: 0.22, width: 0.9, height: 0.18), measurementType: .armSymmetry),
-            BodyRatio(name: "Leg to Torso Ratio", value: "1.05x", score: 6.9, ideal: "1.0-1.1", description: "Compares leg length to torso length for overall proportions.", focusArea: CGRect(x: 0.2, y: 0.5, width: 0.6, height: 0.45), measurementType: .legs),
-            BodyRatio(name: "Upper to Lower Body Ratio", value: "1.12x", score: 6.5, ideal: "1.0", description: "Balance between upper and lower body muscle development.", focusArea: CGRect(x: 0.1, y: 0.15, width: 0.8, height: 0.8), measurementType: .torso),
-            BodyRatio(name: "Core Definition Index", value: "72%", score: 5.2, ideal: ">80%", description: "Estimated core muscle visibility and definition.", focusArea: CGRect(x: 0.25, y: 0.35, width: 0.5, height: 0.15), measurementType: .hips),
+            BodyRatio(name: "Leg to Torso", value: "1.05x", score: 6.9, ideal: "1.0-1.1", description: "Compares leg length to torso length for overall proportions.", focusArea: CGRect(x: 0.2, y: 0.5, width: 0.6, height: 0.45), measurementType: .legs),
+            BodyRatio(name: "Upper to Lower Body", value: "1.12x", score: 6.5, ideal: "1.0", description: "Balance between upper and lower body muscle development.", focusArea: CGRect(x: 0.1, y: 0.15, width: 0.8, height: 0.8), measurementType: .torso),
+            BodyRatio(name: "Core Definition", value: "72%", score: 5.2, ideal: ">80%", description: "Estimated core muscle visibility and definition.", focusArea: CGRect(x: 0.25, y: 0.35, width: 0.5, height: 0.15), measurementType: .hips),
             BodyRatio(name: "Shoulder Width Index", value: "88.4%", score: 7.8, ideal: ">85%", description: "Shoulder width relative to overall frame.", focusArea: CGRect(x: 0.1, y: 0.15, width: 0.8, height: 0.1), measurementType: .shoulders),
-            BodyRatio(name: "Overall Proportions Score", value: "78.3%", score: 7.4, ideal: ">75%", description: "Composite score of all body ratios and symmetry.", focusArea: CGRect(x: 0.1, y: 0.1, width: 0.8, height: 0.85), measurementType: .overall),
+            BodyRatio(name: "Overall Proportions", value: "78.3%", score: 7.4, ideal: ">75%", description: "Composite score of all body ratios and symmetry.", focusArea: CGRect(x: 0.1, y: 0.1, width: 0.8, height: 0.85), measurementType: .overall),
         ]
     }
 
@@ -50,12 +49,12 @@ struct BodyAnalysisView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
             silhouetteSection
-                .frame(height: silhouetteHeight + 40)
-                .padding(.horizontal, 16)
+                .frame(height: silhouetteHeight + 60)
 
             ratiosList
+                .padding(.top, 16)
         }
         .onAppear {
             animateIn()
@@ -68,19 +67,16 @@ struct BodyAnalysisView: View {
             let originY: CGFloat = 20
 
             ZStack {
-                Color.black
-                    .clipShape(.rect(cornerRadius: 20))
-
                 ZStack {
                     BodySilhouetteShape()
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1.5)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1.5)
                         .frame(width: silhouetteWidth, height: silhouetteHeight)
                         .position(x: centerX, y: originY + silhouetteHeight / 2)
                         .blur(radius: selectedRatio != nil ? 12 : 0)
 
                     if selectedRatio != nil {
                         BodySilhouetteShape()
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1.5)
+                            .stroke(Color.white.opacity(0.12), lineWidth: 1.5)
                             .frame(width: silhouetteWidth, height: silhouetteHeight)
                             .position(x: centerX, y: originY + silhouetteHeight / 2)
                             .mask(
@@ -246,7 +242,7 @@ struct BodyAnalysisView: View {
     }
 
     private var ratiosList: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             ForEach(ratios) { ratio in
                 Button {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
@@ -265,10 +261,11 @@ struct BodyAnalysisView: View {
                                 .transition(.opacity.combined(with: .move(edge: .top)))
                         }
                     }
-                    .padding(14)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
                     .background(
-                        RoundedRectangle(cornerRadius: 14)
-                            .fill(selectedRatioID == ratio.id ? Color.white.opacity(0.08) : Color(white: 0.11))
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(selectedRatioID == ratio.id ? Color.white.opacity(0.06) : Color.clear)
                     )
                 }
                 .buttonStyle(.plain)
@@ -281,14 +278,14 @@ struct BodyAnalysisView: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(ratio.name)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.8))
 
                 HStack(spacing: 6) {
                     scoreBar(score: ratio.score)
-                    Text(String(format: "%.1f/10", ratio.score))
+                    Text(String(format: "%.1f", ratio.score))
                         .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(.white.opacity(0.4))
                 }
             }
 
@@ -297,43 +294,43 @@ struct BodyAnalysisView: View {
             Text(ratio.value)
                 .font(.subheadline.bold())
                 .foregroundStyle(.white)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(Color.white.opacity(0.12))
-                .clipShape(.rect(cornerRadius: 8))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.white.opacity(0.1))
+                .clipShape(.rect(cornerRadius: 6))
 
             Image(systemName: "chevron.right")
                 .font(.caption2)
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(.white.opacity(0.2))
                 .rotationEffect(.degrees(selectedRatioID == ratio.id ? 90 : 0))
         }
     }
 
     private func ratioDetail(_ ratio: BodyRatio) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Divider().background(Color.white.opacity(0.1))
-                .padding(.top, 10)
+        VStack(alignment: .leading, spacing: 10) {
+            Divider().background(Color.white.opacity(0.08))
+                .padding(.top, 8)
 
             Text(ratio.description)
                 .font(.caption)
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(.white.opacity(0.5))
                 .fixedSize(horizontal: false, vertical: true)
 
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Text("Ideal:")
                     .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(.white.opacity(0.4))
                 Text(ratio.ideal)
                     .font(.caption2.bold())
                     .foregroundStyle(.green)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(Color.green.opacity(0.15))
-                    .clipShape(.rect(cornerRadius: 6))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.green.opacity(0.12))
+                    .clipShape(.rect(cornerRadius: 4))
             }
 
             bellCurveChart(score: ratio.score, value: ratio.value)
-                .frame(height: 110)
+                .frame(height: 100)
         }
     }
 
@@ -354,7 +351,7 @@ struct BodyAnalysisView: View {
                 )
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [Color.green.opacity(0.2), Color.green.opacity(0.02)],
+                        colors: [Color.green.opacity(0.15), Color.green.opacity(0.02)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -365,29 +362,29 @@ struct BodyAnalysisView: View {
                     x: .value("Value", point.x),
                     y: .value("Score", point.y)
                 )
-                .foregroundStyle(Color.green.opacity(0.6))
+                .foregroundStyle(Color.green.opacity(0.5))
                 .interpolationMethod(.catmullRom)
-                .lineStyle(StrokeStyle(lineWidth: 1.5))
+                .lineStyle(StrokeStyle(lineWidth: 1))
             }
 
             RuleMark(x: .value("You", score))
-                .foregroundStyle(.white.opacity(0.6))
-                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                .foregroundStyle(.white.opacity(0.5))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 2]))
                 .annotation(position: .top, alignment: .center) {
                     Text("You: \(value)")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(size: 8, weight: .bold))
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
+                        .padding(.horizontal, 5)
                         .padding(.vertical, 2)
-                        .background(Color.white.opacity(0.15))
-                        .clipShape(.rect(cornerRadius: 4))
+                        .background(Color.white.opacity(0.12))
+                        .clipShape(.rect(cornerRadius: 3))
                 }
         }
         .chartYAxis(.hidden)
         .chartXAxis {
             AxisMarks(values: [0, 2, 4, 6, 8, 10]) { _ in
                 AxisValueLabel()
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(.white.opacity(0.3))
             }
         }
         .chartXScale(domain: 0...10)
@@ -400,13 +397,13 @@ struct BodyAnalysisView: View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(Color.white.opacity(0.08))
+                    .fill(Color.white.opacity(0.06))
                 RoundedRectangle(cornerRadius: 2)
                     .fill(scoreColor(score))
                     .frame(width: geo.size.width * min(score / 10.0, 1.0))
             }
         }
-        .frame(width: 60, height: 4)
+        .frame(width: 50, height: 3)
     }
 
     private func scoreColor(_ score: Double) -> Color {
@@ -447,9 +444,9 @@ struct MeasurementLine: View {
     var isVertical: Bool = false
 
     private var opacity: Double {
-        if dimmed { return 0.1 }
-        if highlighted { return 0.7 }
-        return 0.4
+        if dimmed { return 0.08 }
+        if highlighted { return 0.6 }
+        return 0.3
     }
 
     private var lineWidth: CGFloat {
@@ -472,12 +469,12 @@ struct MeasurementLine: View {
             if dotsVisible {
                 Circle()
                     .fill(Color.white.opacity(opacity + 0.1))
-                    .frame(width: 4, height: 4)
+                    .frame(width: 3, height: 3)
                     .position(from)
 
                 Circle()
                     .fill(Color.white.opacity(opacity + 0.1))
-                    .frame(width: 4, height: 4)
+                    .frame(width: 3, height: 3)
                     .position(to)
             }
 
@@ -485,14 +482,14 @@ struct MeasurementLine: View {
                 let midX = (from.x + to.x) / 2
                 let midY = (from.y + to.y) / 2
                 Text(label)
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(.white.opacity(dimmed ? 0.2 : 0.9))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
-                    .background(Color.white.opacity(dimmed ? 0.05 : 0.15))
-                    .clipShape(.rect(cornerRadius: 6))
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(.white.opacity(dimmed ? 0.15 : 0.85))
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(Color.white.opacity(dimmed ? 0.03 : 0.12))
+                    .clipShape(.rect(cornerRadius: 4))
                     .position(
-                        x: isVertical ? midX + 24 : midX,
+                        x: isVertical ? midX + 22 : midX,
                         y: isVertical ? midY : midY + labelOffset
                     )
             }

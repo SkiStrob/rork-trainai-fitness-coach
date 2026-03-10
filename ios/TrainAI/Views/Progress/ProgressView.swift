@@ -13,24 +13,24 @@ struct ProgressTabView: View {
     @State private var showLogWeight: Bool = false
 
     private var profile: UserProfile? { profiles.first }
-    private let segments = ["Body Score", "Weight", "Strength", "Photos"]
+    private let segments = ["Body Score", "Weight", "Strength"]
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 16) {
+                VStack(spacing: 24) {
                     segmentedPicker
 
                     switch selectedSegment {
                     case 0: bodyScoreSection
                     case 1: weightSection
                     case 2: strengthSection
-                    case 3: photosSection
                     default: EmptyView()
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 20)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 32)
             }
             .background(colors.background)
             .navigationTitle("Progress")
@@ -44,49 +44,51 @@ struct ProgressTabView: View {
     }
 
     private var segmentedPicker: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 8) {
-                ForEach(0..<segments.count, id: \.self) { i in
-                    Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
-                            selectedSegment = i
-                        }
-                        HapticManager.selection()
-                    } label: {
-                        Text(segments[i])
-                            .font(.subheadline.bold())
-                            .foregroundStyle(selectedSegment == i ? colors.selectedCardText : colors.primaryText)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(selectedSegment == i ? colors.selectedCard : colors.inputBackground)
-                            .clipShape(Capsule())
+        HStack(spacing: 8) {
+            ForEach(0..<segments.count, id: \.self) { i in
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                        selectedSegment = i
                     }
+                    HapticManager.selection()
+                } label: {
+                    Text(segments[i])
+                        .font(.subheadline.bold())
+                        .foregroundStyle(selectedSegment == i ? colors.selectedCardText : colors.primaryText)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(selectedSegment == i ? colors.selectedCard : colors.inputBackground)
+                        .clipShape(Capsule())
                 }
             }
+            Spacer()
         }
-        .scrollIndicators(.hidden)
-        .padding(.top, 4)
     }
 
     private var bodyScoreSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             if let latest = scans.last {
                 let tierInfo = TierInfo.tier(for: latest.overallScore, gender: profile?.gender ?? "Male")
 
-                VStack(spacing: 8) {
-                    Text(String(format: "%.1f", latest.overallScore))
-                        .font(.system(size: 56, weight: .bold))
-                        .foregroundStyle(colors.primaryText)
-                    TierBadgeView(tierInfo: tierInfo)
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(format: "%.1f", latest.overallScore))
+                            .font(.system(size: 48, weight: .bold))
+                            .foregroundStyle(colors.primaryText)
+                        TierBadgeView(tierInfo: tierInfo)
+                    }
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity)
-                .cardStyle()
+                .padding(20)
+                .background(colors.cardBackground)
+                .clipShape(.rect(cornerRadius: 20))
+                .shadow(color: colors.cardShadow, radius: 8, y: 2)
 
                 if scans.count > 1 {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 12) {
                         Text("Score Trend")
-                            .font(.headline)
-                            .foregroundStyle(colors.primaryText)
+                            .font(.subheadline.bold())
+                            .foregroundStyle(colors.secondaryText)
 
                         Chart(scans) { scan in
                             LineMark(
@@ -100,18 +102,12 @@ struct ProgressTabView: View {
                                 x: .value("Date", scan.date),
                                 y: .value("Score", scan.overallScore)
                             )
-                            .foregroundStyle(.blue.opacity(0.08))
+                            .foregroundStyle(.blue.opacity(0.06))
                             .interpolationMethod(.catmullRom)
-
-                            PointMark(
-                                x: .value("Date", scan.date),
-                                y: .value("Score", scan.overallScore)
-                            )
-                            .foregroundStyle(.blue)
                         }
                         .chartYScale(domain: 0...10)
                         .chartYAxis {
-                            AxisMarks(values: [0, 2, 4, 6, 8, 10]) { _ in
+                            AxisMarks(values: [0, 5, 10]) { _ in
                                 AxisGridLine(stroke: StrokeStyle(lineWidth: 0.3))
                                     .foregroundStyle(colors.separator)
                                 AxisValueLabel()
@@ -124,35 +120,24 @@ struct ProgressTabView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .frame(height: 200)
+                        .frame(height: 180)
                     }
-                    .cardStyle()
+                    .padding(20)
+                    .background(colors.cardBackground)
+                    .clipShape(.rect(cornerRadius: 20))
+                    .shadow(color: colors.cardShadow, radius: 8, y: 2)
                 }
-
-                BodyAnalysisView(scan: latest, gender: profile?.gender ?? "Male")
 
                 RadarChartView(
                     values: [latest.symmetry, latest.definition, latest.mass, latest.proportions, latest.vtaper, latest.core],
                     labels: ["Symmetry", "Definition", "Mass", "Proportions", "V-Taper", "Core"],
                     maxValue: 10
                 )
-                .frame(height: 260)
-                .cardStyle()
-
-                VStack(spacing: 12) {
-                    Text("Body Part Scores")
-                        .font(.headline)
-                        .foregroundStyle(colors.primaryText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    BodyPartScoreRow(name: "Chest", score: latest.chestScore)
-                    BodyPartScoreRow(name: "Back", score: latest.backScore)
-                    BodyPartScoreRow(name: "Shoulders", score: latest.shoulderScore)
-                    BodyPartScoreRow(name: "Arms", score: latest.armScore)
-                    BodyPartScoreRow(name: "Core", score: latest.coreScore)
-                    BodyPartScoreRow(name: "Legs", score: latest.legScore)
-                }
-                .cardStyle()
+                .frame(height: 240)
+                .padding(20)
+                .background(colors.cardBackground)
+                .clipShape(.rect(cornerRadius: 20))
+                .shadow(color: colors.cardShadow, radius: 8, y: 2)
             } else {
                 VStack(spacing: 12) {
                     Image(systemName: "figure.stand")
@@ -161,20 +146,17 @@ struct ProgressTabView: View {
                     Text("No scans yet")
                         .font(.headline)
                         .foregroundStyle(colors.primaryText)
-                    Text("Complete your first body scan to track progress")
-                        .font(.subheadline)
-                        .foregroundStyle(colors.secondaryText)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
+                .padding(.vertical, 60)
             }
         }
     }
 
     private var weightSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             HStack {
-                Text("Log Weight")
+                Text("Weight")
                     .font(.headline)
                     .foregroundStyle(colors.primaryText)
                 Spacer()
@@ -186,7 +168,6 @@ struct ProgressTabView: View {
                         .foregroundStyle(.blue)
                 }
             }
-            .cardStyle()
 
             if !weightEntries.isEmpty {
                 HStack(spacing: 8) {
@@ -203,6 +184,7 @@ struct ProgressTabView: View {
                                 .clipShape(Capsule())
                         }
                     }
+                    Spacer()
                 }
 
                 let filtered = filterWeightEntries(days: weightTimeRange)
@@ -219,15 +201,8 @@ struct ProgressTabView: View {
                             x: .value("Date", entry.date),
                             y: .value("Weight", entry.weightLbs)
                         )
-                        .foregroundStyle(.blue.opacity(0.08))
+                        .foregroundStyle(.blue.opacity(0.06))
                         .interpolationMethod(.catmullRom)
-
-                        PointMark(
-                            x: .value("Date", entry.date),
-                            y: .value("Weight", entry.weightLbs)
-                        )
-                        .foregroundStyle(.blue)
-                        .symbolSize(20)
                     }
                     .chartYAxis {
                         AxisMarks { _ in
@@ -244,77 +219,32 @@ struct ProgressTabView: View {
                         }
                     }
                     .frame(height: 200)
-                    .cardStyle()
+                    .padding(20)
+                    .background(colors.cardBackground)
+                    .clipShape(.rect(cornerRadius: 20))
+                    .shadow(color: colors.cardShadow, radius: 8, y: 2)
                 }
             } else {
-                VStack(spacing: 8) {
-                    Text("No weight data")
-                        .font(.subheadline)
-                        .foregroundStyle(colors.secondaryText)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
+                Text("No weight data yet")
+                    .font(.subheadline)
+                    .foregroundStyle(colors.secondaryText)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
             }
         }
     }
 
     private var strengthSection: some View {
         VStack(spacing: 12) {
-            Text("Personal Records")
-                .font(.headline)
-                .foregroundStyle(colors.primaryText)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
             PRRow(exercise: "Bench Press", pr: "185 lbs x 8", date: "Feb 28")
             PRRow(exercise: "Barbell Squats", pr: "245 lbs x 6", date: "Mar 5")
             PRRow(exercise: "Barbell Rows", pr: "155 lbs x 10", date: "Mar 8")
             PRRow(exercise: "Overhead Press", pr: "115 lbs x 8", date: "Mar 1")
-            PRRow(exercise: "Romanian Deadlifts", pr: "205 lbs x 8", date: "Mar 6")
         }
-        .cardStyle()
-    }
-
-    private var photosSection: some View {
-        VStack(spacing: 12) {
-            if scans.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.system(size: 40))
-                        .foregroundStyle(.secondary)
-                    Text("No scan photos yet")
-                        .font(.subheadline)
-                        .foregroundStyle(colors.secondaryText)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
-            } else {
-                let columns = [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)]
-                LazyVGrid(columns: columns, spacing: 8) {
-                    ForEach(scans) { scan in
-                        VStack(spacing: 4) {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(colors.inputBackground)
-                                .frame(height: 160)
-                                .overlay {
-                                    VStack(spacing: 4) {
-                                        Image(systemName: "person.fill")
-                                            .font(.system(size: 36))
-                                            .foregroundStyle(.secondary)
-                                        Text(String(format: "%.1f", scan.overallScore))
-                                            .font(.caption.bold())
-                                            .foregroundStyle(colors.primaryText)
-                                    }
-                                }
-
-                            Text(scan.date.formatted(.dateTime.month(.abbreviated).day()))
-                                .font(.caption)
-                                .foregroundStyle(colors.secondaryText)
-                        }
-                    }
-                }
-            }
-        }
-        .cardStyle()
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 
     private func filterWeightEntries(days: Int) -> [WeightEntry] {
@@ -341,14 +271,9 @@ struct PRRow: View {
                     .foregroundStyle(colors.secondaryText)
             }
             Spacer()
-            HStack(spacing: 4) {
-                Image(systemName: "trophy.fill")
-                    .font(.caption)
-                    .foregroundStyle(.yellow)
-                Text(pr)
-                    .font(.subheadline.bold())
-                    .foregroundStyle(colors.primaryText)
-            }
+            Text(pr)
+                .font(.subheadline.bold())
+                .foregroundStyle(colors.primaryText)
         }
         .padding(.vertical, 4)
     }
@@ -395,7 +320,7 @@ struct LogWeightSheet: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(Color.primary)
-                    .clipShape(.rect(cornerRadius: 12))
+                    .clipShape(.rect(cornerRadius: 14))
             }
             .disabled(weight.isEmpty)
             .padding(.horizontal, 16)

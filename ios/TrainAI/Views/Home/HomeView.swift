@@ -13,7 +13,6 @@ struct HomeView: View {
     @State private var cardsAppeared: Bool = false
 
     private var profile: UserProfile? { profiles.first }
-    private var latestScan: BodyScan? { scans.first }
 
     private var todayEntries: [FoodEntry] {
         let today = Calendar.current.startOfDay(for: Date())
@@ -29,22 +28,29 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 16) {
+                VStack(spacing: 24) {
                     weekCalendarStrip
                         .blurFadeIn(visible: cardsAppeared, delay: 0)
+
                     calorieCard
                         .blurFadeIn(visible: cardsAppeared, delay: 0.05)
+
                     macroCards
                         .blurFadeIn(visible: cardsAppeared, delay: 0.1)
-                    todayWorkoutCard
-                        .blurFadeIn(visible: cardsAppeared, delay: 0.15)
-                    recentlyLoggedSection
-                        .blurFadeIn(visible: cardsAppeared, delay: 0.2)
-                    streakCard
-                        .blurFadeIn(visible: cardsAppeared, delay: 0.25)
+
+                    if todayWorkout != nil {
+                        todayWorkoutCard
+                            .blurFadeIn(visible: cardsAppeared, delay: 0.15)
+                    }
+
+                    if !todayEntries.isEmpty {
+                        recentlyLoggedSection
+                            .blurFadeIn(visible: cardsAppeared, delay: 0.2)
+                    }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 20)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 32)
             }
             .background(colors.background)
             .refreshable {
@@ -53,23 +59,19 @@ struct HomeView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("\(viewModel.greeting), \(profile?.name ?? "Athlete")")
-                            .font(.title3.bold())
-                            .foregroundStyle(colors.primaryText)
-                    }
+                    Text("\(viewModel.greeting), \(profile?.name ?? "Athlete")")
+                        .font(.title3.bold())
+                        .foregroundStyle(colors.primaryText)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 12) {
-                        if let streak = profile?.currentStreak, streak > 0 {
-                            HStack(spacing: 3) {
-                                Image(systemName: "flame.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.orange)
-                                Text("\(streak)")
-                                    .font(.subheadline.bold())
-                                    .foregroundStyle(colors.primaryText)
-                            }
+                    if let streak = profile?.currentStreak, streak > 0 {
+                        HStack(spacing: 3) {
+                            Image(systemName: "flame.fill")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                            Text("\(streak)")
+                                .font(.subheadline.bold())
+                                .foregroundStyle(colors.primaryText)
                         }
                     }
                 }
@@ -98,7 +100,7 @@ struct HomeView: View {
 
                 VStack(spacing: 6) {
                     Text(dayLabels[i])
-                        .font(.caption2.bold())
+                        .font(.caption2)
                         .foregroundStyle(colors.secondaryText)
 
                     Text("\(dayNum)")
@@ -112,7 +114,6 @@ struct HomeView: View {
             }
         }
         .padding(.vertical, 12)
-        .padding(.horizontal, 8)
     }
 
     private var calorieCard: some View {
@@ -120,9 +121,9 @@ struct HomeView: View {
         let progress = min(Double(viewModel.todayCalories) / Double(viewModel.calorieGoal), 1.0)
 
         return HStack {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("\(remaining)")
-                    .font(.system(size: 42, weight: .bold))
+                    .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(colors.primaryText)
                     .contentTransition(.numericText())
 
@@ -135,93 +136,71 @@ struct HomeView: View {
 
             ZStack {
                 Circle()
-                    .stroke(colors.progressTrack, lineWidth: 10)
+                    .stroke(colors.progressTrack, lineWidth: 8)
 
                 Circle()
                     .trim(from: 0, to: ringsAppeared ? progress : 0)
                     .stroke(
-                        AngularGradient(
-                            colors: [Color(red: 0.13, green: 0.77, blue: 0.37), Color(red: 0.2, green: 0.9, blue: 0.4)],
-                            center: .center,
-                            startAngle: .degrees(-90),
-                            endAngle: .degrees(270)
-                        ),
-                        style: StrokeStyle(lineWidth: 10, lineCap: .round)
+                        Color.black.opacity(0.8),
+                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
                     )
                     .rotationEffect(.degrees(-90))
                     .animation(.spring(response: 1.0, dampingFraction: 0.8).delay(0.3), value: ringsAppeared)
 
                 Image(systemName: "flame.fill")
-                    .font(.title3)
-                    .foregroundStyle(Color(red: 0.13, green: 0.77, blue: 0.37))
+                    .font(.body)
+                    .foregroundStyle(colors.primaryText)
             }
-            .frame(width: 72, height: 72)
+            .frame(width: 64, height: 64)
         }
-        .glassCardStyle()
-        .pressable()
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
         .onAppear {
             ringsAppeared = true
         }
     }
 
     private var macroCards: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 12) {
             MacroMiniCard(
                 label: "Protein",
-                value: "\(viewModel.todayProtein)g",
-                subtitle: "left",
                 remaining: max(0, viewModel.proteinGoal - viewModel.todayProtein),
                 goal: viewModel.proteinGoal,
                 color: Color(red: 0.9, green: 0.3, blue: 0.3),
-                icon: "p.circle.fill",
                 animated: ringsAppeared
             )
 
             MacroMiniCard(
                 label: "Carbs",
-                value: "\(max(0, 300 - Int(todayEntries.reduce(0.0) { $0 + $1.carbsGrams })))g",
-                subtitle: "left",
                 remaining: max(0, 300 - Int(todayEntries.reduce(0.0) { $0 + $1.carbsGrams })),
                 goal: 300,
                 color: Color.orange,
-                icon: "c.circle.fill",
                 animated: ringsAppeared
             )
 
             MacroMiniCard(
                 label: "Fat",
-                value: "\(max(0, 80 - Int(todayEntries.reduce(0.0) { $0 + $1.fatGrams })))g",
-                subtitle: "left",
                 remaining: max(0, 80 - Int(todayEntries.reduce(0.0) { $0 + $1.fatGrams })),
                 goal: 80,
                 color: Color(red: 0.3, green: 0.5, blue: 0.9),
-                icon: "f.circle.fill",
                 animated: ringsAppeared
             )
         }
     }
 
     private var todayWorkoutCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Today's Workout")
-                .font(.caption.bold())
-                .foregroundStyle(colors.secondaryText)
-                .textCase(.uppercase)
-                .tracking(0.5)
-
+        VStack(alignment: .leading, spacing: 8) {
             if let day = todayWorkout {
                 if day.isRestDay {
-                    HStack {
+                    HStack(spacing: 8) {
                         Image(systemName: "bed.double.fill")
                             .foregroundStyle(.secondary)
                         Text("Rest Day")
                             .font(.headline)
                             .foregroundStyle(colors.primaryText)
-                        Spacer()
                     }
-                    Text("Recovery is growth")
-                        .font(.subheadline)
-                        .foregroundStyle(colors.secondaryText)
                 } else {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
@@ -233,125 +212,53 @@ struct HomeView: View {
                                 .foregroundStyle(colors.secondaryText)
                         }
                         Spacer()
-                        Text("~55 min")
-                            .font(.caption.bold())
-                            .foregroundStyle(colors.secondaryText)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(colors.inputBackground)
-                            .clipShape(Capsule())
                     }
                 }
-            } else {
-                Text("No workout scheduled")
-                    .font(.subheadline)
-                    .foregroundStyle(colors.secondaryText)
             }
         }
-        .cardStyle()
-        .pressable()
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 
     private var recentlyLoggedSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             Text("Recently logged")
-                .font(.caption.bold())
+                .font(.subheadline.bold())
                 .foregroundStyle(colors.secondaryText)
-                .textCase(.uppercase)
-                .tracking(0.5)
 
-            if todayEntries.isEmpty {
-                HStack {
-                    Text("No meals logged today")
-                        .font(.subheadline)
-                        .foregroundStyle(colors.secondaryText)
-                    Spacer()
-                }
-            } else {
-                ForEach(todayEntries.prefix(4)) { entry in
-                    HStack(spacing: 12) {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(colors.inputBackground)
-                            .frame(width: 44, height: 44)
-                            .overlay {
-                                Image(systemName: mealIcon(entry.mealType))
-                                    .font(.body)
-                                    .foregroundStyle(colors.secondaryText)
-                            }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(entry.name)
-                                .font(.subheadline.weight(.medium))
-                                .foregroundStyle(colors.primaryText)
-                                .lineLimit(1)
-                            Text(entry.date.formatted(.dateTime.hour().minute()))
-                                .font(.caption)
-                                .foregroundStyle(colors.secondaryText)
-                        }
-
-                        Spacer()
-
-                        VStack(alignment: .trailing, spacing: 2) {
-                            Text("\(entry.calories) cal")
-                                .font(.subheadline.bold())
-                                .foregroundStyle(colors.primaryText)
-                            HStack(spacing: 4) {
-                                Text("P:\(Int(entry.proteinGrams))g")
-                                    .font(.caption2)
-                                    .foregroundStyle(Color(red: 0.9, green: 0.3, blue: 0.3))
-                            }
-                        }
+            ForEach(todayEntries.prefix(3)) { entry in
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(entry.name)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(colors.primaryText)
+                            .lineLimit(1)
+                        Text("\(entry.calories) cal")
+                            .font(.caption)
+                            .foregroundStyle(colors.secondaryText)
                     }
+                    Spacer()
+                    Text("P:\(Int(entry.proteinGrams))g")
+                        .font(.caption2)
+                        .foregroundStyle(Color(red: 0.9, green: 0.3, blue: 0.3))
                 }
             }
         }
-        .cardStyle()
-    }
-
-    private var streakCard: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                    Image(systemName: "chart.bar.fill")
-                        .font(.caption)
-                        .foregroundStyle(.blue)
-                    Text("Next scan in 3 days")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(colors.primaryText)
-                }
-                Text("Track your progress weekly")
-                    .font(.caption)
-                    .foregroundStyle(colors.secondaryText)
-            }
-            Spacer()
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(colors.secondaryText)
-        }
-        .cardStyle()
-        .pressable()
-    }
-
-    private func mealIcon(_ mealType: String) -> String {
-        switch mealType {
-        case "Breakfast": return "sunrise.fill"
-        case "Lunch": return "sun.max.fill"
-        case "Dinner": return "moon.fill"
-        case "Snack": return "leaf.fill"
-        default: return "fork.knife"
-        }
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 }
 
 struct MacroMiniCard: View {
     @Environment(\.appColors) private var colors
     let label: String
-    let value: String
-    let subtitle: String
     let remaining: Int
     let goal: Int
     let color: Color
-    let icon: String
     var animated: Bool = false
 
     private var progress: Double {
@@ -372,24 +279,20 @@ struct MacroMiniCard: View {
 
             ZStack {
                 Circle()
-                    .stroke(colors.progressTrack, lineWidth: 5)
+                    .stroke(colors.progressTrack, lineWidth: 4)
 
                 Circle()
                     .trim(from: 0, to: animated ? progress : 0)
-                    .stroke(color, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                    .stroke(color, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .animation(.spring(response: 1.0, dampingFraction: 0.8).delay(0.4), value: animated)
-
-                Image(systemName: icon)
-                    .font(.caption)
-                    .foregroundStyle(color)
             }
-            .frame(width: 36, height: 36)
+            .frame(width: 32, height: 32)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
+        .padding(.vertical, 16)
         .background(colors.cardBackground)
-        .clipShape(.rect(cornerRadius: 14))
+        .clipShape(.rect(cornerRadius: 16))
         .shadow(color: colors.cardShadow, radius: 6, y: 2)
     }
 }

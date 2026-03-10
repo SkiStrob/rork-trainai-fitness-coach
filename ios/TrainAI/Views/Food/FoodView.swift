@@ -25,12 +25,12 @@ struct FoodView: View {
         NavigationStack {
             ZStack(alignment: .bottomTrailing) {
                 ScrollView {
-                    LazyVStack(spacing: 16) {
+                    VStack(spacing: 24) {
                         macrosDashboard
                         mealSections
-                        insightCard
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
                     .padding(.bottom, 100)
                 }
                 .background(colors.background)
@@ -59,22 +59,23 @@ struct FoodView: View {
     }
 
     private var macrosDashboard: some View {
-        VStack(spacing: 12) {
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                MacroBarView(label: "Calories", current: Double(totalCalories), goal: Double(profile?.dailyCalorieGoal ?? 2400), unit: " cal", color: Color(red: 0.13, green: 0.77, blue: 0.37))
-                MacroBarView(label: "Protein", current: totalProtein, goal: Double(profile?.dailyProteinGoal ?? 165), unit: "g", color: Color(red: 0.9, green: 0.3, blue: 0.3))
-                MacroBarView(label: "Carbs", current: totalCarbs, goal: Double(profile?.dailyCarbsGoal ?? 300), unit: "g", color: .orange)
-                MacroBarView(label: "Fats", current: totalFat, goal: Double(profile?.dailyFatGoal ?? 80), unit: "g", color: Color(red: 0.3, green: 0.5, blue: 0.9))
-            }
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            MacroBarView(label: "Calories", current: Double(totalCalories), goal: Double(profile?.dailyCalorieGoal ?? 2400), unit: " cal", color: Color(red: 0.13, green: 0.77, blue: 0.37))
+            MacroBarView(label: "Protein", current: totalProtein, goal: Double(profile?.dailyProteinGoal ?? 165), unit: "g", color: Color(red: 0.9, green: 0.3, blue: 0.3))
+            MacroBarView(label: "Carbs", current: totalCarbs, goal: Double(profile?.dailyCarbsGoal ?? 300), unit: "g", color: .orange)
+            MacroBarView(label: "Fats", current: totalFat, goal: Double(profile?.dailyFatGoal ?? 80), unit: "g", color: Color(red: 0.3, green: 0.5, blue: 0.9))
         }
-        .cardStyle()
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 
     private var mealSections: some View {
         ForEach(["Breakfast", "Lunch", "Dinner", "Snack"], id: \.self) { mealType in
             let entries = todayEntries.filter { $0.mealType == mealType }
 
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text(mealType)
                         .font(.headline)
@@ -107,7 +108,7 @@ struct FoodView: View {
                                 Text(entry.name)
                                     .font(.subheadline)
                                     .foregroundStyle(colors.primaryText)
-                                Text("\(entry.calories) cal · \(Int(entry.proteinGrams))g protein")
+                                Text("\(entry.calories) cal")
                                     .font(.caption)
                                     .foregroundStyle(colors.secondaryText)
                             }
@@ -116,26 +117,11 @@ struct FoodView: View {
                     }
                 }
             }
-            .cardStyle()
+            .padding(20)
+            .background(colors.cardBackground)
+            .clipShape(.rect(cornerRadius: 20))
+            .shadow(color: colors.cardShadow, radius: 8, y: 2)
         }
-    }
-
-    private var insightCard: some View {
-        let remainingProtein = max(0, Double(profile?.dailyProteinGoal ?? 165) - totalProtein)
-
-        return VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: "lightbulb.fill")
-                    .foregroundStyle(.yellow)
-                Text("Daily Insight")
-                    .font(.headline)
-                    .foregroundStyle(colors.primaryText)
-            }
-            Text("You need \(Int(remainingProtein))g more protein today. Try: chicken breast (31g), Greek yogurt (15g), or a protein shake (25g)")
-                .font(.subheadline)
-                .foregroundStyle(colors.secondaryText)
-        }
-        .cardStyle()
     }
 
     private var scanButton: some View {
@@ -149,7 +135,7 @@ struct FoodView: View {
                 .frame(width: 56, height: 56)
                 .background(colors.ctaBackground)
                 .clipShape(Circle())
-                .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
+                .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
         }
         .padding(.trailing, 20)
         .padding(.bottom, 20)

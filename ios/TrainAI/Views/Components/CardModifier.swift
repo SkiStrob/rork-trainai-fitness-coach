@@ -5,9 +5,9 @@ struct CardStyle: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .padding(16)
+            .padding(20)
             .background(colors.cardBackground)
-            .clipShape(.rect(cornerRadius: 16))
+            .clipShape(.rect(cornerRadius: 20))
             .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 }
@@ -15,9 +15,9 @@ struct CardStyle: ViewModifier {
 struct GlassCardStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .padding(16)
+            .padding(20)
             .background(.ultraThinMaterial)
-            .clipShape(.rect(cornerRadius: 16))
+            .clipShape(.rect(cornerRadius: 20))
     }
 }
 
