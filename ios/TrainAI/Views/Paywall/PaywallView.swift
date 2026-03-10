@@ -6,7 +6,7 @@ struct PaywallView: View {
 
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+            Color.black.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 ScrollView {
@@ -15,13 +15,13 @@ struct PaywallView: View {
 
                         Text("How Your Free Trial Works")
                             .font(.largeTitle.bold())
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.white)
                             .multilineTextAlignment(.center)
 
                         VStack(alignment: .leading, spacing: 0) {
                             TimelineStep(icon: "checkmark.circle.fill", iconColor: .green, title: "Today", subtitle: "Full body analysis + personalized program", isLast: false)
                             TimelineStep(icon: "bell.fill", iconColor: .blue, title: "Day 5", subtitle: "We'll send you a reminder", isLast: false)
-                            TimelineStep(icon: "lock.open.fill", iconColor: .primary, title: "Day 7", subtitle: "Trial ends. Cancel anytime.", isLast: true)
+                            TimelineStep(icon: "lock.open.fill", iconColor: .white.opacity(0.6), title: "Day 7", subtitle: "Trial ends. Cancel anytime.", isLast: true)
                         }
                         .padding(.horizontal, 8)
 
@@ -38,28 +38,40 @@ struct PaywallView: View {
                                 Text("⭐")
                                 Text("4.8")
                                     .font(.subheadline.bold())
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.white)
                                 Text("· App Store")
                                     .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(.white.opacity(0.5))
                             }
 
                             Text("·")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.white.opacity(0.3))
 
                             Text("50K+ users")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.white.opacity(0.5))
                         }
                     }
                     .padding(.horizontal, 16)
                 }
 
-                OnboardingCTAButton(title: "Start Free Week", enabled: true) {
+                Button {
+                    HapticManager.light()
                     showSubscriptionOptions = true
+                } label: {
+                    Text("Start Free Week")
+                        .font(.headline)
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.white)
+                        .clipShape(.rect(cornerRadius: 14))
                 }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
         }
+        .preferredColorScheme(.dark)
         .sheet(isPresented: $showSubscriptionOptions) {
             SubscriptionOptionsSheet {
                 showSubscriptionOptions = false
@@ -88,7 +100,7 @@ struct TimelineStep: View {
 
                 if !isLast {
                     Rectangle()
-                        .fill(Color(.systemGray4))
+                        .fill(Color.white.opacity(0.15))
                         .frame(width: 2, height: 40)
                 }
             }
@@ -96,10 +108,10 @@ struct TimelineStep: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.headline)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.white)
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.5))
             }
             .padding(.bottom, isLast ? 0 : 16)
 
@@ -118,7 +130,7 @@ struct FeatureCheckRow: View {
                 .foregroundStyle(.green)
             Text(text)
                 .font(.subheadline)
-                .foregroundStyle(.primary)
+                .foregroundStyle(.white)
         }
     }
 }
@@ -131,7 +143,7 @@ struct SubscriptionOptionsSheet: View {
         VStack(spacing: 20) {
             Text("Choose Your Plan")
                 .font(.title2.bold())
-                .foregroundStyle(.primary)
+                .foregroundStyle(.white)
                 .padding(.top, 8)
 
             VStack(spacing: 12) {
@@ -169,10 +181,10 @@ struct SubscriptionOptionsSheet: View {
             } label: {
                 Text("Start Free Trial")
                     .font(.headline)
-                    .foregroundStyle(Color(.systemBackground))
+                    .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color.primary)
+                    .background(Color.white)
                     .clipShape(.rect(cornerRadius: 14))
             }
             .padding(.horizontal, 16)
@@ -180,18 +192,19 @@ struct SubscriptionOptionsSheet: View {
             HStack(spacing: 16) {
                 Button("Restore Purchases") {}
                     .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text("·").foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.4))
+                Text("·").foregroundStyle(.white.opacity(0.3))
                 Button("Terms") {}
                     .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text("·").foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.4))
+                Text("·").foregroundStyle(.white.opacity(0.3))
                 Button("Privacy") {}
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.4))
             }
             .padding(.bottom, 8)
         }
+        .background(Color(white: 0.1))
     }
 }
 
@@ -207,7 +220,7 @@ struct PlanCard: View {
             if let badge {
                 Text(badge)
                     .font(.caption2.bold())
-                    .foregroundStyle(Color(.systemBackground))
+                    .foregroundStyle(.black)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(Color.blue)
@@ -216,27 +229,27 @@ struct PlanCard: View {
 
             Text(title)
                 .font(.headline)
-                .foregroundStyle(.primary)
+                .foregroundStyle(.white)
 
             Text(price)
                 .font(.title3.bold())
-                .foregroundStyle(.primary)
+                .foregroundStyle(.white)
 
             if let subtitle {
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.5))
             }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Color(.systemGray6))
+                .fill(Color.white.opacity(0.08))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(isSelected ? Color.primary.opacity(0.5) : Color(.systemGray4), lineWidth: isSelected ? 2 : 1)
+                .stroke(isSelected ? Color.white.opacity(0.4) : Color.white.opacity(0.1), lineWidth: isSelected ? 2 : 1)
         )
     }
 }
