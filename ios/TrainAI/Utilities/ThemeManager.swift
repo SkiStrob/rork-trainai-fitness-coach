@@ -6,7 +6,7 @@ class ThemeManager {
     static let shared = ThemeManager()
 
     var isDarkMode: Bool {
-        get { UserDefaults.standard.object(forKey: "isDarkMode") as? Bool ?? true }
+        get { UserDefaults.standard.object(forKey: "isDarkMode") as? Bool ?? false }
         set { UserDefaults.standard.set(newValue, forKey: "isDarkMode") }
     }
 
@@ -84,7 +84,7 @@ struct AppColors {
 }
 
 struct AppColorsKey: EnvironmentKey {
-    static let defaultValue = AppColors(colorScheme: .dark)
+    static let defaultValue = AppColors(colorScheme: .light)
 }
 
 extension EnvironmentValues {
