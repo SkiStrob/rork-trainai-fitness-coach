@@ -55,37 +55,41 @@ struct MainTabView: View {
     }
 
     private var customTabBar: some View {
-        HStack(spacing: 0) {
-            tabItem(icon: "house", filledIcon: "house.fill", label: "Home", tag: 0)
-            tabItem(icon: "dumbbell", filledIcon: "dumbbell.fill", label: "Program", tag: 1)
-
-            Button {
-                HapticManager.light()
-                showScanner = true
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(colors.ctaBackground)
-                        .frame(width: 56, height: 56)
-                        .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
-
-                    Image(systemName: "plus")
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(colors.ctaForeground)
-                }
-                .offset(y: -12)
-            }
-            .frame(maxWidth: .infinity)
-
-            tabItem(icon: "chart.line.uptrend.xyaxis", filledIcon: "chart.line.uptrend.xyaxis", label: "Progress", tag: 3)
-            tabItem(icon: "fork.knife", filledIcon: "fork.knife", label: "Food", tag: 4)
-        }
-        .padding(.top, 8)
-        .padding(.bottom, 2)
-        .background(
+        VStack(spacing: 0) {
             Rectangle()
-                .fill(colors.cardBackground)
-                .shadow(color: colors.cardShadow, radius: 4, y: -1)
+                .fill(Color(.separator).opacity(0.3))
+                .frame(height: 0.5)
+
+            HStack(spacing: 0) {
+                tabItem(icon: "house", filledIcon: "house.fill", label: "Home", tag: 0)
+                tabItem(icon: "dumbbell", filledIcon: "dumbbell.fill", label: "Program", tag: 1)
+
+                Button {
+                    HapticManager.light()
+                    showScanner = true
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(colors.ctaBackground)
+                            .frame(width: 52, height: 52)
+                            .shadow(color: .black.opacity(0.10), radius: 6, y: 3)
+
+                        Image(systemName: "plus")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(colors.ctaForeground)
+                    }
+                    .offset(y: -8)
+                }
+                .frame(maxWidth: .infinity)
+
+                tabItem(icon: "chart.line.uptrend.xyaxis", filledIcon: "chart.line.uptrend.xyaxis", label: "Progress", tag: 3)
+                tabItem(icon: "fork.knife", filledIcon: "fork.knife", label: "Food", tag: 4)
+            }
+            .padding(.top, 6)
+            .padding(.bottom, 4)
+        }
+        .background(
+            colors.cardBackground
                 .ignoresSafeArea(.all, edges: .bottom)
         )
     }

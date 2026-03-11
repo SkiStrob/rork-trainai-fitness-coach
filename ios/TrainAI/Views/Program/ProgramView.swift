@@ -1,12 +1,46 @@
 import SwiftUI
 import SwiftData
 
+nonisolated struct ExerciseDatabaseItem: Identifiable {
+    let id = UUID()
+    let name: String
+    let muscleGroup: String
+    let equipment: String
+    let effectiveness: Double
+    let difficulty: String
+}
+
+private let exerciseDatabase: [ExerciseDatabaseItem] = [
+    ExerciseDatabaseItem(name: "Barbell Bench Press", muscleGroup: "Chest", equipment: "Barbell", effectiveness: 9.5, difficulty: "Intermediate"),
+    ExerciseDatabaseItem(name: "Incline Dumbbell Press", muscleGroup: "Upper Chest", equipment: "Dumbbells", effectiveness: 8.8, difficulty: "Intermediate"),
+    ExerciseDatabaseItem(name: "Barbell Squats", muscleGroup: "Quads, Glutes", equipment: "Barbell", effectiveness: 9.8, difficulty: "Intermediate"),
+    ExerciseDatabaseItem(name: "Romanian Deadlifts", muscleGroup: "Hamstrings", equipment: "Barbell", effectiveness: 9.2, difficulty: "Intermediate"),
+    ExerciseDatabaseItem(name: "Pull-ups", muscleGroup: "Back, Biceps", equipment: "Bodyweight", effectiveness: 9.4, difficulty: "Intermediate"),
+    ExerciseDatabaseItem(name: "Barbell Rows", muscleGroup: "Back", equipment: "Barbell", effectiveness: 9.0, difficulty: "Intermediate"),
+    ExerciseDatabaseItem(name: "Overhead Press", muscleGroup: "Shoulders", equipment: "Barbell", effectiveness: 9.1, difficulty: "Intermediate"),
+    ExerciseDatabaseItem(name: "Lateral Raises", muscleGroup: "Side Delts", equipment: "Dumbbells", effectiveness: 8.2, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Barbell Curls", muscleGroup: "Biceps", equipment: "Barbell", effectiveness: 8.5, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Tricep Pushdowns", muscleGroup: "Triceps", equipment: "Cable", effectiveness: 8.3, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Leg Press", muscleGroup: "Quads, Glutes", equipment: "Machine", effectiveness: 8.7, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Deadlifts", muscleGroup: "Full Body", equipment: "Barbell", effectiveness: 9.9, difficulty: "Advanced"),
+    ExerciseDatabaseItem(name: "Cable Flyes", muscleGroup: "Chest", equipment: "Cable", effectiveness: 7.8, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Face Pulls", muscleGroup: "Rear Delts", equipment: "Cable", effectiveness: 8.6, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Leg Curls", muscleGroup: "Hamstrings", equipment: "Machine", effectiveness: 7.9, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Calf Raises", muscleGroup: "Calves", equipment: "Machine", effectiveness: 7.5, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Dips", muscleGroup: "Chest, Triceps", equipment: "Bodyweight", effectiveness: 9.0, difficulty: "Intermediate"),
+    ExerciseDatabaseItem(name: "Hack Squats", muscleGroup: "Quads", equipment: "Machine", effectiveness: 8.4, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Hammer Curls", muscleGroup: "Biceps", equipment: "Dumbbells", effectiveness: 8.0, difficulty: "Beginner"),
+    ExerciseDatabaseItem(name: "Skull Crushers", muscleGroup: "Triceps", equipment: "Barbell", effectiveness: 8.4, difficulty: "Intermediate"),
+]
+
 struct ProgramView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.appColors) private var colors
     @Query(sort: \WorkoutProgram.name) private var programs: [WorkoutProgram]
     @State private var workoutVM = WorkoutViewModel()
     @State private var showProgramOptions: Bool = false
+    @State private var exerciseSearchText: String = ""
+    @State private var showExerciseSearch: Bool = false
 
     private var activeProgram: WorkoutProgram? {
         programs.first(where: { $0.isActive })
@@ -17,6 +51,14 @@ struct ProgramView: View {
     }
 
     private let dayLabels = ["M", "T", "W", "T", "F", "S", "S"]
+
+    private var filteredExercises: [ExerciseDatabaseItem] {
+        guard !exerciseSearchText.isEmpty else { return exerciseDatabase }
+        return exerciseDatabase.filter {
+            $0.name.localizedStandardContains(exerciseSearchText) ||
+            $0.muscleGroup.localizedStandardContains(exerciseSearchText)
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -32,18 +74,29 @@ struct ProgramView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
-                .padding(.bottom, 32)
+                .padding(.bottom, 100)
             }
             .background(colors.background)
             .navigationTitle("Program")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showProgramOptions = true
-                    } label: {
-                        Image(systemName: "pencil.circle")
-                            .foregroundStyle(.primary)
+                    HStack(spacing: 12) {
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                                showExerciseSearch.toggle()
+                                if !showExerciseSearch { exerciseSearchText = "" }
+                            }
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundStyle(.primary)
+                        }
+                        Button {
+                            showProgramOptions = true
+                        } label: {
+                            Image(systemName: "pencil.circle")
+                                .foregroundStyle(.primary)
+                        }
                     }
                 }
             }
@@ -62,15 +115,88 @@ struct ProgramView: View {
     }
 
     private func programHeader(_ program: WorkoutProgram) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(program.name)
-                .font(.title3.bold())
-                .foregroundStyle(colors.primaryText)
-            Text("Week \(program.currentWeek) of \(program.totalWeeks)")
-                .font(.subheadline)
-                .foregroundStyle(colors.secondaryText)
+        VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(program.name)
+                    .font(.title3.bold())
+                    .foregroundStyle(colors.primaryText)
+                Text("Week \(program.currentWeek) of \(program.totalWeeks)")
+                    .font(.subheadline)
+                    .foregroundStyle(colors.secondaryText)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            if showExerciseSearch {
+                exerciseSearchSection
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var exerciseSearchSection: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                TextField("Search exercises...", text: $exerciseSearchText)
+                    .font(.body)
+                    .foregroundStyle(colors.primaryText)
+                if !exerciseSearchText.isEmpty {
+                    Button {
+                        exerciseSearchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .padding(12)
+            .background(colors.inputBackground)
+            .clipShape(.rect(cornerRadius: 12))
+
+            ForEach(filteredExercises.prefix(8)) { exercise in
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(exercise.name)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(colors.primaryText)
+                        HStack(spacing: 6) {
+                            Text(exercise.muscleGroup)
+                                .font(.caption)
+                                .foregroundStyle(colors.secondaryText)
+                            Text(exercise.equipment)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(colors.inputBackground)
+                                .clipShape(.rect(cornerRadius: 4))
+                        }
+                    }
+
+                    Spacer()
+
+                    VStack(alignment: .trailing, spacing: 2) {
+                        HStack(spacing: 2) {
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 9))
+                                .foregroundStyle(.orange)
+                            Text(String(format: "%.1f", exercise.effectiveness))
+                                .font(.caption.bold())
+                                .foregroundStyle(colors.primaryText)
+                        }
+                        Text(exercise.difficulty)
+                            .font(.system(size: 9))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(14)
+                .background(colors.cardBackground)
+                .clipShape(.rect(cornerRadius: 14))
+                .shadow(color: colors.cardShadow, radius: 6, y: 2)
+            }
+        }
     }
 
     private func weekCalendarStrip(_ program: WorkoutProgram) -> some View {

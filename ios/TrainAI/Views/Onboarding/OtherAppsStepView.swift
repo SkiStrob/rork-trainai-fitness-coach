@@ -28,47 +28,49 @@ struct OtherAppsStepView: View {
                             .font(.subheadline.bold())
                             .foregroundStyle(.primary)
 
-                        ZStack {
-                            Path { path in
-                                path.move(to: CGPoint(x: 20, y: 80))
-                                path.addCurve(
-                                    to: CGPoint(x: 260, y: 40),
-                                    control1: CGPoint(x: 80, y: 60),
-                                    control2: CGPoint(x: 160, y: 90)
-                                )
-                            }
-                            .stroke(Color(.systemGray3), style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
-                            .frame(width: 280, height: 120)
-
-                            Path { path in
-                                path.move(to: CGPoint(x: 20, y: 80))
-                                path.addCurve(
-                                    to: CGPoint(x: 260, y: 20),
-                                    control1: CGPoint(x: 100, y: 70),
-                                    control2: CGPoint(x: 180, y: 30)
-                                )
-                            }
-                            .stroke(Color.primary, lineWidth: 2.5)
-                            .frame(width: 280, height: 120)
-
-                            Text("Traditional")
-                                .font(.system(size: 9))
-                                .foregroundStyle(.secondary)
-                                .position(x: 250, y: 48)
-
-                            HStack(spacing: 4) {
-                                ZStack {
-                                    ScanBrackets()
-                                        .stroke(Color.primary.opacity(0.4), style: StrokeStyle(lineWidth: 1, lineCap: .round))
-                                        .frame(width: 14, height: 14)
+                        ZStack(alignment: .topTrailing) {
+                            ZStack {
+                                Path { path in
+                                    path.move(to: CGPoint(x: 20, y: 80))
+                                    path.addCurve(
+                                        to: CGPoint(x: 240, y: 50),
+                                        control1: CGPoint(x: 80, y: 60),
+                                        control2: CGPoint(x: 160, y: 85)
+                                    )
                                 }
-                                Text("TrainAI")
-                                    .font(.system(size: 9, weight: .bold))
+                                .stroke(Color(.systemGray3), style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                                .frame(height: 100)
+
+                                Path { path in
+                                    path.move(to: CGPoint(x: 20, y: 80))
+                                    path.addCurve(
+                                        to: CGPoint(x: 240, y: 20),
+                                        control1: CGPoint(x: 100, y: 65),
+                                        control2: CGPoint(x: 180, y: 25)
+                                    )
+                                }
+                                .stroke(Color.primary, lineWidth: 2.5)
+                                .frame(height: 100)
                             }
-                            .foregroundStyle(.primary)
-                            .position(x: 248, y: 26)
+                            .padding(.horizontal, 16)
+
+                            VStack(alignment: .trailing, spacing: 4) {
+                                HStack(spacing: 3) {
+                                    ScanBrackets()
+                                        .stroke(Color.primary.opacity(0.5), style: StrokeStyle(lineWidth: 1, lineCap: .round))
+                                        .frame(width: 12, height: 12)
+                                    Text("TrainAI")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundStyle(.primary)
+                                }
+                                Text("Traditional")
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.trailing, 12)
+                            .padding(.top, 4)
                         }
-                        .frame(height: 120)
+                        .frame(height: 110)
 
                         Text("80% of TrainAI users maintain their progress even 6 months later")
                             .font(.caption)

@@ -78,21 +78,22 @@ struct HomeView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 6) {
                         ZStack {
                             ScanBrackets()
-                                .stroke(Color.primary.opacity(0.5), style: StrokeStyle(lineWidth: 2, lineCap: .round))
-                                .frame(width: 28, height: 28)
+                                .stroke(Color.primary.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                                .frame(width: 24, height: 24)
 
                             Image(systemName: "figure.strengthtraining.traditional")
-                                .font(.system(size: 13, weight: .medium))
+                                .font(.system(size: 11, weight: .medium))
                                 .foregroundStyle(.primary)
                         }
 
                         Text("TrainAI")
-                            .font(.headline.bold())
+                            .font(.subheadline.bold())
                             .foregroundStyle(colors.primaryText)
                     }
+                    .padding(.leading, -4)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 12) {

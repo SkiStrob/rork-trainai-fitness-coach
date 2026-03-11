@@ -22,7 +22,7 @@ struct ContentView: View {
                     appViewModel.hasSeenPaywall = true
                     appViewModel.isSubscribed = true
                     showPaywall = false
-                    NotificationService.setupAllNotifications(workoutName: "Push Day")
+                    scheduleNotifications()
                 }
             } else {
                 MainTabView()
@@ -40,5 +40,13 @@ struct ContentView: View {
         MockData.populateMockData(context: modelContext)
         hasPopulatedMockData = true
         UserDefaults.standard.set(true, forKey: "hasPopulatedMockData")
+    }
+
+    private func scheduleNotifications() {
+        NotificationService.requestPermission()
+        Task {
+            try? await Task.sleep(for: .seconds(1))
+            NotificationService.setupAllNotifications(workoutName: "Push Day")
+        }
     }
 }
