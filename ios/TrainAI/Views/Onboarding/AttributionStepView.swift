@@ -3,7 +3,14 @@ import SwiftUI
 struct AttributionStepView: View {
     @Bindable var viewModel: OnboardingViewModel
 
-    private let options = ["TikTok", "Instagram", "YouTube", "Through a friend", "App Store", "Other"]
+    private let options: [(String, String)] = [
+        ("TikTok", "play.rectangle.fill"),
+        ("Instagram", "camera.fill"),
+        ("YouTube", "play.tv.fill"),
+        ("Through a friend", "person.2.fill"),
+        ("App Store", "app.badge.fill"),
+        ("Other", "ellipsis.circle.fill")
+    ]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,12 +26,12 @@ struct AttributionStepView: View {
                         .foregroundStyle(.secondary)
                         .padding(.bottom, 16)
 
-                    ForEach(options, id: \.self) { option in
+                    ForEach(options, id: \.0) { option in
                         Button {
                             HapticManager.selection()
-                            viewModel.selectedAttribution = option
+                            viewModel.selectedAttribution = option.0
                         } label: {
-                            OnboardingOptionCard(title: option, isSelected: viewModel.selectedAttribution == option)
+                            OnboardingOptionCard(title: option.0, isSelected: viewModel.selectedAttribution == option.0, icon: option.1)
                         }
                     }
                 }

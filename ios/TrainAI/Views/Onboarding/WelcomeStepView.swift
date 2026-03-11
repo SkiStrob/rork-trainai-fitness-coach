@@ -3,7 +3,7 @@ import SwiftUI
 struct ScanBrackets: Shape {
     nonisolated func path(in rect: CGRect) -> Path {
         var path = Path()
-        let cornerLength: CGFloat = 20
+        let cornerLength: CGFloat = rect.width * 0.25
 
         path.move(to: CGPoint(x: rect.minX, y: rect.minY + cornerLength))
         path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
@@ -39,11 +39,11 @@ struct WelcomeStepView: View {
                 VStack(spacing: 16) {
                     ZStack {
                         ScanBrackets()
-                            .stroke(Color.primary.opacity(0.6), lineWidth: 2.5)
-                            .frame(width: 100, height: 100)
+                            .stroke(Color.primary.opacity(0.6), style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                            .frame(width: 110, height: 110)
 
                         Image(systemName: "figure.strengthtraining.traditional")
-                            .font(.system(size: 44, weight: .regular))
+                            .font(.system(size: 50, weight: .medium))
                             .foregroundStyle(.primary)
                     }
                     .blur(radius: contentVisible ? 0 : 3)

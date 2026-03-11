@@ -11,6 +11,7 @@ struct HomeView: View {
     @State private var viewModel = HomeViewModel()
     @State private var ringsAppeared: Bool = false
     @State private var cardsAppeared: Bool = false
+    @Binding var showSettings: Bool
 
     private var profile: UserProfile? { profiles.first }
 
@@ -23,6 +24,20 @@ struct HomeView: View {
         let weekday = Calendar.current.component(.weekday, from: Date())
         let adjustedDay = weekday == 1 ? 7 : weekday - 1
         return programs.first(where: { $0.isActive })?.days.first(where: { $0.dayOfWeek == adjustedDay })
+    }
+
+    private var workoutDuration: String {
+        guard let day = todayWorkout, !day.isRestDay else { return "" }
+        let exerciseCount = day.exercises.count
+        let totalSets = day.exercises.reduce(0) { $0 + $1.targetSets }
+        let minutes = totalSets * 2 + exerciseCount * 3
+        if minutes < 10 {
+            return "~5 min"
+        } else if minutes < 35 {
+            return "~\(Int((Double(minutes) / 5).rounded()) * 5) min"
+        } else {
+            return "~\(Int((Double(minutes) / 5).rounded()) * 5) min"
+        }
     }
 
     var body: some View {
@@ -50,7 +65,7 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
-                .padding(.bottom, 32)
+                .padding(.bottom, 100)
             }
             .background(colors.background)
             .refreshable {
@@ -59,18 +74,40 @@ struct HomeView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Text("\(viewModel.greeting), \(profile?.name ?? "Athlete")")
-                        .font(.title3.bold())
-                        .foregroundStyle(colors.primaryText)
+                    HStack(spacing: 8) {
+                        ZStack {
+                            ScanBrackets()
+                                .stroke(Color.primary.opacity(0.5), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                                .frame(width: 28, height: 28)
+
+                            Image(systemName: "figure.strengthtraining.traditional")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(.primary)
+                        }
+
+                        Text("TrainAI")
+                            .font(.headline.bold())
+                            .foregroundStyle(colors.primaryText)
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    if let streak = profile?.currentStreak, streak > 0 {
-                        HStack(spacing: 3) {
-                            Image(systemName: "flame.fill")
-                                .font(.caption)
-                                .foregroundStyle(.orange)
-                            Text("\(streak)")
-                                .font(.subheadline.bold())
+                    HStack(spacing: 12) {
+                        if let streak = profile?.currentStreak, streak > 0 {
+                            HStack(spacing: 3) {
+                                Image(systemName: "flame.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.orange)
+                                Text("\(streak)")
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(colors.primaryText)
+                            }
+                        }
+
+                        Button {
+                            showSettings = true
+                        } label: {
+                            Image(systemName: "gearshape")
+                                .font(.body)
                                 .foregroundStyle(colors.primaryText)
                         }
                     }
@@ -212,6 +249,19 @@ struct HomeView: View {
                                 .foregroundStyle(colors.secondaryText)
                         }
                         Spacer()
+                        VStack(alignment: .trailing, spacing: 4) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "clock")
+                                    .font(.caption2)
+                                    .foregroundStyle(colors.secondaryText)
+                                Text(workoutDuration)
+                                    .font(.caption.bold())
+                                    .foregroundStyle(colors.primaryText)
+                            }
+                            Text("\(day.exercises.count) exercises")
+                                .font(.caption)
+                                .foregroundStyle(colors.secondaryText)
+                        }
                     }
                 }
             }

@@ -8,7 +8,7 @@ struct ScanStepView: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 20) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Let's see where you stand")
                             .font(.largeTitle.bold())
@@ -32,18 +32,18 @@ struct ScanStepView: View {
                                 .font(.headline)
                                 .foregroundStyle(.secondary)
                         }
-                        .padding(.top, 60)
+                        .padding(.top, 40)
                     } else if !viewModel.scanComplete {
-                        VStack(spacing: 20) {
+                        VStack(spacing: 16) {
                             Image(systemName: "camera.fill")
-                                .font(.system(size: 48))
+                                .font(.system(size: 40))
                                 .foregroundStyle(.secondary)
 
                             Text("Front photo + side photo")
                                 .font(.headline)
                                 .foregroundStyle(.primary)
                         }
-                        .padding(.top, 12)
+                        .padding(.top, 8)
 
                         HStack(spacing: 16) {
                             ScanPhotoCaptureBox(
@@ -70,7 +70,52 @@ struct ScanStepView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, 16)
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Tips for best results")
+                                .font(.subheadline.bold())
+                                .foregroundStyle(.primary)
+
+                            HStack(spacing: 10) {
+                                Image(systemName: "light.max")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 20)
+                                Text("Good lighting, plain background")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            HStack(spacing: 10) {
+                                Image(systemName: "tshirt.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 20)
+                                Text("Wear fitted clothes or activewear")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            HStack(spacing: 10) {
+                                Image(systemName: "figure.stand")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 20)
+                                Text("Stand upright, arms slightly away")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            HStack(spacing: 10) {
+                                Image(systemName: "iphone.gen3")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 20)
+                                Text("Place phone at waist height, 6ft away")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(16)
+                        .background(Color(.systemGray6))
+                        .clipShape(.rect(cornerRadius: 16))
                     }
                 }
                 .padding(.horizontal, 16)
@@ -137,12 +182,12 @@ struct ScanPhotoCaptureBox: View {
                         ZStack {
                             if isFront {
                                 FrontSilhouetteGuide()
-                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
-                                    .frame(width: 60, height: 100)
+                                    .stroke(Color.primary.opacity(0.12), lineWidth: 1.5)
+                                    .frame(width: 65, height: 105)
                             } else {
                                 SideSilhouetteGuide()
-                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
-                                    .frame(width: 40, height: 100)
+                                    .stroke(Color.primary.opacity(0.12), lineWidth: 1.5)
+                                    .frame(width: 45, height: 105)
                             }
                         }
 
@@ -161,7 +206,7 @@ struct ScanPhotoCaptureBox: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 180)
+            .frame(height: 200)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .strokeBorder(

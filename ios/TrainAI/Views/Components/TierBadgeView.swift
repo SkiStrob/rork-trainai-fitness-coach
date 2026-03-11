@@ -9,33 +9,18 @@ struct TierBadgeView: View {
     var body: some View {
         Text(tierInfo.name)
             .font(large ? .title3.bold() : .subheadline.bold())
-            .foregroundStyle(tierInfo.hasGlassEffect ? .white : .primary)
+            .foregroundStyle(tierInfo.hasGlassEffect ? .white : tierInfo.color)
             .padding(.horizontal, large ? 24 : 16)
             .padding(.vertical, large ? 10 : 6)
             .background {
                 if tierInfo.hasGlassEffect {
                     Capsule()
-                        .fill(.ultraThinMaterial)
+                        .fill(tierInfo.color.opacity(0.2))
                         .overlay(
                             Capsule()
                                 .fill(
                                     LinearGradient(
-                                        colors: [
-                                            Color.pink.opacity(0.15),
-                                            Color.blue.opacity(0.15),
-                                            Color.purple.opacity(0.1),
-                                            Color.cyan.opacity(0.15)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                        )
-                        .overlay(
-                            Capsule()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [.clear, .white.opacity(0.3), .clear],
+                                        colors: [.clear, .white.opacity(0.25), .clear],
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     )
@@ -45,27 +30,14 @@ struct TierBadgeView: View {
                         )
                         .overlay(
                             Capsule()
-                                .stroke(
-                                    LinearGradient(
-                                        colors: [
-                                            .white.opacity(0.4),
-                                            .clear,
-                                            .white.opacity(0.2),
-                                            .clear
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ),
-                                    lineWidth: 1
-                                )
+                                .stroke(tierInfo.color.opacity(0.4), lineWidth: 1)
                         )
-                        .shadow(color: tierInfo.color.opacity(0.3), radius: 12)
                 } else {
                     Capsule()
-                        .fill(tierInfo.color.opacity(0.15))
+                        .fill(tierInfo.color.opacity(0.12))
                         .overlay(
                             Capsule()
-                                .stroke(tierInfo.color.opacity(0.25), lineWidth: 1)
+                                .stroke(tierInfo.color.opacity(0.2), lineWidth: 1)
                         )
                 }
             }

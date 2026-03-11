@@ -12,23 +12,20 @@ struct ProfileView: View {
     private var latestScan: BodyScan? { scans.first }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    profileHeader
-                    statsCard
-                    settingsList
-                    shareButton
-                    accountActions
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .padding(.bottom, 32)
+        ScrollView {
+            VStack(spacing: 24) {
+                profileHeader
+                statsCard
+                settingsList
+                shareButton
+                accountActions
             }
-            .background(colors.background)
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.large)
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+            .padding(.bottom, 32)
         }
+        .background(colors.background)
+        .navigationTitle("Settings")
     }
 
     private var profileHeader: some View {
@@ -62,7 +59,7 @@ struct ProfileView: View {
             StatItem(label: "Weight", value: "\(Int(profile?.weightLbs ?? 170)) lbs")
 
             if let scan = latestScan {
-                StatItem(label: "Score", value: String(format: "%.1f", scan.overallScore))
+                StatItem(label: "Score", value: String(format: "%.1f/10", scan.overallScore))
             }
         }
         .padding(20)

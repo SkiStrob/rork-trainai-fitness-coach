@@ -27,7 +27,7 @@ struct ScoreResultsStepView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color(.systemBackground).ignoresSafeArea()
 
             VStack(spacing: 0) {
                 ScrollView {
@@ -36,10 +36,11 @@ struct ScoreResultsStepView: View {
                             .blur(radius: cardBlur)
                             .opacity(cardOpacity)
                             .padding(.top, 24)
+                            .padding(.horizontal, 20)
 
                         if showContent {
-                            BodyAnalysisView(scan: scan, gender: viewModel.selectedGender)
-                                .padding(.top, 8)
+                            bodyAnalysisSection
+                                .padding(.top, 16)
                                 .transition(.opacity)
                         }
 
@@ -53,31 +54,44 @@ struct ScoreResultsStepView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .onAppear {
             animateReveal()
         }
     }
 
     private var scoreHeader: some View {
-        HStack(alignment: .top, spacing: 0) {
-            VStack(alignment: .leading, spacing: 8) {
+        VStack(spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(String(format: "%.1f", displayedScore))
                     .font(.system(size: 56, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .contentTransition(.numericText(countsDown: false))
                     .animation(.spring(response: 0.3, dampingFraction: 0.8), value: displayedScore)
 
-                TierBadgeView(tierInfo: tierInfo, large: false)
-
-                Text(tierInfo.message)
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.5))
-                    .padding(.top, 2)
+                Text("/10")
+                    .font(.title2.weight(.medium))
+                    .foregroundStyle(.secondary)
             }
-            .padding(.leading, 20)
 
-            Spacer()
+            TierBadgeView(tierInfo: tierInfo, large: false)
+
+            Text(tierInfo.message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .padding(.top, 2)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var bodyAnalysisSection: some View {
+        VStack(spacing: 0) {
+            ZStack {
+                Color.black
+                    .clipShape(.rect(cornerRadius: 20))
+
+                BodyAnalysisView(scan: scan, gender: viewModel.selectedGender)
+            }
+            .padding(.horizontal, 16)
         }
     }
 
@@ -88,10 +102,10 @@ struct ScoreResultsStepView: View {
             } label: {
                 Text("Share My Score")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Color.white.opacity(0.12))
+                    .background(Color(.systemGray6))
                     .clipShape(.rect(cornerRadius: 14))
             }
 
@@ -101,10 +115,10 @@ struct ScoreResultsStepView: View {
             } label: {
                 Text("Get My Plan")
                     .font(.headline)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color(.systemBackground))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color.white)
+                    .background(Color.primary)
                     .clipShape(.rect(cornerRadius: 14))
             }
         }
@@ -174,13 +188,13 @@ struct BodyPartScoreRow: View {
         HStack(spacing: 12) {
             Text(name)
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(.secondary)
                 .frame(width: 80, alignment: .leading)
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(Color.white.opacity(0.1))
+                        .fill(Color(.systemGray5))
                     RoundedRectangle(cornerRadius: 3)
                         .fill(barColor)
                         .frame(width: geo.size.width * (score / 10.0))
@@ -190,7 +204,7 @@ struct BodyPartScoreRow: View {
 
             Text(String(format: "%.1f", score))
                 .font(.subheadline.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
                 .frame(width: 32, alignment: .trailing)
         }
     }

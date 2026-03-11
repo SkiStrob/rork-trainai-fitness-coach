@@ -25,8 +25,8 @@ struct BodyAnalysisView: View {
     @State private var labelsVisible: Bool = false
     @State private var selectedRatioID: UUID? = nil
 
-    private let silhouetteHeight: CGFloat = 420
-    private let silhouetteWidth: CGFloat = 180
+    private let silhouetteHeight: CGFloat = 480
+    private let silhouetteWidth: CGFloat = 220
 
     private var ratios: [BodyRatio] {
         [
@@ -68,20 +68,42 @@ struct BodyAnalysisView: View {
 
             ZStack {
                 ZStack {
-                    BodySilhouetteShape()
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1.5)
-                        .frame(width: silhouetteWidth, height: silhouetteHeight)
-                        .position(x: centerX, y: originY + silhouetteHeight / 2)
-                        .blur(radius: selectedRatio != nil ? 12 : 0)
-
-                    if selectedRatio != nil {
+                    if let photoData = scan.frontPhotoData, !photoData.isEmpty,
+                       let uiImage = UIImage(data: photoData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: silhouetteWidth, height: silhouetteHeight)
+                            .clipShape(.rect(cornerRadius: 12))
+                            .opacity(0.5)
+                            .position(x: centerX, y: originY + silhouetteHeight / 2)
+                            .blur(radius: selectedRatio != nil ? 12 : 0)
+                    } else {
                         BodySilhouetteShape()
-                            .stroke(Color.white.opacity(0.12), lineWidth: 1.5)
+                            .stroke(Color.white.opacity(0.18), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
                             .frame(width: silhouetteWidth, height: silhouetteHeight)
                             .position(x: centerX, y: originY + silhouetteHeight / 2)
-                            .mask(
-                                focusMask(in: geo.size, originY: originY)
-                            )
+                            .blur(radius: selectedRatio != nil ? 12 : 0)
+                    }
+
+                    if selectedRatio != nil {
+                        if let photoData = scan.frontPhotoData, !photoData.isEmpty,
+                           let uiImage = UIImage(data: photoData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: silhouetteWidth, height: silhouetteHeight)
+                                .clipShape(.rect(cornerRadius: 12))
+                                .opacity(0.5)
+                                .position(x: centerX, y: originY + silhouetteHeight / 2)
+                                .mask(focusMask(in: geo.size, originY: originY))
+                        } else {
+                            BodySilhouetteShape()
+                                .stroke(Color.white.opacity(0.18), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                                .frame(width: silhouetteWidth, height: silhouetteHeight)
+                                .position(x: centerX, y: originY + silhouetteHeight / 2)
+                                .mask(focusMask(in: geo.size, originY: originY))
+                        }
                     }
 
                     measurementOverlays(centerX: centerX, originY: originY)
@@ -134,7 +156,7 @@ struct BodyAnalysisView: View {
                 from: CGPoint(x: shoulderLeft, y: shoulderY),
                 to: CGPoint(x: shoulderRight, y: shoulderY),
                 label: "1.62x",
-                labelOffset: -14,
+                labelOffset: -16,
                 progress: lineProgress,
                 dotsVisible: dotsVisible,
                 labelVisible: labelsVisible,
@@ -146,7 +168,7 @@ struct BodyAnalysisView: View {
                 from: CGPoint(x: shoulderLeft + 12, y: chestY),
                 to: CGPoint(x: shoulderRight - 12, y: chestY),
                 label: "1.38x",
-                labelOffset: -14,
+                labelOffset: -16,
                 progress: lineProgress,
                 dotsVisible: dotsVisible,
                 labelVisible: labelsVisible,
@@ -158,7 +180,7 @@ struct BodyAnalysisView: View {
                 from: CGPoint(x: waistLeft, y: waistY),
                 to: CGPoint(x: waistRight, y: waistY),
                 label: "0.82x",
-                labelOffset: -14,
+                labelOffset: -16,
                 progress: lineProgress,
                 dotsVisible: dotsVisible,
                 labelVisible: labelsVisible,
@@ -170,7 +192,7 @@ struct BodyAnalysisView: View {
                 from: CGPoint(x: waistLeft - 6, y: hipY),
                 to: CGPoint(x: waistRight + 6, y: hipY),
                 label: "72%",
-                labelOffset: -14,
+                labelOffset: -16,
                 progress: lineProgress,
                 dotsVisible: dotsVisible,
                 labelVisible: labelsVisible,
@@ -179,10 +201,10 @@ struct BodyAnalysisView: View {
             )
 
             MeasurementLine(
-                from: CGPoint(x: leftX - 8, y: originY + sH * 0.3),
-                to: CGPoint(x: leftX + 8, y: originY + sH * 0.3),
+                from: CGPoint(x: leftX - 12, y: originY + sH * 0.3),
+                to: CGPoint(x: leftX + 12, y: originY + sH * 0.3),
                 label: "2.26x",
-                labelOffset: -14,
+                labelOffset: -16,
                 progress: lineProgress,
                 dotsVisible: dotsVisible,
                 labelVisible: labelsVisible,
@@ -191,10 +213,10 @@ struct BodyAnalysisView: View {
             )
 
             MeasurementLine(
-                from: CGPoint(x: rightX - 8, y: originY + sH * 0.3),
-                to: CGPoint(x: rightX + 8, y: originY + sH * 0.3),
+                from: CGPoint(x: rightX - 12, y: originY + sH * 0.3),
+                to: CGPoint(x: rightX + 12, y: originY + sH * 0.3),
                 label: "2.44x",
-                labelOffset: -14,
+                labelOffset: -16,
                 progress: lineProgress,
                 dotsVisible: dotsVisible,
                 labelVisible: labelsVisible,
@@ -220,22 +242,22 @@ struct BodyAnalysisView: View {
                     path.move(to: CGPoint(x: shoulderLeft, y: shoulderY))
                     path.addLine(to: CGPoint(x: waistLeft, y: waistY))
                 }
-                .stroke(Color.white.opacity(selectedRatio != nil && !isShoulderFocused && !isWaistFocused && !isOverall ? 0.1 : 0.4), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                .stroke(Color.white.opacity(selectedRatio != nil && !isShoulderFocused && !isWaistFocused && !isOverall ? 0.1 : 0.4), style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [6, 4]))
 
                 Path { path in
                     path.move(to: CGPoint(x: shoulderRight, y: shoulderY))
                     path.addLine(to: CGPoint(x: waistRight, y: waistY))
                 }
-                .stroke(Color.white.opacity(selectedRatio != nil && !isShoulderFocused && !isWaistFocused && !isOverall ? 0.1 : 0.4), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                .stroke(Color.white.opacity(selectedRatio != nil && !isShoulderFocused && !isWaistFocused && !isOverall ? 0.1 : 0.4), style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [6, 4]))
 
                 Text("83.4\u{00B0}")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 4)
                     .background(Color.white.opacity(0.15))
                     .clipShape(.rect(cornerRadius: 6))
-                    .position(x: waistRight + 24, y: waistY - 8)
+                    .position(x: waistRight + 28, y: waistY - 8)
             }
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.85), value: selectedRatioID)
@@ -283,7 +305,7 @@ struct BodyAnalysisView: View {
 
                 HStack(spacing: 6) {
                     scoreBar(score: ratio.score)
-                    Text(String(format: "%.1f", ratio.score))
+                    Text(String(format: "%.1f/10", ratio.score))
                         .font(.caption2)
                         .foregroundStyle(.white.opacity(0.4))
                 }
@@ -445,12 +467,12 @@ struct MeasurementLine: View {
 
     private var opacity: Double {
         if dimmed { return 0.08 }
-        if highlighted { return 0.6 }
-        return 0.3
+        if highlighted { return 0.7 }
+        return 0.35
     }
 
     private var lineWidth: CGFloat {
-        highlighted && !dimmed ? 1.5 : 1
+        highlighted && !dimmed ? 3 : 2
     }
 
     var body: some View {
@@ -464,17 +486,17 @@ struct MeasurementLine: View {
                 path.move(to: CGPoint(x: startX, y: startY))
                 path.addLine(to: CGPoint(x: endX, y: endY))
             }
-            .stroke(Color.white.opacity(opacity), lineWidth: lineWidth)
+            .stroke(Color.white.opacity(opacity), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
 
             if dotsVisible {
                 Circle()
-                    .fill(Color.white.opacity(opacity + 0.1))
-                    .frame(width: 3, height: 3)
+                    .fill(Color.white.opacity(opacity + 0.15))
+                    .frame(width: 6, height: 6)
                     .position(from)
 
                 Circle()
-                    .fill(Color.white.opacity(opacity + 0.1))
-                    .frame(width: 3, height: 3)
+                    .fill(Color.white.opacity(opacity + 0.15))
+                    .frame(width: 6, height: 6)
                     .position(to)
             }
 
@@ -482,14 +504,14 @@ struct MeasurementLine: View {
                 let midX = (from.x + to.x) / 2
                 let midY = (from.y + to.y) / 2
                 Text(label)
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundStyle(.white.opacity(dimmed ? 0.15 : 0.85))
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 2)
-                    .background(Color.white.opacity(dimmed ? 0.03 : 0.12))
-                    .clipShape(.rect(cornerRadius: 4))
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.white.opacity(dimmed ? 0.15 : 0.9))
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(Color.white.opacity(dimmed ? 0.03 : 0.15))
+                    .clipShape(.rect(cornerRadius: 5))
                     .position(
-                        x: isVertical ? midX + 22 : midX,
+                        x: isVertical ? midX + 26 : midX,
                         y: isVertical ? midY : midY + labelOffset
                     )
             }

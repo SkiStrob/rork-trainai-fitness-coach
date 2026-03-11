@@ -3,32 +3,106 @@ import SwiftUI
 struct MainTabView: View {
     @Environment(\.appColors) private var colors
     @State private var selectedTab: Int = 0
+    @State private var showScanner: Bool = false
+    @State private var showSettings: Bool = false
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            Tab("Home", systemImage: selectedTab == 0 ? "house.fill" : "house", value: 0) {
-                HomeView()
-            }
+        ZStack(alignment: .bottom) {
+            TabView(selection: $selectedTab) {
+                HomeView(showSettings: $showSettings)
+                    .tag(0)
 
-            Tab("Program", systemImage: selectedTab == 1 ? "dumbbell.fill" : "dumbbell", value: 1) {
                 ProgramView()
-            }
+                    .tag(1)
 
-            Tab("Food", systemImage: "fork.knife", value: 2) {
-                FoodView()
-            }
+                Color.clear
+                    .tag(2)
 
-            Tab("Progress", systemImage: selectedTab == 3 ? "chart.line.uptrend.xyaxis" : "chart.line.uptrend.xyaxis", value: 3) {
                 ProgressTabView()
+                    .tag(3)
+
+                FoodView()
+                    .tag(4)
+            }
+            .tint(colors.tabBarTint)
+            .onChange(of: selectedTab) { _, newValue in
+                if newValue == 2 {
+                    selectedTab = 0
+                    showScanner = true
+                } else {
+                    HapticManager.selection()
+                }
             }
 
-            Tab("Profile", systemImage: selectedTab == 4 ? "person.fill" : "person", value: 4) {
+            customTabBar
+        }
+        .sheet(isPresented: $showScanner) {
+            FoodScannerView()
+        }
+        .sheet(isPresented: $showSettings) {
+            NavigationStack {
                 ProfileView()
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") { showSettings = false }
+                                .font(.headline)
+                                .foregroundStyle(.primary)
+                        }
+                    }
             }
         }
-        .tint(colors.tabBarTint)
-        .onChange(of: selectedTab) { _, _ in
+    }
+
+    private var customTabBar: some View {
+        HStack(spacing: 0) {
+            tabItem(icon: "house", filledIcon: "house.fill", label: "Home", tag: 0)
+            tabItem(icon: "dumbbell", filledIcon: "dumbbell.fill", label: "Program", tag: 1)
+
+            Button {
+                HapticManager.light()
+                showScanner = true
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(colors.ctaBackground)
+                        .frame(width: 56, height: 56)
+                        .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
+
+                    Image(systemName: "plus")
+                        .font(.title2.weight(.semibold))
+                        .foregroundStyle(colors.ctaForeground)
+                }
+                .offset(y: -12)
+            }
+            .frame(maxWidth: .infinity)
+
+            tabItem(icon: "chart.line.uptrend.xyaxis", filledIcon: "chart.line.uptrend.xyaxis", label: "Progress", tag: 3)
+            tabItem(icon: "fork.knife", filledIcon: "fork.knife", label: "Food", tag: 4)
+        }
+        .padding(.top, 8)
+        .padding(.bottom, 2)
+        .background(
+            Rectangle()
+                .fill(colors.cardBackground)
+                .shadow(color: colors.cardShadow, radius: 4, y: -1)
+                .ignoresSafeArea(.all, edges: .bottom)
+        )
+    }
+
+    private func tabItem(icon: String, filledIcon: String, label: String, tag: Int) -> some View {
+        Button {
             HapticManager.selection()
+            selectedTab = tag
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: selectedTab == tag ? filledIcon : icon)
+                    .font(.system(size: 20))
+                Text(label)
+                    .font(.system(size: 10))
+            }
+            .foregroundStyle(selectedTab == tag ? colors.primaryText : colors.secondaryText)
+            .frame(maxWidth: .infinity)
         }
     }
 }
