@@ -4,10 +4,12 @@ struct AttributionStepView: View {
     @Bindable var viewModel: OnboardingViewModel
 
     private let options: [(String, String)] = [
-        ("TikTok", "play.rectangle.fill"),
         ("Instagram", "camera.fill"),
+        ("TikTok", "play.rectangle.fill"),
+        ("TV", "tv.fill"),
+        ("Friend or family", "person.2.fill"),
+        ("Facebook", "person.crop.square.fill"),
         ("YouTube", "play.tv.fill"),
-        ("Through a friend", "person.2.fill"),
         ("App Store", "app.badge.fill"),
         ("Other", "ellipsis.circle.fill")
     ]
@@ -17,11 +19,11 @@ struct AttributionStepView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Where did you hear about us?")
-                        .font(.largeTitle.bold())
+                        .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(.primary)
                         .padding(.top, 24)
 
-                    Text("This helps us improve our reach.")
+                    Text("This will be used to calibrate your custom plan.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.bottom, 16)
@@ -38,7 +40,7 @@ struct AttributionStepView: View {
                 .padding(.horizontal, 16)
             }
 
-            OnboardingCTAButton(title: "Next", enabled: !viewModel.selectedAttribution.isEmpty) {
+            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedAttribution.isEmpty) {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                     viewModel.nextStep()
                 }

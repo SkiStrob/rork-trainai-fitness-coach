@@ -1,44 +1,43 @@
 import SwiftUI
 
-struct GoalStepView: View {
+struct BlockerStepView: View {
     @Bindable var viewModel: OnboardingViewModel
 
     private let options: [(String, String)] = [
-        ("Build Muscle", "dumbbell.fill"),
-        ("Lose Fat", "flame.fill"),
-        ("Get Toned", "figure.run"),
-        ("Competition Prep", "trophy.fill"),
-        ("Stay Healthy", "heart.fill"),
-        ("Get Stronger", "bolt.fill")
+        ("Lack of consistency", "chart.bar.fill"),
+        ("Unhealthy eating habits", "fork.knife"),
+        ("Lack of support", "person.2.fill"),
+        ("Busy schedule", "calendar.fill"),
+        ("Lack of meal inspiration", "lightbulb.fill")
     ]
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("What is your goal?")
+                    Text("What's stopping you from reaching your goals?")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(.primary)
                         .padding(.top, 24)
-
-                    Text("This helps us generate a plan for your physique.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .padding(.bottom, 16)
+                        .padding(.bottom, 24)
 
                     ForEach(options, id: \.0) { option in
                         Button {
                             HapticManager.selection()
-                            viewModel.selectedGoal = option.0
+                            viewModel.selectedBlocker = option.0
                         } label: {
-                            OnboardingOptionCard(title: option.0, isSelected: viewModel.selectedGoal == option.0, icon: option.1)
+                            OnboardingOptionCard(
+                                title: option.0,
+                                isSelected: viewModel.selectedBlocker == option.0,
+                                icon: option.1
+                            )
                         }
                     }
                 }
                 .padding(.horizontal, 16)
             }
 
-            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedGoal.isEmpty) {
+            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedBlocker.isEmpty) {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                     viewModel.nextStep()
                 }

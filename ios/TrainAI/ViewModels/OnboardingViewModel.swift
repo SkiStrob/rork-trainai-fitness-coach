@@ -9,13 +9,16 @@ class OnboardingViewModel {
     var selectedAttribution: String = ""
     var selectedGoal: String = ""
     var selectedExperience: String = ""
+    var selectedBlocker: String = ""
     var heightFeet: Int = 5
     var heightInches: Int = 10
     var weightLbs: String = "170"
+    var targetWeightLbs: String = "165"
     var selectedGender: String = "Male"
     var useMetric: Bool = false
     var heightCm: Int = 178
     var weightKg: String = "77"
+    var targetWeightKg: String = "75"
     var frontPhotoData: Data?
     var sidePhotoData: Data?
     var isScanning: Bool = false
@@ -23,8 +26,11 @@ class OnboardingViewModel {
     var scanComplete: Bool = false
     var scanResult: BodyScan?
     var userName: String = ""
+    var hasTriedOtherApps: Bool? = nil
+    var setupProgress: Double = 0
+    var isSettingUp: Bool = false
 
-    let totalSteps: Int = 9
+    let totalSteps: Int = 15
 
     var progress: Double {
         guard currentStep > 0 else { return 0 }
@@ -34,14 +40,20 @@ class OnboardingViewModel {
     var canContinue: Bool {
         switch currentStep {
         case 0: return true
-        case 1: return !selectedAge.isEmpty
-        case 2: return !selectedAttribution.isEmpty
-        case 3: return !selectedGoal.isEmpty
-        case 4: return !selectedExperience.isEmpty
-        case 5: return !weightLbs.isEmpty || !weightKg.isEmpty
+        case 1: return !selectedGender.isEmpty
+        case 2: return !selectedAge.isEmpty
+        case 3: return !weightLbs.isEmpty || !weightKg.isEmpty
+        case 4: return !selectedGoal.isEmpty
+        case 5: return !targetWeightLbs.isEmpty || !targetWeightKg.isEmpty
         case 6: return true
-        case 7: return true
-        case 8: return true
+        case 7: return !selectedExperience.isEmpty
+        case 8: return !selectedBlocker.isEmpty
+        case 9: return !selectedAttribution.isEmpty
+        case 10: return hasTriedOtherApps != nil
+        case 11: return true
+        case 12: return true
+        case 13: return true
+        case 14: return true
         default: return true
         }
     }
@@ -95,6 +107,19 @@ class OnboardingViewModel {
                 frontPhotoData: frontPhotoData,
                 sidePhotoData: sidePhotoData
             )
+        }
+    }
+
+    func simulateSetup() {
+        isSettingUp = true
+        setupProgress = 0
+        Task {
+            for i in 1...100 {
+                try? await Task.sleep(for: .milliseconds(40))
+                setupProgress = Double(i) / 100.0
+            }
+            isSettingUp = false
+            nextStep()
         }
     }
 

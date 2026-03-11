@@ -8,40 +8,54 @@ struct NotificationStepView: View {
             Spacer()
 
             VStack(spacing: 24) {
-                ZStack {
-                    Circle()
-                        .fill(Color(.systemGray6))
-                        .frame(width: 120, height: 120)
-
-                    Image(systemName: "bell.badge.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.primary)
-                        .symbolEffect(.pulse, options: .repeating)
-                }
-
-                Text("Stay on Track")
-                    .font(.largeTitle.bold())
+                Text("Reach your goals with notifications")
+                    .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.primary)
-
-                Text("Get reminders for workouts, meals, scan days, and celebrate your PRs.")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, 24)
 
-                VStack(alignment: .leading, spacing: 14) {
-                    NotificationPreviewRow(icon: "dumbbell.fill", color: .blue, text: "Morning workout reminders")
-                    NotificationPreviewRow(icon: "fork.knife", color: .green, text: "Post-meal logging nudges")
-                    NotificationPreviewRow(icon: "chart.bar.fill", color: .purple, text: "Weekly progress reports")
-                    NotificationPreviewRow(icon: "camera.fill", color: .orange, text: "Scan day reminders")
-                    NotificationPreviewRow(icon: "trophy.fill", color: .yellow, text: "PR celebrations")
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(.systemGray6))
+                        .frame(width: 300, height: 80)
+
+                    HStack(spacing: 12) {
+                        Image(systemName: "app.badge.fill")
+                            .font(.title2)
+                            .foregroundStyle(.primary)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\"TrainAI\" Wants to Send You Notifications")
+                                .font(.caption.bold())
+                                .foregroundStyle(.primary)
+                                .lineLimit(2)
+
+                            HStack(spacing: 16) {
+                                Text("Don't Allow")
+                                    .font(.caption)
+                                    .foregroundStyle(.blue)
+                                Text("Allow")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
                 }
-                .padding(.horizontal, 24)
+
+                Image(systemName: "hand.point.up.fill")
+                    .font(.system(size: 32))
+                    .foregroundStyle(.primary)
+                    .rotationEffect(.degrees(180))
+
+                Text("5M+ TrainAI Users")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Spacer()
 
-            OnboardingCTAButton(title: "Enable Notifications", enabled: true) {
+            OnboardingCTAButton(title: "Continue", enabled: true) {
                 NotificationService.requestPermission()
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                     viewModel.nextStep()
@@ -53,30 +67,11 @@ struct NotificationStepView: View {
                     viewModel.nextStep()
                 }
             } label: {
-                Text("Maybe later")
+                Text("Not now")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
             .padding(.bottom, 16)
-        }
-    }
-}
-
-struct NotificationPreviewRow: View {
-    let icon: String
-    let color: Color
-    let text: String
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.body)
-                .foregroundStyle(color)
-                .frame(width: 28)
-
-            Text(text)
-                .font(.subheadline)
-                .foregroundStyle(.primary)
         }
     }
 }

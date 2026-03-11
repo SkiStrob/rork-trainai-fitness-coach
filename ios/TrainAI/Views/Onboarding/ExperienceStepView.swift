@@ -9,19 +9,12 @@ struct ExperienceStepView: View {
         ("6+", "Dedicated athlete", "circle.grid.3x3.fill")
     ]
 
-    private let expOptions = [
-        "Beginner (0-6 months)",
-        "Intermediate (6mo-2yr)",
-        "Advanced (2+ years)",
-        "Coming back after a break"
-    ]
-
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("How many workouts do you do per week?")
-                        .font(.largeTitle.bold())
+                        .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(.primary)
                         .padding(.top, 24)
 
@@ -30,14 +23,16 @@ struct ExperienceStepView: View {
                         .foregroundStyle(.secondary)
                         .padding(.bottom, 24)
 
-                    ForEach(expOptions, id: \.self) { option in
+                    ForEach(options, id: \.0) { option in
                         Button {
                             HapticManager.selection()
-                            viewModel.selectedExperience = option
+                            viewModel.selectedExperience = option.0
                         } label: {
                             OnboardingOptionCard(
-                                title: option,
-                                isSelected: viewModel.selectedExperience == option
+                                title: option.0,
+                                isSelected: viewModel.selectedExperience == option.0,
+                                subtitle: option.1,
+                                icon: option.2
                             )
                         }
                     }
@@ -45,7 +40,7 @@ struct ExperienceStepView: View {
                 .padding(.horizontal, 16)
             }
 
-            OnboardingCTAButton(title: "Next", enabled: !viewModel.selectedExperience.isEmpty) {
+            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedExperience.isEmpty) {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                     viewModel.nextStep()
                 }

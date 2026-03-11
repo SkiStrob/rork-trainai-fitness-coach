@@ -13,11 +13,7 @@ struct ContentView: View {
             if !appViewModel.hasCompletedOnboarding {
                 OnboardingView { scan in
                     appViewModel.hasCompletedOnboarding = true
-                    if scan != nil {
-                        showPaywall = true
-                    } else {
-                        showPaywall = true
-                    }
+                    showPaywall = true
                     populateMockDataIfNeeded()
                     NotificationService.requestPermission()
                 }

@@ -14,6 +14,7 @@ struct HomeView: View {
     @Binding var showSettings: Bool
 
     private var profile: UserProfile? { profiles.first }
+    private var latestScan: BodyScan? { scans.first }
 
     private var todayEntries: [FoodEntry] {
         let today = Calendar.current.startOfDay(for: Date())
@@ -31,19 +32,14 @@ struct HomeView: View {
         let exerciseCount = day.exercises.count
         let totalSets = day.exercises.reduce(0) { $0 + $1.targetSets }
         let minutes = totalSets * 2 + exerciseCount * 3
-        if minutes < 10 {
-            return "~5 min"
-        } else if minutes < 35 {
-            return "~\(Int((Double(minutes) / 5).rounded()) * 5) min"
-        } else {
-            return "~\(Int((Double(minutes) / 5).rounded()) * 5) min"
-        }
+        if minutes < 10 { return "~5 min" }
+        return "~\(Int((Double(minutes) / 5).rounded()) * 5) min"
     }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 20) {
                     weekCalendarStrip
                         .blurFadeIn(visible: cardsAppeared, delay: 0)
 
@@ -52,6 +48,11 @@ struct HomeView: View {
 
                     macroCards
                         .blurFadeIn(visible: cardsAppeared, delay: 0.1)
+
+                    if let scan = latestScan {
+                        bodyScoreCard(scan)
+                            .blurFadeIn(visible: cardsAppeared, delay: 0.12)
+                    }
 
                     if todayWorkout != nil {
                         todayWorkoutCard
@@ -62,6 +63,9 @@ struct HomeView: View {
                         recentlyLoggedSection
                             .blurFadeIn(visible: cardsAppeared, delay: 0.2)
                     }
+
+                    recentlyUploadedSection
+                        .blurFadeIn(visible: cardsAppeared, delay: 0.25)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
@@ -227,6 +231,73 @@ struct HomeView: View {
         }
     }
 
+    private func bodyScoreCard(_ scan: BodyScan) -> some View {
+        let tierInfo = TierInfo.tier(for: scan.overallScore, gender: profile?.gender ?? "Male")
+
+        return VStack(spacing: 12) {
+            HStack {
+                Text("Body Score")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(colors.secondaryText)
+                Spacer()
+                Text("View Analysis")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack(spacing: 16) {
+                if let photoData = scan.frontPhotoData, !photoData.isEmpty,
+                   let uiImage = UIImage(data: photoData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 60, height: 80)
+                        .clipShape(.rect(cornerRadius: 10))
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(.systemGray5))
+                            .frame(width: 60, height: 80)
+                        Image(systemName: "figure.stand")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(String(format: "%.1f", scan.overallScore))
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundStyle(colors.primaryText)
+                        Text("/10")
+                            .font(.subheadline)
+                            .foregroundStyle(colors.secondaryText)
+                    }
+
+                    TierBadgeView(tierInfo: tierInfo)
+                }
+
+                Spacer()
+
+                VStack(spacing: 4) {
+                    Text("Take daily")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Image(systemName: "camera.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
+    }
+
     private var todayWorkoutCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let day = todayWorkout {
@@ -280,6 +351,24 @@ struct HomeView: View {
 
             ForEach(todayEntries.prefix(3)) { entry in
                 HStack(spacing: 12) {
+                    if let photoData = entry.photoData, !photoData.isEmpty,
+                       let uiImage = UIImage(data: photoData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 44, height: 44)
+                            .clipShape(.rect(cornerRadius: 8))
+                    } else {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color(.systemGray6))
+                                .frame(width: 44, height: 44)
+                            Image(systemName: "fork.knife")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
                     VStack(alignment: .leading, spacing: 2) {
                         Text(entry.name)
                             .font(.subheadline.weight(.medium))
@@ -289,12 +378,55 @@ struct HomeView: View {
                             .font(.caption)
                             .foregroundStyle(colors.secondaryText)
                     }
+
                     Spacer()
-                    Text("P:\(Int(entry.proteinGrams))g")
-                        .font(.caption2)
-                        .foregroundStyle(Color(red: 0.9, green: 0.3, blue: 0.3))
+
+                    HStack(spacing: 6) {
+                        Text("P:\(Int(entry.proteinGrams))g")
+                            .font(.caption2.bold())
+                            .foregroundStyle(Color(red: 0.9, green: 0.3, blue: 0.3))
+                        Text("C:\(Int(entry.carbsGrams))g")
+                            .font(.caption2.bold())
+                            .foregroundStyle(.orange)
+                        Text("F:\(Int(entry.fatGrams))g")
+                            .font(.caption2.bold())
+                            .foregroundStyle(Color(red: 0.3, green: 0.5, blue: 0.9))
+                    }
                 }
             }
+        }
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
+    }
+
+    private var recentlyUploadedSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Recently uploaded")
+                .font(.subheadline.bold())
+                .foregroundStyle(colors.secondaryText)
+
+            HStack(spacing: 12) {
+                Image(systemName: "info.circle")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+
+                Text("You can switch apps or turn off your phone. We'll notify you when the analysis is done.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button {} label: {
+                    Image(systemName: "xmark")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(12)
+            .background(Color(.systemGray6))
+            .clipShape(.rect(cornerRadius: 12))
         }
         .padding(20)
         .background(colors.cardBackground)

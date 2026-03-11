@@ -11,7 +11,7 @@ struct ScanStepView: View {
                 VStack(spacing: 20) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Let's see where you stand")
-                            .font(.largeTitle.bold())
+                            .font(.system(size: 28, weight: .bold))
                             .foregroundStyle(.primary)
                             .padding(.top, 24)
 
@@ -22,15 +22,35 @@ struct ScanStepView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                     if viewModel.isScanning {
-                        VStack(spacing: 20) {
-                            ProgressView(value: viewModel.scanProgress)
-                                .tint(.primary)
-                                .scaleEffect(y: 2)
-                                .padding(.horizontal, 40)
+                        VStack(spacing: 24) {
+                            ZStack {
+                                Circle()
+                                    .stroke(Color(.systemGray5), lineWidth: 6)
+                                    .frame(width: 100, height: 100)
+
+                                Circle()
+                                    .trim(from: 0, to: viewModel.scanProgress)
+                                    .stroke(Color.primary, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                                    .frame(width: 100, height: 100)
+                                    .rotationEffect(.degrees(-90))
+                                    .animation(.linear(duration: 0.15), value: viewModel.scanProgress)
+
+                                Text("\(Int(viewModel.scanProgress * 100))%")
+                                    .font(.title3.bold())
+                                    .foregroundStyle(.primary)
+                                    .contentTransition(.numericText())
+                            }
 
                             Text("Analyzing your physique...")
                                 .font(.headline)
                                 .foregroundStyle(.secondary)
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                SetupLineItem(text: "Measuring proportions", done: viewModel.scanProgress > 0.3)
+                                SetupLineItem(text: "Calculating ratios", done: viewModel.scanProgress > 0.6)
+                                SetupLineItem(text: "Generating score", done: viewModel.scanProgress > 0.9)
+                            }
+                            .padding(.horizontal, 32)
                         }
                         .padding(.top, 40)
                     } else if !viewModel.scanComplete {
@@ -116,6 +136,27 @@ struct ScanStepView: View {
                         .padding(16)
                         .background(Color(.systemGray6))
                         .clipShape(.rect(cornerRadius: 16))
+
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color(.systemGray6))
+                                .frame(height: 80)
+
+                            HStack(spacing: 12) {
+                                Image(systemName: "camera.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.secondary)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Take photos daily for best tracking")
+                                        .font(.subheadline.bold())
+                                        .foregroundStyle(.primary)
+                                    Text("Consistent photos help our AI track your progress accurately")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                        }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -158,6 +199,23 @@ struct ScanStepView: View {
                     }
                 }
             }
+        }
+    }
+}
+
+struct SetupLineItem: View {
+    let text: String
+    let done: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: done ? "checkmark.circle.fill" : "circle")
+                .font(.body)
+                .foregroundStyle(done ? .green : .secondary)
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(done ? .primary : .secondary)
+            Spacer()
         }
     }
 }

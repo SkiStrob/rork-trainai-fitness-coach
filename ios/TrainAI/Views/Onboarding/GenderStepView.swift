@@ -1,44 +1,38 @@
 import SwiftUI
 
-struct GoalStepView: View {
+struct GenderStepView: View {
     @Bindable var viewModel: OnboardingViewModel
-
-    private let options: [(String, String)] = [
-        ("Build Muscle", "dumbbell.fill"),
-        ("Lose Fat", "flame.fill"),
-        ("Get Toned", "figure.run"),
-        ("Competition Prep", "trophy.fill"),
-        ("Stay Healthy", "heart.fill"),
-        ("Get Stronger", "bolt.fill")
-    ]
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("What is your goal?")
+                    Text("Choose your Gender")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(.primary)
                         .padding(.top, 24)
 
-                    Text("This helps us generate a plan for your physique.")
+                    Text("This will be used to calibrate your custom plan.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .padding(.bottom, 16)
+                        .padding(.bottom, 24)
 
-                    ForEach(options, id: \.0) { option in
+                    ForEach(["Male", "Female", "Other"], id: \.self) { gender in
                         Button {
                             HapticManager.selection()
-                            viewModel.selectedGoal = option.0
+                            viewModel.selectedGender = gender
                         } label: {
-                            OnboardingOptionCard(title: option.0, isSelected: viewModel.selectedGoal == option.0, icon: option.1)
+                            OnboardingOptionCard(
+                                title: gender,
+                                isSelected: viewModel.selectedGender == gender
+                            )
                         }
                     }
                 }
                 .padding(.horizontal, 16)
             }
 
-            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedGoal.isEmpty) {
+            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedGender.isEmpty) {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                     viewModel.nextStep()
                 }

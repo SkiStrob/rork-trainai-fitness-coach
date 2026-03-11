@@ -7,8 +7,8 @@ struct ScoreResultsStepView: View {
     @State private var displayedScore: Double = 0
     @State private var showContent: Bool = false
     @State private var showButtons: Bool = false
-    @State private var cardBlur: Double = 20
-    @State private var cardOpacity: Double = 0
+    @State private var contentBlur: Double = 8
+    @State private var contentOpacity: Double = 0
 
     private var scan: BodyScan {
         viewModel.scanResult ?? BodyScan(
@@ -31,21 +31,30 @@ struct ScoreResultsStepView: View {
 
             VStack(spacing: 0) {
                 ScrollView {
-                    VStack(spacing: 0) {
+                    VStack(spacing: 24) {
                         scoreHeader
-                            .blur(radius: cardBlur)
-                            .opacity(cardOpacity)
-                            .padding(.top, 24)
-                            .padding(.horizontal, 20)
+                            .blur(radius: contentBlur)
+                            .opacity(contentOpacity)
+                            .padding(.top, 32)
 
                         if showContent {
-                            bodyAnalysisSection
-                                .padding(.top, 16)
-                                .transition(.opacity)
+                            VStack(spacing: 24) {
+                                dailyRecommendation
+
+                                bodyAnalysisPreview
+
+                                radarSection
+
+                                bodyPartScores
+
+                                timelineCard
+                            }
+                            .transition(.opacity)
                         }
 
                         Spacer().frame(height: 120)
                     }
+                    .padding(.horizontal, 20)
                 }
 
                 if showButtons {
@@ -60,10 +69,20 @@ struct ScoreResultsStepView: View {
     }
 
     private var scoreHeader: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
+            VStack(spacing: 4) {
+                Text("All done!")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Text("Your physique score")
+                    .font(.title3.bold())
+                    .foregroundStyle(.primary)
+            }
+
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(String(format: "%.1f", displayedScore))
-                    .font(.system(size: 56, weight: .bold))
+                    .font(.system(size: 64, weight: .bold))
                     .foregroundStyle(.primary)
                     .contentTransition(.numericText(countsDown: false))
                     .animation(.spring(response: 0.3, dampingFraction: 0.8), value: displayedScore)
@@ -78,42 +97,119 @@ struct ScoreResultsStepView: View {
             Text(tierInfo.message)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-                .padding(.top, 2)
         }
         .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
+        .background(Color(.systemGray6))
+        .clipShape(.rect(cornerRadius: 20))
     }
 
-    private var bodyAnalysisSection: some View {
-        VStack(spacing: 0) {
+    private var dailyRecommendation: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Daily recommendation")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            Text("You can edit this anytime.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                RecommendationTile(icon: "flame.fill", color: .green, label: "Calories", value: "2,583")
+                RecommendationTile(icon: "c.circle.fill", color: .orange, label: "Carbs", value: "300g")
+                RecommendationTile(icon: "p.circle.fill", color: Color(red: 0.9, green: 0.3, blue: 0.3), label: "Protein", value: "184g")
+                RecommendationTile(icon: "f.circle.fill", color: Color(red: 0.3, green: 0.5, blue: 0.9), label: "Fats", value: "71g")
+            }
+        }
+        .padding(20)
+        .background(Color(.systemGray6).opacity(0.5))
+        .clipShape(.rect(cornerRadius: 20))
+    }
+
+    private var bodyAnalysisPreview: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Body Analysis")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+                Text("View Detail")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
             ZStack {
                 Color.black
-                    .clipShape(.rect(cornerRadius: 20))
+                    .clipShape(.rect(cornerRadius: 16))
 
                 BodyAnalysisView(scan: scan, gender: viewModel.selectedGender)
+                    .frame(height: 500)
             }
-            .padding(.horizontal, 16)
+            .frame(height: 500)
         }
+    }
+
+    private var radarSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Attribute Scores")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            RadarChartView(
+                values: [scan.symmetry, scan.definition, scan.mass, scan.proportions, scan.vtaper, scan.core],
+                labels: ["Symmetry", "Definition", "Mass", "Proportions", "V-Taper", "Core"],
+                maxValue: 10
+            )
+            .frame(height: 220)
+        }
+        .padding(20)
+        .background(Color(.systemGray6).opacity(0.5))
+        .clipShape(.rect(cornerRadius: 20))
+    }
+
+    private var bodyPartScores: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Body Part Scores")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            BodyPartScoreRow(name: "Chest", score: scan.chestScore)
+            BodyPartScoreRow(name: "Back", score: scan.backScore)
+            BodyPartScoreRow(name: "Shoulders", score: scan.shoulderScore)
+            BodyPartScoreRow(name: "Arms", score: scan.armScore)
+            BodyPartScoreRow(name: "Core", score: scan.coreScore)
+            BodyPartScoreRow(name: "Legs", score: scan.legScore)
+        }
+        .padding(20)
+        .background(Color(.systemGray6).opacity(0.5))
+        .clipShape(.rect(cornerRadius: 20))
+    }
+
+    private var timelineCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Your Timeline")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            TimelineStep(icon: "calendar", iconColor: .blue, title: "Week 1-2", subtitle: "Build foundation, learn movements", isLast: false)
+            TimelineStep(icon: "flame.fill", iconColor: .orange, title: "Week 3-6", subtitle: "Progressive overload begins", isLast: false)
+            TimelineStep(icon: "chart.line.uptrend.xyaxis", iconColor: .green, title: "Week 7-12", subtitle: "Visible physique changes", isLast: true)
+        }
+        .padding(20)
+        .background(Color(.systemGray6).opacity(0.5))
+        .clipShape(.rect(cornerRadius: 20))
     }
 
     private var bottomButtons: some View {
         VStack(spacing: 8) {
             Button {
-                shareScoreCard()
-            } label: {
-                Text("Share My Score")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color(.systemGray6))
-                    .clipShape(.rect(cornerRadius: 14))
-            }
-
-            Button {
                 HapticManager.light()
                 onGetPlan()
             } label: {
-                Text("Get My Plan")
+                Text("Let's get started!")
                     .font(.headline)
                     .foregroundStyle(Color(.systemBackground))
                     .frame(maxWidth: .infinity)
@@ -128,9 +224,9 @@ struct ScoreResultsStepView: View {
 
     private func animateReveal() {
         Task {
-            withAnimation(.easeOut(duration: 0.8)) {
-                cardBlur = 0
-                cardOpacity = 1
+            withAnimation(.easeOut(duration: 0.6)) {
+                contentBlur = 0
+                contentOpacity = 1
             }
 
             try? await Task.sleep(for: .milliseconds(400))
@@ -174,6 +270,35 @@ struct ScoreResultsStepView: View {
     }
 }
 
+struct RecommendationTile: View {
+    let icon: String
+    let color: Color
+    let label: String
+    let value: String
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(color)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(value)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.primary)
+            }
+
+            Spacer()
+        }
+        .padding(12)
+        .background(Color(.systemBackground))
+        .clipShape(.rect(cornerRadius: 12))
+    }
+}
+
 struct BodyPartScoreRow: View {
     let name: String
     let score: Double
@@ -206,6 +331,43 @@ struct BodyPartScoreRow: View {
                 .font(.subheadline.bold())
                 .foregroundStyle(.primary)
                 .frame(width: 32, alignment: .trailing)
+        }
+    }
+}
+
+struct TimelineStep: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let subtitle: String
+    let isLast: Bool
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            VStack(spacing: 0) {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundStyle(iconColor)
+                    .frame(width: 32, height: 32)
+
+                if !isLast {
+                    Rectangle()
+                        .fill(Color(.systemGray4))
+                        .frame(width: 2, height: 40)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.bottom, isLast ? 0 : 16)
+
+            Spacer()
         }
     }
 }

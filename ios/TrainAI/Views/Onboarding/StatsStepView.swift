@@ -5,137 +5,121 @@ struct StatsStepView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Your stats")
-                            .font(.largeTitle.bold())
-                            .foregroundStyle(.primary)
-                            .padding(.top, 24)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Height & weight")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .padding(.top, 24)
 
-                        Text("This will be used to calibrate your custom plan.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
+                Text("This will be used to calibrate your custom plan.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Name")
-                            .font(.headline)
-                            .foregroundStyle(.primary)
+            HStack(spacing: 0) {
+                Button {
+                    withAnimation { viewModel.useMetric = false }
+                    HapticManager.selection()
+                } label: {
+                    Text("Imperial")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(!viewModel.useMetric ? Color(.systemBackground) : .primary)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .background(!viewModel.useMetric ? Color.primary : Color(.systemGray6))
+                        .clipShape(Capsule())
+                }
 
-                        TextField("Your name", text: $viewModel.userName)
-                            .font(.title3)
-                            .foregroundStyle(.primary)
-                            .padding(14)
-                            .background(Color(.systemGray6))
-                            .clipShape(.rect(cornerRadius: 12))
-                    }
+                Button {
+                    withAnimation { viewModel.useMetric = true }
+                    HapticManager.selection()
+                } label: {
+                    Text("Metric")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(viewModel.useMetric ? Color(.systemBackground) : .primary)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .background(viewModel.useMetric ? Color.primary : Color(.systemGray6))
+                        .clipShape(Capsule())
+                }
+            }
+            .padding(.top, 24)
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Gender")
-                            .font(.headline)
-                            .foregroundStyle(.primary)
+            HStack(spacing: 0) {
+                VStack(spacing: 4) {
+                    Text("Height")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.primary)
 
-                        HStack(spacing: 10) {
-                            ForEach(["Male", "Female", "Other"], id: \.self) { gender in
-                                Button {
-                                    HapticManager.selection()
-                                    viewModel.selectedGender = gender
-                                } label: {
-                                    Text(gender)
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(viewModel.selectedGender == gender ? Color(.systemBackground) : .primary)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 14)
-                                        .background(viewModel.selectedGender == gender ? Color.primary : Color(.systemGray6))
-                                        .clipShape(.rect(cornerRadius: 12))
-                                }
+                    if viewModel.useMetric {
+                        Picker("cm", selection: $viewModel.heightCm) {
+                            ForEach(140...220, id: \.self) { cm in
+                                Text("\(cm) cm").tag(cm)
                             }
                         }
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text("Height")
-                                .font(.headline)
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            Button(viewModel.useMetric ? "Switch to ft/in" : "Switch to cm") {
-                                viewModel.useMetric.toggle()
-                            }
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        }
-
-                        if viewModel.useMetric {
-                            HStack {
-                                Picker("cm", selection: $viewModel.heightCm) {
-                                    ForEach(120...220, id: \.self) { cm in
-                                        Text("\(cm) cm").tag(cm)
-                                    }
+                        .pickerStyle(.wheel)
+                        .frame(height: 150)
+                    } else {
+                        HStack(spacing: 4) {
+                            Picker("Feet", selection: $viewModel.heightFeet) {
+                                ForEach(4...7, id: \.self) { ft in
+                                    Text("\(ft) ft").tag(ft)
                                 }
-                                .pickerStyle(.wheel)
-                                .frame(height: 100)
                             }
-                        } else {
-                            HStack(spacing: 16) {
-                                Picker("Feet", selection: $viewModel.heightFeet) {
-                                    ForEach(4...7, id: \.self) { ft in
-                                        Text("\(ft) ft").tag(ft)
-                                    }
+                            .pickerStyle(.wheel)
+                            .frame(height: 150)
+
+                            Picker("Inches", selection: $viewModel.heightInches) {
+                                ForEach(0...11, id: \.self) { inch in
+                                    Text("\(inch) in").tag(inch)
                                 }
-                                .pickerStyle(.wheel)
-                                .frame(height: 100)
-
-                                Picker("Inches", selection: $viewModel.heightInches) {
-                                    ForEach(0...11, id: \.self) { inch in
-                                        Text("\(inch) in").tag(inch)
-                                    }
-                                }
-                                .pickerStyle(.wheel)
-                                .frame(height: 100)
                             }
-                        }
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Weight")
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-
-                        HStack(spacing: 8) {
-                            if viewModel.useMetric {
-                                TextField("Weight", text: $viewModel.weightKg)
-                                    .keyboardType(.decimalPad)
-                                    .font(.title2.bold())
-                                    .foregroundStyle(.primary)
-                                    .padding(14)
-                                    .background(Color(.systemGray6))
-                                    .clipShape(.rect(cornerRadius: 12))
-                                Text("kg")
-                                    .font(.headline)
-                                    .foregroundStyle(.secondary)
-                            } else {
-                                TextField("Weight", text: $viewModel.weightLbs)
-                                    .keyboardType(.decimalPad)
-                                    .font(.title2.bold())
-                                    .foregroundStyle(.primary)
-                                    .padding(14)
-                                    .background(Color(.systemGray6))
-                                    .clipShape(.rect(cornerRadius: 12))
-                                Text("lbs")
-                                    .font(.headline)
-                                    .foregroundStyle(.secondary)
-                            }
+                            .pickerStyle(.wheel)
+                            .frame(height: 150)
                         }
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 24)
-            }
-            .scrollDismissesKeyboard(.interactively)
+                .frame(maxWidth: .infinity)
 
-            OnboardingCTAButton(title: "Next", enabled: viewModel.canContinue) {
+                VStack(spacing: 4) {
+                    Text("Weight")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.primary)
+
+                    if viewModel.useMetric {
+                        Picker("kg", selection: Binding(
+                            get: { Int(viewModel.weightKg) ?? 77 },
+                            set: { viewModel.weightKg = "\($0)" }
+                        )) {
+                            ForEach(40...180, id: \.self) { kg in
+                                Text("\(kg) kg").tag(kg)
+                            }
+                        }
+                        .pickerStyle(.wheel)
+                        .frame(height: 150)
+                    } else {
+                        Picker("lbs", selection: Binding(
+                            get: { Int(viewModel.weightLbs) ?? 170 },
+                            set: { viewModel.weightLbs = "\($0)" }
+                        )) {
+                            ForEach(80...350, id: \.self) { lb in
+                                Text("\(lb) lb").tag(lb)
+                            }
+                        }
+                        .pickerStyle(.wheel)
+                        .frame(height: 150)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+
+            Spacer()
+
+            OnboardingCTAButton(title: "Continue", enabled: viewModel.canContinue) {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                     viewModel.nextStep()
                 }

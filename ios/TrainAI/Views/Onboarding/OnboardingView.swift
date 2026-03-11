@@ -11,7 +11,7 @@ struct OnboardingView: View {
             Color(.systemBackground).ignoresSafeArea()
 
             VStack(spacing: 0) {
-                if viewModel.currentStep > 0 {
+                if viewModel.currentStep > 0 && viewModel.currentStep < 14 {
                     VStack(spacing: 12) {
                         HStack {
                             Button {
@@ -47,25 +47,37 @@ struct OnboardingView: View {
                 TabView(selection: $viewModel.currentStep) {
                     WelcomeStepView(viewModel: viewModel)
                         .tag(0)
-                    AgeStepView(viewModel: viewModel)
+                    GenderStepView(viewModel: viewModel)
                         .tag(1)
-                    AttributionStepView(viewModel: viewModel)
+                    AgeStepView(viewModel: viewModel)
                         .tag(2)
-                    GoalStepView(viewModel: viewModel)
-                        .tag(3)
-                    ExperienceStepView(viewModel: viewModel)
-                        .tag(4)
                     StatsStepView(viewModel: viewModel)
+                        .tag(3)
+                    GoalStepView(viewModel: viewModel)
+                        .tag(4)
+                    TargetWeightStepView(viewModel: viewModel)
                         .tag(5)
-                    NotificationStepView(viewModel: viewModel)
+                    ComparisonStepView(viewModel: viewModel)
                         .tag(6)
-                    ScanStepView(viewModel: viewModel)
+                    ExperienceStepView(viewModel: viewModel)
                         .tag(7)
+                    BlockerStepView(viewModel: viewModel)
+                        .tag(8)
+                    AttributionStepView(viewModel: viewModel)
+                        .tag(9)
+                    OtherAppsStepView(viewModel: viewModel)
+                        .tag(10)
+                    TrustStepView(viewModel: viewModel)
+                        .tag(11)
+                    NotificationStepView(viewModel: viewModel)
+                        .tag(12)
+                    ScanStepView(viewModel: viewModel)
+                        .tag(13)
                     ScoreResultsStepView(viewModel: viewModel) {
                         viewModel.saveProfile(context: modelContext)
                         onComplete(viewModel.scanResult)
                     }
-                        .tag(8)
+                        .tag(14)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(response: 0.4, dampingFraction: 0.85), value: viewModel.currentStep)
@@ -77,7 +89,6 @@ struct OnboardingView: View {
 struct OnboardingOptionCard: View {
     let title: String
     let isSelected: Bool
-    var emoji: String? = nil
     var subtitle: String? = nil
     var icon: String? = nil
 

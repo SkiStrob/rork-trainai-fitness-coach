@@ -9,7 +9,7 @@ struct ProgressTabView: View {
     @Query(sort: \WeightEntry.date) private var weightEntries: [WeightEntry]
     @Query(sort: \UserProfile.createdAt) private var profiles: [UserProfile]
     @State private var selectedSegment: Int = 0
-    @State private var weightTimeRange: Int = 30
+    @State private var weightTimeRange: Int = 90
     @State private var showLogWeight: Bool = false
 
     private var profile: UserProfile? { profiles.first }
@@ -30,7 +30,7 @@ struct ProgressTabView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
-                .padding(.bottom, 32)
+                .padding(.bottom, 100)
             }
             .background(colors.background)
             .navigationTitle("Progress")
@@ -66,17 +66,44 @@ struct ProgressTabView: View {
     }
 
     private var bodyScoreSection: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             if let latest = scans.last {
                 let tierInfo = TierInfo.tier(for: latest.overallScore, gender: profile?.gender ?? "Male")
 
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(format: "%.1f", latest.overallScore))
-                            .font(.system(size: 48, weight: .bold))
-                            .foregroundStyle(colors.primaryText)
-                        TierBadgeView(tierInfo: tierInfo)
+                HStack(spacing: 16) {
+                    if let photoData = latest.frontPhotoData, !photoData.isEmpty,
+                       let uiImage = UIImage(data: photoData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 80, height: 100)
+                            .clipShape(.rect(cornerRadius: 12))
+                    } else {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.systemGray5))
+                                .frame(width: 80, height: 100)
+                            Image(systemName: "figure.stand")
+                                .font(.title)
+                                .foregroundStyle(.secondary)
+                        }
                     }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text(String(format: "%.1f", latest.overallScore))
+                                .font(.system(size: 40, weight: .bold))
+                                .foregroundStyle(colors.primaryText)
+                            Text("/10")
+                                .font(.subheadline)
+                                .foregroundStyle(colors.secondaryText)
+                        }
+                        TierBadgeView(tierInfo: tierInfo)
+                        Text(latest.date.formatted(.dateTime.month(.abbreviated).day()))
+                            .font(.caption)
+                            .foregroundStyle(colors.secondaryText)
+                    }
+
                     Spacer()
                 }
                 .padding(20)
@@ -85,6 +112,8 @@ struct ProgressTabView: View {
                 .shadow(color: colors.cardShadow, radius: 8, y: 2)
 
                 if scans.count > 1 {
+                    photoComparisonCard
+
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Score Trend")
                             .font(.subheadline.bold())
@@ -95,15 +124,29 @@ struct ProgressTabView: View {
                                 x: .value("Date", scan.date),
                                 y: .value("Score", scan.overallScore)
                             )
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(Color(red: 0.13, green: 0.77, blue: 0.37))
                             .interpolationMethod(.catmullRom)
+                            .lineStyle(StrokeStyle(lineWidth: 2.5))
 
                             AreaMark(
                                 x: .value("Date", scan.date),
                                 y: .value("Score", scan.overallScore)
                             )
-                            .foregroundStyle(.blue.opacity(0.06))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [Color(red: 0.13, green: 0.77, blue: 0.37).opacity(0.15), .clear],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
                             .interpolationMethod(.catmullRom)
+
+                            PointMark(
+                                x: .value("Date", scan.date),
+                                y: .value("Score", scan.overallScore)
+                            )
+                            .foregroundStyle(Color(red: 0.13, green: 0.77, blue: 0.37))
+                            .symbolSize(30)
                         }
                         .chartYScale(domain: 0...10)
                         .chartYAxis {
@@ -138,6 +181,8 @@ struct ProgressTabView: View {
                 .background(colors.cardBackground)
                 .clipShape(.rect(cornerRadius: 20))
                 .shadow(color: colors.cardShadow, radius: 8, y: 2)
+
+                bodyPartBreakdown(latest)
             } else {
                 VStack(spacing: 12) {
                     Image(systemName: "figure.stand")
@@ -146,6 +191,10 @@ struct ProgressTabView: View {
                     Text("No scans yet")
                         .font(.headline)
                         .foregroundStyle(colors.primaryText)
+                    Text("Take your first body scan to see your progress.")
+                        .font(.subheadline)
+                        .foregroundStyle(colors.secondaryText)
+                        .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 60)
@@ -153,10 +202,98 @@ struct ProgressTabView: View {
         }
     }
 
+    private var photoComparisonCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Photo Comparison")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(colors.secondaryText)
+                Spacer()
+                Text("Take daily photos")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack(spacing: 12) {
+                if scans.count >= 2 {
+                    let first = scans.first!
+                    let last = scans.last!
+
+                    photoTile(scan: first, label: "Start")
+                    
+                    Image(systemName: "arrow.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    photoTile(scan: last, label: "Current")
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
+    }
+
+    private func photoTile(scan: BodyScan, label: String) -> some View {
+        VStack(spacing: 6) {
+            if let photoData = scan.frontPhotoData, !photoData.isEmpty,
+               let uiImage = UIImage(data: photoData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 100, height: 130)
+                    .clipShape(.rect(cornerRadius: 12))
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(.systemGray5))
+                        .frame(width: 100, height: 130)
+                    Image(systemName: "figure.stand")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Text(label)
+                .font(.caption.bold())
+                .foregroundStyle(colors.secondaryText)
+
+            Text(String(format: "%.1f/10", scan.overallScore))
+                .font(.caption2)
+                .foregroundStyle(colors.primaryText)
+        }
+    }
+
+    private func bodyPartBreakdown(_ scan: BodyScan) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Body Part Scores")
+                .font(.subheadline.bold())
+                .foregroundStyle(colors.secondaryText)
+
+            BodyPartScoreRow(name: "Chest", score: scan.chestScore)
+            BodyPartScoreRow(name: "Back", score: scan.backScore)
+            BodyPartScoreRow(name: "Shoulders", score: scan.shoulderScore)
+            BodyPartScoreRow(name: "Arms", score: scan.armScore)
+            BodyPartScoreRow(name: "Core", score: scan.coreScore)
+            BodyPartScoreRow(name: "Legs", score: scan.legScore)
+        }
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
+    }
+
     private var weightSection: some View {
         VStack(spacing: 24) {
+            HStack(spacing: 16) {
+                SummaryCard(icon: "scalemass.fill", label: "Last weight", value: weightEntries.last.map { "\(Int($0.weightLbs)) lbs" } ?? "--")
+                SummaryCard(icon: "apple.logo", label: "Days logged", value: "\(weightEntries.count)")
+            }
+
             HStack {
-                Text("Weight")
+                Text("Goal Progress")
                     .font(.headline)
                     .foregroundStyle(colors.primaryText)
                 Spacer()
@@ -165,28 +302,29 @@ struct ProgressTabView: View {
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.title3)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.primary)
                 }
             }
 
-            if !weightEntries.isEmpty {
-                HStack(spacing: 8) {
-                    ForEach([7, 30, 90, 0], id: \.self) { days in
-                        Button {
-                            withAnimation { weightTimeRange = days }
-                        } label: {
-                            Text(days == 0 ? "All" : "\(days)d")
-                                .font(.caption.bold())
-                                .foregroundStyle(weightTimeRange == days ? colors.selectedCardText : colors.primaryText)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(weightTimeRange == days ? colors.selectedCard : colors.inputBackground)
-                                .clipShape(Capsule())
-                        }
+            HStack(spacing: 8) {
+                ForEach(["90 Days", "6 Months", "1 Year", "All time"], id: \.self) { label in
+                    let days = label == "90 Days" ? 90 : label == "6 Months" ? 180 : label == "1 Year" ? 365 : 0
+                    Button {
+                        withAnimation { weightTimeRange = days }
+                    } label: {
+                        Text(label)
+                            .font(.caption.bold())
+                            .foregroundStyle(weightTimeRange == days ? colors.selectedCardText : colors.primaryText)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(weightTimeRange == days ? colors.selectedCard : colors.inputBackground)
+                            .clipShape(Capsule())
                     }
-                    Spacer()
                 }
+                Spacer()
+            }
 
+            if !weightEntries.isEmpty {
                 let filtered = filterWeightEntries(days: weightTimeRange)
                 if !filtered.isEmpty {
                     Chart(filtered) { entry in
@@ -194,15 +332,29 @@ struct ProgressTabView: View {
                             x: .value("Date", entry.date),
                             y: .value("Weight", entry.weightLbs)
                         )
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Color(red: 0.13, green: 0.77, blue: 0.37))
                         .interpolationMethod(.catmullRom)
+                        .lineStyle(StrokeStyle(lineWidth: 2.5))
 
                         AreaMark(
                             x: .value("Date", entry.date),
                             y: .value("Weight", entry.weightLbs)
                         )
-                        .foregroundStyle(.blue.opacity(0.06))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color(red: 0.13, green: 0.77, blue: 0.37).opacity(0.15), .clear],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                         .interpolationMethod(.catmullRom)
+
+                        PointMark(
+                            x: .value("Date", entry.date),
+                            y: .value("Weight", entry.weightLbs)
+                        )
+                        .foregroundStyle(Color(red: 0.13, green: 0.77, blue: 0.37))
+                        .symbolSize(30)
                     }
                     .chartYAxis {
                         AxisMarks { _ in
@@ -251,6 +403,39 @@ struct ProgressTabView: View {
         guard days > 0 else { return weightEntries }
         let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
         return weightEntries.filter { $0.date >= cutoff }
+    }
+}
+
+struct SummaryCard: View {
+    @Environment(\.appColors) private var colors
+    let icon: String
+    let label: String
+    let value: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .stroke(colors.progressTrack, lineWidth: 3)
+                    .frame(width: 44, height: 44)
+                Image(systemName: icon)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            }
+
+            Text(value)
+                .font(.headline.bold())
+                .foregroundStyle(colors.primaryText)
+
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(colors.secondaryText)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
     }
 }
 
