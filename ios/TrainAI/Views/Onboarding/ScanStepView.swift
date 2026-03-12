@@ -8,7 +8,7 @@ struct ScanStepView: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Let's see where you stand")
                             .font(.system(size: 28, weight: .bold))
@@ -54,17 +54,29 @@ struct ScanStepView: View {
                         }
                         .padding(.top, 40)
                     } else if !viewModel.scanComplete {
-                        VStack(spacing: 16) {
+                        // Daily tracking tip - moved ABOVE the photo boxes
+                        HStack(spacing: 12) {
                             Image(systemName: "camera.fill")
-                                .font(.system(size: 40))
-                                .foregroundStyle(.secondary)
-
-                            Text("Front photo + side photo")
-                                .font(.headline)
+                                .font(.title3)
                                 .foregroundStyle(.primary)
-                        }
-                        .padding(.top, 8)
+                                .frame(width: 36, height: 36)
+                                .background(Color(.systemGray5))
+                                .clipShape(Circle())
 
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Take photos daily for best tracking")
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(.primary)
+                                Text("Consistent photos help our AI track your progress")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(14)
+                        .background(Color(.systemGray6))
+                        .clipShape(.rect(cornerRadius: 16))
+
+                        // Photo capture boxes
                         HStack(spacing: 16) {
                             ScanPhotoCaptureBox(
                                 label: "Front",
@@ -91,7 +103,8 @@ struct ScanStepView: View {
                             }
                         }
 
-                        VStack(alignment: .leading, spacing: 10) {
+                        // Tips section - more compact
+                        VStack(alignment: .leading, spacing: 8) {
                             Text("Tips for best results")
                                 .font(.subheadline.bold())
                                 .foregroundStyle(.primary)
@@ -136,27 +149,6 @@ struct ScanStepView: View {
                         .padding(16)
                         .background(Color(.systemGray6))
                         .clipShape(.rect(cornerRadius: 16))
-
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color(.systemGray6))
-                                .frame(height: 80)
-
-                            HStack(spacing: 12) {
-                                Image(systemName: "camera.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(.secondary)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Take photos daily for best tracking")
-                                        .font(.subheadline.bold())
-                                        .foregroundStyle(.primary)
-                                    Text("Consistent photos help our AI track your progress accurately")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .padding(.horizontal, 16)
-                        }
                     }
                 }
                 .padding(.horizontal, 16)
