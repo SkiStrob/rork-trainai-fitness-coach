@@ -133,10 +133,10 @@ struct ScoreResultsStepView: View {
                     .font(.headline)
                     .foregroundStyle(.primary)
                 Spacer()
-                Text("View Detail")
+                Text("Tap ratios to explore")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Image(systemName: "chevron.right")
+                Image(systemName: "hand.tap")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -145,10 +145,12 @@ struct ScoreResultsStepView: View {
                 Color.black
                     .clipShape(.rect(cornerRadius: 16))
 
-                BodyAnalysisView(scan: scan, gender: viewModel.selectedGender)
-                    .frame(height: 500)
+                ScrollView {
+                    BodyAnalysisView(scan: scan, gender: viewModel.selectedGender)
+                }
+                .clipShape(.rect(cornerRadius: 16))
             }
-            .frame(height: 500)
+            .frame(height: 680)
         }
     }
 
