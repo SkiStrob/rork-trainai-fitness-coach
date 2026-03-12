@@ -82,18 +82,19 @@ struct HomeView: View {
                         ZStack {
                             ScanBrackets()
                                 .stroke(Color.primary.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
-                                .frame(width: 24, height: 24)
+                                .frame(width: 22, height: 22)
 
                             Image(systemName: "figure.strengthtraining.traditional")
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.system(size: 9, weight: .medium))
                                 .foregroundStyle(.primary)
+                                .offset(x: 0, y: 0.5)
                         }
+                        .frame(width: 26, height: 26)
 
                         Text("TrainAI")
                             .font(.subheadline.bold())
                             .foregroundStyle(colors.primaryText)
                     }
-                    .padding(.leading, -4)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 12) {
@@ -284,11 +285,11 @@ struct HomeView: View {
                 Spacer()
 
                 VStack(spacing: 4) {
-                    Text("Take daily")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
                     Image(systemName: "camera.fill")
-                        .font(.caption)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                    Text("Scan")
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
