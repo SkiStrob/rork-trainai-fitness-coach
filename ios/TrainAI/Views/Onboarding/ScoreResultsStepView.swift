@@ -17,7 +17,7 @@ struct ScoreResultsStepView: View {
             proportions: 5.5, vtaper: 5.7, core: 5.2,
             chestScore: 6.0, backScore: 5.5, shoulderScore: 6.4,
             armScore: 5.7, coreScore: 5.2, legScore: 5.3,
-            tierName: "High-Tier Chadlite"
+            tierName: "Chadlite"
         )
     }
 
