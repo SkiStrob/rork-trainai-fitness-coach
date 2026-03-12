@@ -7,7 +7,7 @@ struct BlockerStepView: View {
         ("Lack of consistency", "chart.bar.fill"),
         ("Unhealthy eating habits", "fork.knife"),
         ("Lack of support", "person.2.fill"),
-        ("Busy schedule", "calendar.fill"),
+        ("Busy schedule", "clock.fill"),
         ("Lack of meal inspiration", "lightbulb.fill")
     ]
 
