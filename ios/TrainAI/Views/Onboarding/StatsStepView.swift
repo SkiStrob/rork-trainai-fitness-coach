@@ -47,6 +47,8 @@ struct StatsStepView: View {
             }
             .padding(.top, 24)
 
+            Spacer()
+
             HStack(spacing: 0) {
                 VStack(spacing: 4) {
                     Text("Height")
@@ -60,7 +62,7 @@ struct StatsStepView: View {
                             }
                         }
                         .pickerStyle(.wheel)
-                        .frame(height: 150)
+                        .frame(height: 160)
                     } else {
                         HStack(spacing: 4) {
                             Picker("Feet", selection: $viewModel.heightFeet) {
@@ -69,7 +71,7 @@ struct StatsStepView: View {
                                 }
                             }
                             .pickerStyle(.wheel)
-                            .frame(height: 150)
+                            .frame(height: 160)
 
                             Picker("Inches", selection: $viewModel.heightInches) {
                                 ForEach(0...11, id: \.self) { inch in
@@ -77,7 +79,7 @@ struct StatsStepView: View {
                                 }
                             }
                             .pickerStyle(.wheel)
-                            .frame(height: 150)
+                            .frame(height: 160)
                         }
                     }
                 }
@@ -98,7 +100,7 @@ struct StatsStepView: View {
                             }
                         }
                         .pickerStyle(.wheel)
-                        .frame(height: 150)
+                        .frame(height: 160)
                     } else {
                         Picker("lbs", selection: Binding(
                             get: { Int(viewModel.weightLbs) ?? 170 },
@@ -109,13 +111,12 @@ struct StatsStepView: View {
                             }
                         }
                         .pickerStyle(.wheel)
-                        .frame(height: 150)
+                        .frame(height: 160)
                     }
                 }
                 .frame(maxWidth: .infinity)
             }
             .padding(.horizontal, 16)
-            .padding(.top, 8)
 
             Spacer()
 
