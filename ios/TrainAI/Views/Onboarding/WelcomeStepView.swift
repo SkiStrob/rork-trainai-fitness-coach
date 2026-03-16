@@ -32,8 +32,7 @@ struct WelcomeStepView: View {
     @State private var phoneAppeared: Bool = false
     @State private var logoAppeared: Bool = false
     @State private var buttonAppeared: Bool = false
-    @State private var scanLineY: CGFloat = -180
-    @State private var scanLoop: Bool = false
+
 
     var body: some View {
         ZStack {
@@ -41,12 +40,6 @@ struct WelcomeStepView: View {
 
             VStack(spacing: 0) {
                 Spacer()
-
-                phoneMockup
-                    .offset(y: phoneAppeared ? 0 : -60)
-                    .opacity(phoneAppeared ? 1 : 0)
-
-                Spacer().frame(height: 32)
 
                 logoSection
                     .opacity(logoAppeared ? 1 : 0)
@@ -68,60 +61,7 @@ struct WelcomeStepView: View {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.85).delay(0.4)) {
                 buttonAppeared = true
             }
-            startScanLine()
         }
-    }
-
-    private var phoneMockup: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 36)
-                .stroke(Color.black, lineWidth: 2)
-                .frame(width: 220, height: 440)
-                .background(
-                    RoundedRectangle(cornerRadius: 36)
-                        .fill(Color.black)
-                )
-                .shadow(color: .black.opacity(0.12), radius: 20, y: 10)
-
-            Capsule()
-                .fill(Color(white: 0.15))
-                .frame(width: 90, height: 26)
-                .offset(y: -207)
-
-            ZStack {
-                RealisticSilhouetteShape()
-                    .fill(Color.white.opacity(0.12))
-                    .frame(width: 100, height: 220)
-
-                ScanBrackets()
-                    .stroke(Color.white.opacity(0.6), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
-                    .frame(width: 120, height: 240)
-
-                Rectangle()
-                    .fill(
-                        LinearGradient(colors: [.white.opacity(0), .white.opacity(0.4), .white.opacity(0)], startPoint: .leading, endPoint: .trailing)
-                    )
-                    .frame(width: 140, height: 2)
-                    .shadow(color: .white.opacity(0.3), radius: 4)
-                    .offset(y: scanLineY)
-
-                VStack(spacing: 4) {
-                    Text("5.7")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundStyle(.white)
-                    Text("Chadlite")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.6))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.1))
-                        .clipShape(Capsule())
-                }
-            }
-            .frame(width: 200, height: 400)
-            .clipShape(RoundedRectangle(cornerRadius: 30))
-        }
-        .rotationEffect(.degrees(-2))
     }
 
     private var logoSection: some View {
@@ -141,7 +81,7 @@ struct WelcomeStepView: View {
                 .font(.system(size: 38, weight: .bold))
                 .foregroundStyle(.black)
 
-            Text("Body scoring made easy")
+            Text("Your personal AI training assistant")
                 .font(.system(size: 16))
                 .foregroundStyle(Color(.secondaryLabel))
         }
@@ -184,15 +124,4 @@ struct WelcomeStepView: View {
         }
     }
 
-    private func startScanLine() {
-        Task {
-            while true {
-                scanLineY = -180
-                withAnimation(.linear(duration: 2.5)) {
-                    scanLineY = 180
-                }
-                try? await Task.sleep(for: .seconds(3))
-            }
-        }
-    }
 }

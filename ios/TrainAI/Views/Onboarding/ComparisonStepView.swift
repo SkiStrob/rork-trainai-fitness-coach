@@ -20,10 +20,6 @@ struct ComparisonStepView: View {
             Spacer()
 
             VStack(spacing: 16) {
-                Image(systemName: "chart.line.uptrend.xyaxis.circle.fill")
-                    .font(.system(size: 40))
-                    .foregroundStyle(Color(.secondaryLabel))
-
                 ZStack {
                     VStack(spacing: 0) {
                         ForEach(0..<4, id: \.self) { _ in

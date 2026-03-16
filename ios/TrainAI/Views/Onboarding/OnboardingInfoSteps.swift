@@ -628,38 +628,38 @@ struct AppleHealthStepView: View {
 
             VStack(spacing: 0) {
                 ZStack {
-                    let centerX: CGFloat = 140
-                    let centerY: CGFloat = 160
+                    let centerX: CGFloat = 150
+                    let centerY: CGFloat = 170
 
                     Path { path in
-                        path.move(to: CGPoint(x: centerX, y: centerY))
-                        path.addLine(to: CGPoint(x: centerX, y: centerY - 120))
+                        path.move(to: CGPoint(x: centerX - 110, y: centerY - 30))
+                        path.addLine(to: CGPoint(x: centerX, y: centerY))
                     }
                     .trim(from: 0, to: linesDrawn)
-                    .stroke(Color(.systemGray3), style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+                    .stroke(Color(.systemGray3), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
 
                     Path { path in
-                        path.move(to: CGPoint(x: centerX, y: centerY))
-                        path.addLine(to: CGPoint(x: centerX - 100, y: centerY + 80))
+                        path.move(to: CGPoint(x: centerX - 80, y: centerY + 100))
+                        path.addLine(to: CGPoint(x: centerX, y: centerY))
                     }
                     .trim(from: 0, to: linesDrawn)
-                    .stroke(Color(.systemGray3), style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+                    .stroke(Color(.systemGray3), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
 
                     Path { path in
-                        path.move(to: CGPoint(x: centerX, y: centerY))
-                        path.addLine(to: CGPoint(x: centerX + 100, y: centerY + 80))
+                        path.move(to: CGPoint(x: centerX + 80, y: centerY + 100))
+                        path.addLine(to: CGPoint(x: centerX, y: centerY))
                     }
                     .trim(from: 0, to: linesDrawn)
-                    .stroke(Color(.systemGray3), style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+                    .stroke(Color(.systemGray3), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
 
                     Path { path in
-                        path.move(to: CGPoint(x: centerX, y: centerY))
-                        path.addLine(to: CGPoint(x: centerX, y: centerY - 60))
+                        path.move(to: CGPoint(x: centerX, y: centerY - 70))
+                        path.addLine(to: CGPoint(x: centerX, y: centerY - 30))
                     }
                     .trim(from: 0, to: linesDrawn)
                     .stroke(Color(.systemGray4), style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
 
-                    VStack(spacing: 4) {
+                    VStack(spacing: 6) {
                         Image(systemName: nodeIcons[0])
                             .font(.system(size: 18))
                             .foregroundStyle(Color(.secondaryLabel))
@@ -668,14 +668,14 @@ struct AppleHealthStepView: View {
                             .clipShape(Circle())
                             .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
                         Text(nodeLabels[0])
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.secondary)
                     }
-                    .position(x: centerX, y: centerY - 120)
+                    .position(x: centerX - 110, y: centerY - 30)
                     .opacity(nodesVisible[0] ? 1 : 0)
                     .scaleEffect(nodesVisible[0] ? 1 : 0.5)
 
-                    VStack(spacing: 4) {
+                    VStack(spacing: 6) {
                         Image(systemName: nodeIcons[1])
                             .font(.system(size: 18))
                             .foregroundStyle(Color(.secondaryLabel))
@@ -684,14 +684,14 @@ struct AppleHealthStepView: View {
                             .clipShape(Circle())
                             .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
                         Text(nodeLabels[1])
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.secondary)
                     }
-                    .position(x: centerX - 100, y: centerY + 80)
+                    .position(x: centerX - 80, y: centerY + 100)
                     .opacity(nodesVisible[1] ? 1 : 0)
                     .scaleEffect(nodesVisible[1] ? 1 : 0.5)
 
-                    VStack(spacing: 4) {
+                    VStack(spacing: 6) {
                         Image(systemName: nodeIcons[2])
                             .font(.system(size: 18))
                             .foregroundStyle(Color(.secondaryLabel))
@@ -700,10 +700,10 @@ struct AppleHealthStepView: View {
                             .clipShape(Circle())
                             .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
                         Text(nodeLabels[2])
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.secondary)
                     }
-                    .position(x: centerX + 100, y: centerY + 80)
+                    .position(x: centerX + 80, y: centerY + 100)
                     .opacity(nodesVisible[2] ? 1 : 0)
                     .scaleEffect(nodesVisible[2] ? 1 : 0.5)
 
@@ -714,7 +714,7 @@ struct AppleHealthStepView: View {
                         .background(Color.white)
                         .clipShape(.rect(cornerRadius: 12))
                         .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
-                        .position(x: centerX, y: centerY - 55)
+                        .position(x: centerX, y: centerY - 70)
                         .opacity(healthIconVisible ? 1 : 0)
                         .scaleEffect(healthIconVisible ? 1 : 0.5)
 
@@ -735,7 +735,7 @@ struct AppleHealthStepView: View {
                     }
                     .position(x: centerX, y: centerY)
                 }
-                .frame(width: 280, height: 300)
+                .frame(width: 300, height: 340)
             }
             .galaxyCard()
             .padding(.horizontal, 20)

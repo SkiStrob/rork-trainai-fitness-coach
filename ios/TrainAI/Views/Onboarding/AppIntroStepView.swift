@@ -8,7 +8,7 @@ struct AppIntroStepView: View {
 
     @State private var bodySilhouetteDraw: CGFloat = 0
     @State private var scanBracketsScale: CGFloat = 0.5
-    @State private var scanLineY: CGFloat = -110
+    @State private var scanLineY: CGFloat = -150
     @State private var measureLinesProgress: CGFloat = 0
     @State private var scoreCountUp: Double = 0
     @State private var showScoreLabel: Bool = false
@@ -16,17 +16,18 @@ struct AppIntroStepView: View {
     @State private var foodPhotoOffset: CGFloat = -60
     @State private var foodPhotoOpacity: Double = 0
     @State private var foodBracketsOpacity: Double = 0
-    @State private var foodScanX: CGFloat = -100
+    @State private var foodScanX: CGFloat = -90
     @State private var foodPill1: Bool = false
     @State private var foodPill2: Bool = false
     @State private var foodPill3: Bool = false
-    @State private var foodSheetOffset: CGFloat = 100
+    @State private var foodSheetOffset: CGFloat = 120
 
     @State private var dashCalDots: Bool = false
     @State private var dashCalNumber: Int = 0
     @State private var dashRingProgress: CGFloat = 0
     @State private var dashMacros: Bool = false
     @State private var dashChartDraw: CGFloat = 0
+    @State private var dashBodyScore: Bool = false
 
     @State private var phaseOpacity: [Double] = [1, 0, 0]
 
@@ -118,18 +119,18 @@ struct AppIntroStepView: View {
         ZStack {
             Color.black
 
-            RealisticSilhouetteShape()
-                .fill(Color.white.opacity(0.12))
-                .frame(width: 120, height: 260)
+            Image(systemName: "figure.stand")
+                .font(.system(size: 160, weight: .ultraLight))
+                .foregroundStyle(.white.opacity(0.15))
                 .mask(
                     Rectangle()
-                        .frame(height: 260 * bodySilhouetteDraw)
+                        .frame(height: 300 * bodySilhouetteDraw)
                         .frame(maxHeight: .infinity, alignment: .top)
                 )
 
             ScanBrackets()
                 .stroke(Color.white.opacity(0.7), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
-                .frame(width: 140, height: 280)
+                .frame(width: 130, height: 300)
                 .scaleEffect(scanBracketsScale)
                 .opacity(scanBracketsScale > 0.6 ? 1 : 0)
 
@@ -144,15 +145,15 @@ struct AppIntroStepView: View {
             if measureLinesProgress > 0.3 {
                 VStack(spacing: 0) {
                     Rectangle()
-                        .fill(Color.white.opacity(0.6))
-                        .frame(width: 110 * min(measureLinesProgress * 2, 1), height: 2)
+                        .fill(Color.white.opacity(0.7))
+                        .frame(width: 100 * min(measureLinesProgress * 2, 1), height: 1.5)
                         .clipShape(.capsule)
 
-                    Spacer().frame(height: 30)
+                    Spacer().frame(height: 50)
 
                     Rectangle()
-                        .fill(Color.white.opacity(0.5))
-                        .frame(width: 70 * min(measureLinesProgress * 2, 1), height: 2)
+                        .fill(Color.white.opacity(0.6))
+                        .frame(width: 60 * min(measureLinesProgress * 2, 1), height: 1.5)
                         .clipShape(.capsule)
                 }
                 .offset(y: -20)
@@ -161,16 +162,16 @@ struct AppIntroStepView: View {
             if showScoreLabel {
                 VStack(spacing: 4) {
                     Text(String(format: "%.1f", scoreCountUp))
-                        .font(.system(size: 32, weight: .bold))
+                        .font(.system(size: 36, weight: .bold))
                         .foregroundStyle(.white)
                         .contentTransition(.numericText(countsDown: false))
 
                     Text("Chadlite")
-                        .font(.caption.bold())
-                        .foregroundStyle(.white.opacity(0.6))
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(.white.opacity(0.7))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.white.opacity(0.12))
                         .clipShape(Capsule())
                 }
             }
@@ -182,37 +183,63 @@ struct AppIntroStepView: View {
             Color(red: 0.96, green: 0.96, blue: 0.97)
 
             VStack(spacing: 0) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(
-                        LinearGradient(colors: [Color(red: 0.75, green: 0.85, blue: 0.65), Color(red: 0.85, green: 0.75, blue: 0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .frame(height: 140)
-                    .padding(12)
-                    .offset(y: foodPhotoOffset)
-                    .opacity(foodPhotoOpacity)
-                    .overlay {
-                        ScanBrackets()
-                            .stroke(Color.white.opacity(0.8), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
-                            .frame(width: 120, height: 100)
-                            .offset(y: -20)
-                            .opacity(foodBracketsOpacity)
-                    }
-                    .overlay {
-                        Rectangle()
-                            .fill(
-                                LinearGradient(colors: [.white.opacity(0), .white.opacity(0.3), .white.opacity(0)], startPoint: .top, endPoint: .bottom)
-                            )
-                            .frame(width: 2, height: 100)
-                            .offset(x: foodScanX, y: -20)
-                    }
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 0.96, green: 0.91, blue: 0.83))
+                        .frame(width: 140, height: 140)
+
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(red: 0.77, green: 0.59, blue: 0.42))
+                        .frame(width: 60, height: 35)
+                        .offset(x: -20, y: -10)
+
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color(red: 0.94, green: 0.91, blue: 0.85))
+                        .frame(width: 50, height: 28)
+                        .offset(x: 25, y: 5)
+
+                    Circle()
+                        .fill(Color(red: 0.45, green: 0.7, blue: 0.26))
+                        .frame(width: 24, height: 24)
+                        .offset(x: -5, y: 25)
+
+                    Circle()
+                        .fill(Color(red: 0.45, green: 0.7, blue: 0.26).opacity(0.7))
+                        .frame(width: 18, height: 18)
+                        .offset(x: 15, y: -30)
+
+                    ScanBrackets()
+                        .stroke(Color.white.opacity(0.8), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                        .frame(width: 150, height: 150)
+                        .opacity(foodBracketsOpacity)
+
+                    Rectangle()
+                        .fill(
+                            LinearGradient(colors: [.white.opacity(0), .white.opacity(0.3), .white.opacity(0)], startPoint: .top, endPoint: .bottom)
+                        )
+                        .frame(width: 2, height: 140)
+                        .offset(x: foodScanX)
+                }
+                .frame(height: 180)
+                .offset(y: foodPhotoOffset)
+                .opacity(foodPhotoOpacity)
 
                 if foodPill1 || foodPill2 || foodPill3 {
-                    HStack(spacing: 6) {
-                        if foodPill1 { foodPill("Chicken 284") }
-                        if foodPill2 { foodPill("Rice 206") }
-                        if foodPill3 { foodPill("Broccoli 34") }
+                    ZStack {
+                        if foodPill1 {
+                            foodPill("Chicken 284")
+                                .offset(x: -50, y: -10)
+                        }
+                        if foodPill2 {
+                            foodPill("Rice 206")
+                                .offset(x: 40, y: 0)
+                        }
+                        if foodPill3 {
+                            foodPill("Broccoli 34")
+                                .offset(x: -10, y: 15)
+                        }
                     }
-                    .padding(.horizontal, 12)
+                    .frame(height: 40)
                     .transition(.opacity)
                 }
 
@@ -220,22 +247,29 @@ struct AppIntroStepView: View {
 
                 VStack(spacing: 6) {
                     Text("524")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.system(size: 32, weight: .bold))
                         .foregroundStyle(.black)
                     Text("calories")
-                        .font(.caption)
+                        .font(.system(size: 12))
                         .foregroundStyle(.secondary)
 
-                    HStack(spacing: 16) {
+                    HStack(spacing: 14) {
                         miniLabel("P: 42g", .red)
                         miniLabel("C: 58g", .orange)
                         miniLabel("F: 12g", .blue)
                     }
                     .padding(.top, 4)
                 }
-                .padding(.bottom, 16)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white)
+                        .shadow(color: .black.opacity(0.05), radius: 4, y: -2)
+                )
                 .offset(y: foodSheetOffset)
             }
+            .padding(8)
         }
     }
 
@@ -243,34 +277,33 @@ struct AppIntroStepView: View {
         ZStack {
             Color(red: 0.96, green: 0.96, blue: 0.97)
 
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 if dashCalDots {
                     HStack(spacing: 3) {
                         ForEach(0..<7, id: \.self) { i in
                             Circle()
                                 .fill(i == 3 ? Color.black : Color.clear)
-                                .frame(width: 14, height: 14)
+                                .frame(width: 16, height: 16)
                                 .overlay {
                                     if i != 3 {
                                         Text("\(10 + i)")
-                                            .font(.system(size: 7))
+                                            .font(.system(size: 8))
                                             .foregroundStyle(.primary)
                                     } else {
                                         Text("13")
-                                            .font(.system(size: 7, weight: .bold))
+                                            .font(.system(size: 8, weight: .bold))
                                             .foregroundStyle(.white)
                                     }
                                 }
                         }
                     }
-                    .padding(.top, 16)
+                    .padding(.top, 10)
                     .transition(.opacity)
                 }
 
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 10)
                         .fill(Color.white)
-                        .frame(height: 70)
 
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
@@ -295,34 +328,74 @@ struct AppIntroStepView: View {
                         }
                         .frame(width: 36, height: 36)
                     }
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 10)
                 }
-                .padding(.horizontal, 10)
+                .frame(height: 68)
+                .padding(.horizontal, 8)
 
                 if dashMacros {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 4) {
                         miniMacro("184g", Color.red.opacity(0.8))
                         miniMacro("300g", Color.orange)
                         miniMacro("71g", Color.blue)
                     }
-                    .padding(.horizontal, 10)
+                    .padding(.horizontal, 8)
                     .transition(.opacity)
                 }
 
-                Path { path in
-                    path.move(to: CGPoint(x: 20, y: 50))
-                    path.addCurve(
-                        to: CGPoint(x: 160, y: 15),
-                        control1: CGPoint(x: 60, y: 40),
-                        control2: CGPoint(x: 120, y: 20)
-                    )
+                if dashBodyScore {
+                    HStack(spacing: 8) {
+                        Image(systemName: "figure.stand")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Body Score")
+                                .font(.system(size: 8, weight: .bold))
+                            Text("5.7")
+                                .font(.system(size: 14, weight: .bold))
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+                    .padding(.horizontal, 8)
+                    .transition(.opacity)
                 }
-                .trim(from: 0, to: dashChartDraw)
-                .stroke(Color.green, lineWidth: 2)
-                .frame(height: 60)
-                .padding(.horizontal, 10)
 
-                Spacer()
+                ZStack {
+                    Path { path in
+                        path.move(to: CGPoint(x: 10, y: 80))
+                        path.addCurve(
+                            to: CGPoint(x: 170, y: 10),
+                            control1: CGPoint(x: 50, y: 65),
+                            control2: CGPoint(x: 120, y: 15)
+                        )
+                    }
+                    .trim(from: 0, to: dashChartDraw)
+                    .stroke(Color.green, lineWidth: 2.5)
+
+                    Path { path in
+                        path.move(to: CGPoint(x: 10, y: 80))
+                        path.addCurve(
+                            to: CGPoint(x: 170, y: 10),
+                            control1: CGPoint(x: 50, y: 65),
+                            control2: CGPoint(x: 120, y: 15)
+                        )
+                        path.addLine(to: CGPoint(x: 170, y: 90))
+                        path.addLine(to: CGPoint(x: 10, y: 90))
+                        path.closeSubpath()
+                    }
+                    .fill(
+                        LinearGradient(colors: [Color.green.opacity(0.15), .clear], startPoint: .top, endPoint: .bottom)
+                    )
+                    .opacity(dashChartDraw)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: .infinity)
+                .padding(.horizontal, 8)
+
+                Spacer(minLength: 0)
             }
         }
     }
@@ -343,7 +416,7 @@ struct AppIntroStepView: View {
 
     private func foodPill(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 9, weight: .bold))
+            .font(.system(size: 10, weight: .bold))
             .foregroundStyle(.black)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
@@ -354,7 +427,7 @@ struct AppIntroStepView: View {
 
     private func miniLabel(_ text: String, _ color: Color) -> some View {
         Text(text)
-            .font(.system(size: 9, weight: .bold))
+            .font(.system(size: 10, weight: .bold))
             .foregroundStyle(color)
     }
 
@@ -364,7 +437,7 @@ struct AppIntroStepView: View {
             .frame(height: 36)
             .overlay {
                 Text(value)
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.system(size: 11, weight: .bold))
                     .foregroundStyle(color)
             }
     }
@@ -403,23 +476,24 @@ struct AppIntroStepView: View {
     private func resetAllStates() {
         bodySilhouetteDraw = 0
         scanBracketsScale = 0.5
-        scanLineY = -110
+        scanLineY = -150
         measureLinesProgress = 0
         scoreCountUp = 0
         showScoreLabel = false
         foodPhotoOffset = -60
         foodPhotoOpacity = 0
         foodBracketsOpacity = 0
-        foodScanX = -100
+        foodScanX = -90
         foodPill1 = false
         foodPill2 = false
         foodPill3 = false
-        foodSheetOffset = 100
+        foodSheetOffset = 120
         dashCalDots = false
         dashCalNumber = 0
         dashRingProgress = 0
         dashMacros = false
         dashChartDraw = 0
+        dashBodyScore = false
     }
 
     private func runPhase1() async {
@@ -434,7 +508,7 @@ struct AppIntroStepView: View {
         try? await Task.sleep(for: .milliseconds(300))
 
         withAnimation(.linear(duration: 1.0)) {
-            scanLineY = 110
+            scanLineY = 150
         }
         try? await Task.sleep(for: .milliseconds(600))
 
@@ -449,10 +523,10 @@ struct AppIntroStepView: View {
             try? await Task.sleep(for: .milliseconds(40))
             let progress = Double(i) / Double(steps)
             withAnimation(.easeOut(duration: 0.05)) {
-                scoreCountUp = (5.7 * progress * 10).rounded() / 10
+                scoreCountUp = (7.5 * progress * 10).rounded() / 10
             }
         }
-        withAnimation(.none) { scoreCountUp = 5.7 }
+        withAnimation(.none) { scoreCountUp = 7.5 }
     }
 
     private func runPhase2() async {
@@ -468,7 +542,7 @@ struct AppIntroStepView: View {
         try? await Task.sleep(for: .milliseconds(200))
 
         withAnimation(.linear(duration: 0.6)) {
-            foodScanX = 100
+            foodScanX = 90
         }
         try? await Task.sleep(for: .milliseconds(400))
 
@@ -510,65 +584,20 @@ struct AppIntroStepView: View {
         withAnimation(.easeOut(duration: 0.8)) {
             dashRingProgress = 0.72
         }
-        try? await Task.sleep(for: .milliseconds(400))
+        try? await Task.sleep(for: .milliseconds(300))
 
         withAnimation(.easeOut(duration: 0.3)) {
             dashMacros = true
         }
-        try? await Task.sleep(for: .milliseconds(300))
+        try? await Task.sleep(for: .milliseconds(200))
+
+        withAnimation(.easeOut(duration: 0.3)) {
+            dashBodyScore = true
+        }
+        try? await Task.sleep(for: .milliseconds(200))
 
         withAnimation(.easeOut(duration: 1.0)) {
             dashChartDraw = 1.0
         }
-    }
-}
-
-struct RealisticSilhouetteShape: Shape {
-    nonisolated func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let w = rect.width
-        let h = rect.height
-        let cx = w / 2
-
-        path.addEllipse(in: CGRect(x: cx - w * 0.1, y: h * 0.01, width: w * 0.2, height: h * 0.1))
-
-        path.move(to: CGPoint(x: cx - w * 0.06, y: h * 0.1))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.44, y: h * 0.2), control: CGPoint(x: cx - w * 0.35, y: h * 0.13))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.48, y: h * 0.3), control: CGPoint(x: cx - w * 0.5, y: h * 0.24))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.3, y: h * 0.2), control: CGPoint(x: cx - w * 0.42, y: h * 0.26))
-        path.addLine(to: CGPoint(x: cx - w * 0.2, y: h * 0.22))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.22, y: h * 0.4), control: CGPoint(x: cx - w * 0.24, y: h * 0.32))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.2, y: h * 0.46), control: CGPoint(x: cx - w * 0.22, y: h * 0.44))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.22, y: h * 0.52), control: CGPoint(x: cx - w * 0.18, y: h * 0.49))
-        path.addLine(to: CGPoint(x: cx - w * 0.24, y: h * 0.56))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.26, y: h * 0.78), control: CGPoint(x: cx - w * 0.3, y: h * 0.68))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.22, y: h * 0.84), control: CGPoint(x: cx - w * 0.26, y: h * 0.82))
-        path.addLine(to: CGPoint(x: cx - w * 0.24, y: h * 0.94))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.3, y: h * 0.99), control: CGPoint(x: cx - w * 0.24, y: h * 0.98))
-        path.addLine(to: CGPoint(x: cx - w * 0.1, y: h * 0.99))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.08, y: h * 0.94), control: CGPoint(x: cx - w * 0.08, y: h * 0.98))
-        path.addLine(to: CGPoint(x: cx - w * 0.06, y: h * 0.84))
-        path.addQuadCurve(to: CGPoint(x: cx - w * 0.04, y: h * 0.56), control: CGPoint(x: cx - w * 0.04, y: h * 0.7))
-
-        path.addLine(to: CGPoint(x: cx + w * 0.04, y: h * 0.56))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.06, y: h * 0.84), control: CGPoint(x: cx + w * 0.04, y: h * 0.7))
-        path.addLine(to: CGPoint(x: cx + w * 0.08, y: h * 0.94))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.1, y: h * 0.99), control: CGPoint(x: cx + w * 0.08, y: h * 0.98))
-        path.addLine(to: CGPoint(x: cx + w * 0.3, y: h * 0.99))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.24, y: h * 0.94), control: CGPoint(x: cx + w * 0.24, y: h * 0.98))
-        path.addLine(to: CGPoint(x: cx + w * 0.22, y: h * 0.84))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.26, y: h * 0.78), control: CGPoint(x: cx + w * 0.26, y: h * 0.82))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.24, y: h * 0.56), control: CGPoint(x: cx + w * 0.3, y: h * 0.68))
-        path.addLine(to: CGPoint(x: cx + w * 0.22, y: h * 0.52))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.2, y: h * 0.46), control: CGPoint(x: cx + w * 0.18, y: h * 0.49))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.22, y: h * 0.4), control: CGPoint(x: cx + w * 0.22, y: h * 0.44))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.2, y: h * 0.22), control: CGPoint(x: cx + w * 0.24, y: h * 0.32))
-        path.addLine(to: CGPoint(x: cx + w * 0.3, y: h * 0.2))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.48, y: h * 0.3), control: CGPoint(x: cx + w * 0.42, y: h * 0.26))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.44, y: h * 0.2), control: CGPoint(x: cx + w * 0.5, y: h * 0.24))
-        path.addQuadCurve(to: CGPoint(x: cx + w * 0.06, y: h * 0.1), control: CGPoint(x: cx + w * 0.35, y: h * 0.13))
-
-        path.closeSubpath()
-        return path
     }
 }

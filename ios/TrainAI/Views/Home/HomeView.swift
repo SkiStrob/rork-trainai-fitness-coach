@@ -52,6 +52,9 @@ struct HomeView: View {
                     if let scan = latestScan {
                         bodyScoreCard(scan)
                             .blurFadeIn(visible: cardsAppeared, delay: 0.12)
+                    } else {
+                        scanPromptCard
+                            .blurFadeIn(visible: cardsAppeared, delay: 0.12)
                     }
 
                     if todayWorkout != nil {
@@ -268,9 +271,9 @@ struct HomeView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color(red: 0.15, green: 0.15, blue: 0.15))
                             .frame(width: 60, height: 80)
-                        RealisticSilhouetteShape()
-                            .fill(Color.white.opacity(0.15))
-                            .frame(width: 40, height: 60)
+                        Image(systemName: "figure.stand")
+                            .font(.system(size: 28))
+                            .foregroundStyle(.white.opacity(0.2))
                     }
                 }
 
@@ -341,6 +344,52 @@ struct HomeView: View {
                                 .foregroundStyle(colors.secondaryText)
                         }
                     }
+                }
+            }
+        }
+        .padding(20)
+        .background(colors.cardBackground)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: colors.cardShadow, radius: 8, y: 2)
+    }
+
+    private var scanPromptCard: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Body Score")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(colors.secondaryText)
+                Spacer()
+            }
+
+            HStack(spacing: 16) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(red: 0.15, green: 0.15, blue: 0.15))
+                        .frame(width: 60, height: 80)
+                    Image(systemName: "figure.stand")
+                        .font(.system(size: 28))
+                        .foregroundStyle(.white.opacity(0.2))
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Scan to get your score")
+                        .font(.headline)
+                        .foregroundStyle(colors.primaryText)
+                    Text("Take front & side photos for AI analysis")
+                        .font(.caption)
+                        .foregroundStyle(colors.secondaryText)
+                }
+
+                Spacer()
+
+                VStack(spacing: 4) {
+                    Image(systemName: "camera.fill")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                    Text("Scan")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
         }
