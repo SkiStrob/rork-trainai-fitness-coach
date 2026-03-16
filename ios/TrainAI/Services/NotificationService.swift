@@ -21,8 +21,8 @@ enum NotificationService {
     }
 
     static func scheduleMealReminder() {
-        let times = [(12, 30, "lunch_reminder", "Lunch Time", "Don't forget to log your lunch!"),
-                     (18, 30, "dinner_reminder", "Dinner Time", "Log your dinner to stay on track!")]
+        let times = [(12, 30, "lunch_reminder", "Log Your Lunch", "Snap a photo to stay on track with your macros."),
+                     (19, 0, "dinner_reminder", "Log Your Dinner", "Keep your streak alive. Quick scan takes 3 seconds.")]
         for (hour, minute, id, title, body) in times {
             let content = UNMutableNotificationContent()
             content.title = title
@@ -39,14 +39,31 @@ enum NotificationService {
 
     static func scheduleWeeklyReport() {
         let content = UNMutableNotificationContent()
-        content.title = "Weekly Report Ready"
-        content.body = "Your weekly progress summary is ready. Check your gains!"
+        content.title = "Your Weekly Report is Ready"
+        content.body = "See how your physique and nutrition changed this week."
         content.sound = .default
+        content.badge = 1
+        var dc = DateComponents()
+        dc.weekday = 1
+        dc.hour = 18
+        dc.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dc, repeats: true)
+        let request = UNNotificationRequest(identifier: "weekly_report", content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    static func scheduleScanReminder() {
+        let content = UNMutableNotificationContent()
+        content.title = "Scan Day"
+        content.body = "Time for your weekly body scan. See how your score changed."
+        content.sound = .default
+        content.badge = 1
         var dc = DateComponents()
         dc.weekday = 1
         dc.hour = 10
+        dc.minute = 0
         let trigger = UNCalendarNotificationTrigger(dateMatching: dc, repeats: true)
-        let request = UNNotificationRequest(identifier: "weekly_report", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: "scan_reminder", content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request)
     }
 
@@ -56,7 +73,7 @@ enum NotificationService {
         content.body = "Time for your weekly body scan. Track your progress!"
         content.sound = .default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(daysFromNow * 86400), repeats: false)
-        let request = UNNotificationRequest(identifier: "scan_reminder", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: "scan_reminder_once", content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request)
     }
 
@@ -76,7 +93,7 @@ enum NotificationService {
         content.body = "Don't lose your streak! Log a workout or meal today."
         content.sound = .default
         var dc = DateComponents()
-        dc.hour = 20
+        dc.hour = 21
         dc.minute = 0
         let trigger = UNCalendarNotificationTrigger(dateMatching: dc, repeats: true)
         let request = UNNotificationRequest(identifier: "streak_warning", content: content, trigger: trigger)
@@ -87,7 +104,23 @@ enum NotificationService {
         scheduleWorkoutReminder(workoutName: workoutName)
         scheduleMealReminder()
         scheduleWeeklyReport()
-        scheduleScanReminder(daysFromNow: 7)
+        scheduleScanReminder()
         scheduleStreakWarning()
+    }
+
+    // MARK: - Additional Controls
+
+    static func updateWorkoutReminder(workoutName: String) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["workout_reminder"])
+        scheduleWorkoutReminder(workoutName: workoutName)
+    }
+
+    static func cancelStreakWarningForToday() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["streak_warning"])
+        scheduleStreakWarning()
+    }
+
+    static func cancelAll() {
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 }
