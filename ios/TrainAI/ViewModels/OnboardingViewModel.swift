@@ -5,6 +5,7 @@ import SwiftData
 @MainActor
 class OnboardingViewModel {
     var currentStep: Int = 0
+    var selectedGender: String = ""
     var selectedAge: String = ""
     var selectedAttribution: String = ""
     var selectedGoal: String = ""
@@ -14,7 +15,7 @@ class OnboardingViewModel {
     var heightInches: Int = 10
     var weightLbs: String = "170"
     var targetWeightLbs: String = "165"
-    var selectedGender: String = "Male"
+    var selectedGenderIndex: Int = -1
     var useMetric: Bool = false
     var heightCm: Int = 178
     var weightKg: String = "77"
@@ -29,31 +30,41 @@ class OnboardingViewModel {
     var hasTriedOtherApps: Bool? = nil
     var setupProgress: Double = 0
     var isSettingUp: Bool = false
+    var selectedProgressSpeed: Double = 0.8
+    var wantsCaloriesBurnedBack: Bool? = nil
+    var wantsRolloverCalories: Bool? = nil
+    var referralCode: String = ""
+    var hasCoach: Bool? = nil
 
-    let totalSteps: Int = 15
+    let totalSteps: Int = 29
 
     var progress: Double {
-        guard currentStep > 0 else { return 0 }
-        return Double(currentStep) / Double(totalSteps - 1)
+        guard currentStep >= 2 else { return 0 }
+        return Double(currentStep - 2) / Double(totalSteps - 3)
+    }
+
+    var showProgressBar: Bool {
+        currentStep >= 2 && currentStep <= 27
     }
 
     var canContinue: Bool {
         switch currentStep {
-        case 0: return true
-        case 1: return !selectedGender.isEmpty
-        case 2: return !selectedAge.isEmpty
-        case 3: return !weightLbs.isEmpty || !weightKg.isEmpty
-        case 4: return !selectedGoal.isEmpty
-        case 5: return !targetWeightLbs.isEmpty || !targetWeightKg.isEmpty
+        case 0, 1: return true
+        case 2: return !selectedGender.isEmpty
+        case 3: return !selectedExperience.isEmpty
+        case 4: return !selectedAttribution.isEmpty
+        case 5: return hasTriedOtherApps != nil
         case 6: return true
-        case 7: return !selectedExperience.isEmpty
-        case 8: return !selectedBlocker.isEmpty
-        case 9: return !selectedAttribution.isEmpty
-        case 10: return hasTriedOtherApps != nil
-        case 11: return true
-        case 12: return true
-        case 13: return true
-        case 14: return true
+        case 7: return true
+        case 8: return true
+        case 9: return !selectedGoal.isEmpty
+        case 10: return true
+        case 11...13: return true
+        case 14: return !selectedBlocker.isEmpty
+        case 15...17: return true
+        case 18: return wantsCaloriesBurnedBack != nil
+        case 19: return wantsRolloverCalories != nil
+        case 20...28: return true
         default: return true
         }
     }
@@ -70,6 +81,16 @@ class OnboardingViewModel {
             return (Double(weightKg) ?? 77) * 2.20462
         }
         return Double(weightLbs) ?? 170
+    }
+
+    var weightDifference: Int {
+        let current = useMetric ? (Double(weightKg) ?? 77) : (Double(weightLbs) ?? 170)
+        let target = useMetric ? (Double(targetWeightKg) ?? 75) : (Double(targetWeightLbs) ?? 165)
+        return abs(Int(target - current))
+    }
+
+    var weightUnit: String {
+        useMetric ? "kg" : "lbs"
     }
 
     func nextStep() {
@@ -115,7 +136,7 @@ class OnboardingViewModel {
         setupProgress = 0
         Task {
             for i in 1...100 {
-                try? await Task.sleep(for: .milliseconds(40))
+                try? await Task.sleep(for: .milliseconds(60))
                 setupProgress = Double(i) / 100.0
             }
             isSettingUp = false
