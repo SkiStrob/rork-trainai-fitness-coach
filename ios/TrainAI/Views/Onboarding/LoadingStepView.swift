@@ -6,21 +6,24 @@ struct LoadingStepView: View {
     @State private var completedItems: Set<Int> = []
     @State private var barProgress: CGFloat = 0
     @State private var cardAppeared: Bool = false
-    @State private var bracketsDraw: CGFloat = 0
-    @State private var silhouetteVisible: Bool = false
-    @State private var measureLines: Bool = false
-    @State private var scoreVisible: Bool = false
-    @State private var radarVisible: Bool = false
-    @State private var macrosVisible: Bool = false
+    @State private var ringProgress: CGFloat = 0
+    @State private var calorieCount: Int = 0
+    @State private var macroDots: [Bool] = [false, false, false, false]
 
     private let items = [
-        "Analyzing physique",
-        "Calculating ratios",
-        "Setting calorie targets",
-        "Generating workout plan",
-        "Building meal suggestions",
-        "Finalizing results"
+        "Calculating calorie target...",
+        "Setting protein goal...",
+        "Setting carb goal...",
+        "Setting fat goal...",
+        "Generating workout program...",
+        "Finalizing your plan..."
     ]
+
+    private var formattedCalories: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSNumber(value: calorieCount)) ?? "\(calorieCount)"
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -59,56 +62,40 @@ struct LoadingStepView: View {
 
             Spacer().frame(height: 20)
 
-            ZStack {
-                ScanBrackets()
-                    .trim(from: 0, to: bracketsDraw)
-                    .stroke(Color.black.opacity(0.7), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
-                    .frame(width: 140, height: 160)
+            VStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .stroke(Color(.systemGray5), lineWidth: 8)
+                    Circle()
+                        .trim(from: 0, to: ringProgress)
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color(red: 1.0, green: 0.58, blue: 0.0), Color.black],
+                                startPoint: .topLeading, endPoint: .bottomTrailing
+                            ),
+                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                        )
+                        .rotationEffect(.degrees(-90))
 
-                if silhouetteVisible {
-                    RealisticSilhouetteShape()
-                        .fill(Color(.systemGray4))
-                        .frame(width: 80, height: 140)
-                        .transition(.opacity)
-                }
-
-                if measureLines {
-                    VStack(spacing: 0) {
-                        Rectangle().fill(Color.black.opacity(0.3)).frame(width: 90, height: 1.5).clipShape(Capsule())
-                        Spacer().frame(height: 25)
-                        Rectangle().fill(Color.black.opacity(0.2)).frame(width: 60, height: 1.5).clipShape(Capsule())
+                    VStack(spacing: 2) {
+                        Text(formattedCalories)
+                            .font(.system(size: 24, weight: .bold))
+                            .contentTransition(.numericText())
+                            .monospacedDigit()
+                        Text("Daily calories")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.secondary)
                     }
-                    .offset(y: -10)
-                    .transition(.opacity)
                 }
+                .frame(width: 100, height: 100)
 
-                if scoreVisible {
-                    Text("5.7")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .transition(.scale.combined(with: .opacity))
-                }
-
-                if radarVisible {
-                    RegularHexagon()
-                        .stroke(Color(red: 1.0, green: 0.58, blue: 0.0).opacity(0.4), lineWidth: 1.5)
-                        .frame(width: 60, height: 60)
-                        .offset(y: 90)
-                        .transition(.scale.combined(with: .opacity))
-                }
-
-                if macrosVisible {
-                    HStack(spacing: 8) {
-                        Circle().fill(Color.black).frame(width: 12, height: 12)
-                        Circle().fill(Color(red: 1.0, green: 0.23, blue: 0.19)).frame(width: 12, height: 12)
-                        Circle().fill(Color(red: 1.0, green: 0.58, blue: 0.0)).frame(width: 12, height: 12)
-                        Circle().fill(Color(red: 0.0, green: 0.48, blue: 1.0)).frame(width: 12, height: 12)
-                    }
-                    .offset(y: 130)
-                    .transition(.scale.combined(with: .opacity))
+                HStack(spacing: 12) {
+                    macroDot(Color.black, visible: macroDots[0])
+                    macroDot(Color(red: 1.0, green: 0.23, blue: 0.19), visible: macroDots[1])
+                    macroDot(Color(red: 1.0, green: 0.58, blue: 0.0), visible: macroDots[2])
+                    macroDot(Color(red: 0.0, green: 0.48, blue: 1.0), visible: macroDots[3])
                 }
             }
-            .frame(height: 300)
             .galaxyCard()
             .padding(.horizontal, 20)
             .blur(radius: cardAppeared ? 0 : 8)
@@ -136,7 +123,7 @@ struct LoadingStepView: View {
                                 .transition(.opacity)
                         } else {
                             SkeletonView(height: 16, cornerRadius: 4)
-                                .frame(width: CGFloat.random(in: 100...160))
+                                .frame(width: CGFloat.random(in: 100...180))
                         }
                         Spacer()
                     }
@@ -154,42 +141,47 @@ struct LoadingStepView: View {
         }
     }
 
+    private func macroDot(_ color: Color, visible: Bool) -> some View {
+        Circle()
+            .fill(color)
+            .frame(width: 10, height: 10)
+            .opacity(visible ? 1 : 0.2)
+            .scaleEffect(visible ? 1 : 0.5)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: visible)
+    }
+
     private func startLoading() {
+        let targetCalories = viewModel.calculatedDailyCalories
+
         Task {
-            withAnimation(.easeOut(duration: 1.0)) {
-                bracketsDraw = 1.0
-            }
-            try? await Task.sleep(for: .seconds(1))
-
-            withAnimation(.easeOut(duration: 0.5)) {
-                silhouetteVisible = true
-            }
-            try? await Task.sleep(for: .milliseconds(800))
-
-            withAnimation(.easeOut(duration: 0.5)) {
-                measureLines = true
-            }
-            try? await Task.sleep(for: .milliseconds(800))
-
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                scoreVisible = true
-            }
-            try? await Task.sleep(for: .milliseconds(800))
-
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                radarVisible = true
-            }
-            try? await Task.sleep(for: .milliseconds(600))
-
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                macrosVisible = true
-            }
-
             for i in 1...100 {
                 try? await Task.sleep(for: .milliseconds(55))
                 withAnimation(.spring(response: 0.2, dampingFraction: 0.8)) {
                     percentage = i
                     barProgress = CGFloat(i) / 100.0
+                    ringProgress = CGFloat(i) / 100.0
+                    calorieCount = Int(Double(targetCalories) * Double(i) / 100.0)
+                }
+
+                if i == 20 {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        macroDots[0] = true
+                    }
+                }
+                if i == 40 {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        macroDots[1] = true
+                    }
+                }
+                if i == 55 {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        macroDots[2] = true
+                    }
+                }
+                if i == 70 {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        macroDots[3] = true
+                    }
                 }
 
                 let itemIndex = Int(Double(i) / 100.0 * Double(items.count))

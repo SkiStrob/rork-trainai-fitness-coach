@@ -10,6 +10,8 @@ class HomeViewModel {
     var todayWater: Int = 5
     var calorieGoal: Int = 2400
     var proteinGoal: Int = 165
+    var carbsGoal: Int = 300
+    var fatGoal: Int = 80
     var waterGoal: Int = 8
 
     var greeting: String {
@@ -47,6 +49,8 @@ class HomeViewModel {
         if let profile = try? context.fetch(FetchDescriptor<UserProfile>()).first {
             calorieGoal = profile.dailyCalorieGoal
             proteinGoal = profile.dailyProteinGoal
+            carbsGoal = profile.dailyCarbsGoal
+            fatGoal = profile.dailyFatGoal
             waterGoal = profile.dailyWaterGoal
         }
     }

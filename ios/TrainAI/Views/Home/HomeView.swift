@@ -220,16 +220,16 @@ struct HomeView: View {
 
             MacroMiniCard(
                 label: "Carbs",
-                remaining: max(0, 300 - Int(todayEntries.reduce(0.0) { $0 + $1.carbsGrams })),
-                goal: 300,
+                remaining: max(0, viewModel.carbsGoal - Int(todayEntries.reduce(0.0) { $0 + $1.carbsGrams })),
+                goal: viewModel.carbsGoal,
                 color: Color(red: 1.0, green: 0.58, blue: 0.0),
                 animated: ringsAppeared
             )
 
             MacroMiniCard(
                 label: "Fat",
-                remaining: max(0, 80 - Int(todayEntries.reduce(0.0) { $0 + $1.fatGrams })),
-                goal: 80,
+                remaining: max(0, viewModel.fatGoal - Int(todayEntries.reduce(0.0) { $0 + $1.fatGrams })),
+                goal: viewModel.fatGoal,
                 color: Color(red: 0.0, green: 0.48, blue: 1.0),
                 animated: ringsAppeared
             )

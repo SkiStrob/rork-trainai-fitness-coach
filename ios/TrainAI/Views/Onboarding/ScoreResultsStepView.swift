@@ -17,12 +17,19 @@ struct ScoreResultsStepView: View {
             proportions: 5.5, vtaper: 5.7, core: 5.2,
             chestScore: 6.0, backScore: 5.5, shoulderScore: 6.4,
             armScore: 5.7, coreScore: 5.2, legScore: 5.3,
-            tierName: "Chadlite"
+            tierName: TierInfo.tier(for: 5.7, gender: viewModel.selectedGender).name
         )
     }
 
     private var tierInfo: TierInfo {
         TierInfo.tier(for: scan.overallScore, gender: viewModel.selectedGender)
+    }
+
+    private var formattedCalories: String {
+        let num = viewModel.calculatedDailyCalories
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSNumber(value: num)) ?? "\(num)"
     }
 
     var body: some View {
@@ -115,10 +122,10 @@ struct ScoreResultsStepView: View {
                 .foregroundStyle(.secondary)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                RecommendationTile(icon: "flame.fill", color: .green, label: "Calories", value: "2,583")
-                RecommendationTile(icon: "c.circle.fill", color: .orange, label: "Carbs", value: "300g")
-                RecommendationTile(icon: "p.circle.fill", color: Color(red: 0.9, green: 0.3, blue: 0.3), label: "Protein", value: "184g")
-                RecommendationTile(icon: "f.circle.fill", color: Color(red: 0.3, green: 0.5, blue: 0.9), label: "Fats", value: "71g")
+                RecommendationTile(icon: "flame.fill", color: .black, label: "Calories", value: formattedCalories)
+                RecommendationTile(icon: "c.circle.fill", color: Color(red: 1.0, green: 0.58, blue: 0.0), label: "Carbs", value: "\(viewModel.calculatedCarbs)g")
+                RecommendationTile(icon: "p.circle.fill", color: Color(red: 1.0, green: 0.23, blue: 0.19), label: "Protein", value: "\(viewModel.calculatedProtein)g")
+                RecommendationTile(icon: "f.circle.fill", color: Color(red: 0.0, green: 0.48, blue: 1.0), label: "Fats", value: "\(viewModel.calculatedFat)g")
             }
         }
         .padding(20)
