@@ -2,15 +2,17 @@ import SwiftUI
 
 struct RealisticTargetStepView: View {
     let viewModel: OnboardingViewModel
+    @State private var cardAppeared: Bool = false
+    @State private var silhouetteProgress: [Bool] = [false, false, false]
 
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
                 let diff = viewModel.weightDifference
                 let unit = viewModel.weightUnit
-                let action = viewModel.selectedGoal.contains("Lose") ? "Losing" : "Gaining"
+                let action = viewModel.selectedGoals.contains("Lose Fat") ? "Losing" : "Gaining"
 
-                (Text("\(action) ") + Text("\(diff) \(unit)").foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21)) + Text(" is a realistic target. It's not hard at all!"))
+                (Text("\(action) ") + Text("\(diff) \(unit)").foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0)) + Text(" is a realistic target. It's not hard at all!"))
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.primary)
                     .padding(.top, 24)
@@ -20,23 +22,78 @@ struct RealisticTargetStepView: View {
 
             Spacer()
 
-            HStack(spacing: 16) {
-                Image(systemName: "figure.stand")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.secondary)
+            VStack(spacing: 16) {
+                HStack(spacing: 20) {
+                    VStack(spacing: 8) {
+                        RealisticSilhouetteShape()
+                            .fill(Color(.systemGray4))
+                            .frame(width: 55, height: 110)
+                            .opacity(silhouetteProgress[0] ? 1 : 0)
+                        Text("4.2")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(Color(.systemGray5))
+                            .clipShape(Capsule())
+                        Text("Now")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
 
-                Image(systemName: "arrow.right")
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
+                    Image(systemName: "arrow.right")
+                        .font(.caption)
+                        .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
 
-                Image(systemName: "figure.strengthtraining.traditional")
-                    .font(.system(size: 48))
-                    .foregroundStyle(.primary)
+                    VStack(spacing: 8) {
+                        RealisticSilhouetteShape()
+                            .fill(Color(.systemGray2))
+                            .frame(width: 60, height: 115)
+                            .opacity(silhouetteProgress[1] ? 1 : 0)
+                        Text("5.5")
+                            .font(.caption.bold())
+                            .foregroundStyle(.primary)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(Color(.systemGray4))
+                            .clipShape(Capsule())
+                        Text("8 Weeks")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Image(systemName: "arrow.right")
+                        .font(.caption)
+                        .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
+
+                    VStack(spacing: 8) {
+                        RealisticSilhouetteShape()
+                            .fill(Color.black)
+                            .frame(width: 65, height: 120)
+                            .opacity(silhouetteProgress[2] ? 1 : 0)
+                        Text("6.8")
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(Color(red: 1.0, green: 0.58, blue: 0.0))
+                            .clipShape(Capsule())
+                        Text("Goal")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
-            .padding(.vertical, 32)
+            .galaxyCard()
+            .padding(.horizontal, 20)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
 
-            Text("90% of users say that the change is obvious after using TrainAI and it is not easy to plateau.")
-                .font(.subheadline)
+            Spacer().frame(height: 20)
+
+            Text("90% of users say the change is obvious after using TrainAI and it is not easy to plateau.")
+                .font(.system(size: 14))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
@@ -49,20 +106,29 @@ struct RealisticTargetStepView: View {
                 }
             }
         }
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
+            for i in 0..<3 {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.3 + Double(i) * 0.4)) {
+                    silhouetteProgress[i] = true
+                }
+            }
+        }
     }
 }
 
 struct ProgressSpeedStepView: View {
     @Bindable var viewModel: OnboardingViewModel
+    @State private var cardAppeared: Bool = false
+    @State private var gaugeAnimated: Bool = false
 
     private let minSpeed: Double = 0.1
     private let maxSpeed: Double = 2.0
 
-    private var sliderColor: Color {
-        let pct = (viewModel.selectedProgressSpeed - minSpeed) / (maxSpeed - minSpeed)
-        if pct < 0.35 { return Color(red: 0.13, green: 0.77, blue: 0.37) }
-        if pct < 0.65 { return Color(red: 1.0, green: 0.59, blue: 0.21) }
-        return Color(red: 0.94, green: 0.27, blue: 0.27)
+    private var normalizedValue: CGFloat {
+        CGFloat((viewModel.selectedProgressSpeed - minSpeed) / (maxSpeed - minSpeed))
     }
 
     var body: some View {
@@ -78,43 +144,25 @@ struct ProgressSpeedStepView: View {
 
             Spacer()
 
-            VStack(spacing: 8) {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(String(format: "%.1f", viewModel.selectedProgressSpeed))
-                        .font(.system(size: 48, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .contentTransition(.numericText())
-                    Text(viewModel.weightUnit)
-                        .font(.title3)
+            VStack(spacing: 20) {
+                VStack(spacing: 8) {
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(String(format: "%.1f", viewModel.selectedProgressSpeed))
+                            .font(.system(size: 48, weight: .bold))
+                            .foregroundStyle(.primary)
+                            .contentTransition(.numericText())
+                        Text(viewModel.weightUnit)
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("per week")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-
-                Text("per week")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer().frame(height: 40)
-
-            VStack(spacing: 16) {
-                HStack {
-                    Image(systemName: "tortoise.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Image(systemName: "figure.walk")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Image(systemName: "hare.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal, 24)
 
                 GeometryReader { geo in
                     let trackWidth = geo.size.width
-                    let pct = (viewModel.selectedProgressSpeed - minSpeed) / (maxSpeed - minSpeed)
+                    let pct = normalizedValue
 
                     ZStack(alignment: .leading) {
                         Capsule()
@@ -122,12 +170,11 @@ struct ProgressSpeedStepView: View {
                                 LinearGradient(
                                     colors: [
                                         Color(red: 0.13, green: 0.77, blue: 0.37),
-                                        Color(red: 1.0, green: 0.8, blue: 0.0),
-                                        Color(red: 1.0, green: 0.59, blue: 0.21),
+                                        Color(red: 1.0, green: 0.84, blue: 0.0),
+                                        Color(red: 1.0, green: 0.58, blue: 0.0),
                                         Color(red: 0.94, green: 0.27, blue: 0.27)
                                     ],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
+                                    startPoint: .leading, endPoint: .trailing
                                 )
                             )
                             .frame(height: 8)
@@ -135,10 +182,7 @@ struct ProgressSpeedStepView: View {
                         Circle()
                             .fill(Color.black)
                             .frame(width: 28, height: 28)
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.white, lineWidth: 3)
-                            )
+                            .overlay(Circle().stroke(Color.white, lineWidth: 3))
                             .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
                             .offset(x: trackWidth * pct - 14)
                     }
@@ -152,10 +196,9 @@ struct ProgressSpeedStepView: View {
                                 withAnimation(.interactiveSpring()) {
                                     viewModel.selectedProgressSpeed = max(minSpeed, min(maxSpeed, snapped))
                                 }
-
                                 let snapPoints: [Double] = [0.25, 0.8, 1.5]
                                 for snap in snapPoints {
-                                    if abs(snapped - snap) < 0.1 && abs(viewModel.selectedProgressSpeed - snap) < 0.1 {
+                                    if abs(snapped - snap) < 0.1 {
                                         HapticManager.selection()
                                         viewModel.selectedProgressSpeed = snap
                                         break
@@ -165,32 +208,36 @@ struct ProgressSpeedStepView: View {
                     )
                 }
                 .frame(height: 28)
-                .padding(.horizontal, 20)
 
                 HStack {
-                    Text("Slow & steady")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                    VStack(spacing: 4) {
+                        Image(systemName: "tortoise.fill").font(.caption).foregroundStyle(.secondary)
+                        Text("Slow").font(.caption2).foregroundStyle(.secondary)
+                    }
                     Spacer()
-                    VStack(spacing: 2) {
-                        Text("Moderate")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                    VStack(spacing: 4) {
+                        Image(systemName: "figure.walk").font(.caption).foregroundStyle(.secondary)
+                        Text("Moderate").font(.caption2).foregroundStyle(.secondary)
                         Text("Recommended")
                             .font(.system(size: 9, weight: .semibold))
                             .foregroundStyle(.white)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(Color(red: 1.0, green: 0.59, blue: 0.21))
+                            .background(Color(red: 1.0, green: 0.58, blue: 0.0))
                             .clipShape(Capsule())
                     }
                     Spacer()
-                    Text("Aggressive")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                    VStack(spacing: 4) {
+                        Image(systemName: "hare.fill").font(.caption).foregroundStyle(.secondary)
+                        Text("Aggressive").font(.caption2).foregroundStyle(.secondary)
+                    }
                 }
-                .padding(.horizontal, 24)
             }
+            .galaxyCard()
+            .padding(.horizontal, 20)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
 
             Spacer()
 
@@ -200,11 +247,19 @@ struct ProgressSpeedStepView: View {
                 }
             }
         }
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
+        }
     }
 }
 
 struct DarkComparisonStepView: View {
     let viewModel: OnboardingViewModel
+    @State private var cardAppeared: Bool = false
+    @State private var leftFill: CGFloat = 0
+    @State private var rightFill: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -219,70 +274,67 @@ struct DarkComparisonStepView: View {
 
             Spacer()
 
-            VStack(spacing: 20) {
-                HStack(spacing: 0) {
-                    VStack(spacing: 12) {
-                        Text("Without TrainAI")
-                            .font(.caption.bold())
-                            .foregroundStyle(Color.white.opacity(0.5))
+            HStack(spacing: 10) {
+                VStack(spacing: 12) {
+                    Text("Without TrainAI")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(.primary)
 
-                        HStack(spacing: 6) {
-                            Image(systemName: "fork.knife")
-                            Image(systemName: "figure.run")
-                            Image(systemName: "chart.bar.fill")
-                        }
-                        .font(.caption)
-                        .foregroundStyle(Color.white.opacity(0.3))
+                    Spacer()
 
-                        Text("20%")
-                            .font(.system(size: 36, weight: .semibold))
-                            .foregroundStyle(Color.white.opacity(0.35))
-
-                        Text("success rate")
-                            .font(.caption)
-                            .foregroundStyle(Color.white.opacity(0.3))
+                    ZStack(alignment: .bottom) {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(.systemGray5))
+                            .frame(height: 140 * leftFill)
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(height: 140, alignment: .bottom)
 
-                    Rectangle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 1, height: 140)
-
-                    VStack(spacing: 12) {
-                        Text("With TrainAI")
-                            .font(.caption.bold())
-                            .foregroundStyle(Color.white.opacity(0.7))
-
-                        HStack(spacing: 6) {
-                            Image(systemName: "fork.knife")
-                            Image(systemName: "figure.run")
-                            Image(systemName: "chart.bar.fill")
-                        }
-                        .font(.caption)
-                        .foregroundStyle(Color.white.opacity(0.5))
-
-                        Text("2X")
-                            .font(.system(size: 36, weight: .bold))
-                            .foregroundStyle(.white)
-
-                        Text("more likely to succeed")
-                            .font(.caption)
-                            .foregroundStyle(Color.white.opacity(0.5))
-                    }
-                    .frame(maxWidth: .infinity)
+                    Text("20%")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundStyle(Color(.secondaryLabel))
                 }
-                .padding(24)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color(red: 0.11, green: 0.11, blue: 0.12))
-                )
+                .frame(maxWidth: .infinity)
+                .frame(height: 230)
+                .padding(16)
+                .background(Color.white)
+                .clipShape(.rect(cornerRadius: 16))
 
-                Text("TrainAI makes it easy and holds you accountable")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: 12) {
+                    Text("With TrainAI")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    ZStack(alignment: .bottom) {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(red: 0.11, green: 0.11, blue: 0.12))
+                            .frame(height: 140 * rightFill)
+                    }
+                    .frame(height: 140, alignment: .bottom)
+
+                    Text("2X")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundStyle(.primary)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 230)
+                .padding(16)
+                .background(Color.white)
+                .clipShape(.rect(cornerRadius: 16))
             }
+            .galaxyCard()
             .padding(.horizontal, 20)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
+
+            Spacer().frame(height: 16)
+
+            (Text("TrainAI makes it easy and holds ").foregroundStyle(.primary) + Text("you accountable.").foregroundStyle(.secondary))
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
 
             Spacer()
 
@@ -292,12 +344,24 @@ struct DarkComparisonStepView: View {
                 }
             }
         }
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
+            withAnimation(.easeOut(duration: 0.8).delay(0.5)) {
+                leftFill = 0.2
+            }
+            withAnimation(.easeOut(duration: 0.8).delay(1.3)) {
+                rightFill = 0.75
+            }
+        }
     }
 }
 
 struct PotentialStepView: View {
     let viewModel: OnboardingViewModel
     @State private var chartProgress: CGFloat = 0
+    @State private var cardAppeared: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -314,21 +378,19 @@ struct PotentialStepView: View {
 
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
-                    Text("Your physique transition")
-                        .font(.subheadline)
+                    Text("Your physique score transition")
+                        .font(.system(size: 14))
                         .foregroundStyle(.secondary)
                     Spacer()
                     Image(systemName: "target")
                         .font(.body)
-                        .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21))
+                        .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
                 }
 
                 ZStack {
                     VStack(spacing: 0) {
                         ForEach(0..<3, id: \.self) { _ in
-                            Rectangle()
-                                .fill(Color(red: 0.9, green: 0.9, blue: 0.91))
-                                .frame(height: 0.5)
+                            Rectangle().fill(Color(.systemGray5)).frame(height: 0.5)
                             Spacer()
                         }
                     }
@@ -345,26 +407,36 @@ struct PotentialStepView: View {
                     .trim(from: 0, to: chartProgress)
                     .stroke(Color.primary, lineWidth: 2.5)
                     .frame(height: 120)
+
+                    Path { path in
+                        path.move(to: CGPoint(x: 0, y: 100))
+                        path.addCurve(
+                            to: CGPoint(x: 280, y: 20),
+                            control1: CGPoint(x: 100, y: 95),
+                            control2: CGPoint(x: 200, y: 30)
+                        )
+                        path.addLine(to: CGPoint(x: 280, y: 120))
+                        path.addLine(to: CGPoint(x: 0, y: 120))
+                        path.closeSubpath()
+                    }
+                    .fill(
+                        LinearGradient(colors: [Color(red: 1.0, green: 0.58, blue: 0.0).opacity(0.12), .clear], startPoint: .top, endPoint: .bottom)
+                    )
+                    .frame(height: 120)
+                    .opacity(chartProgress)
                 }
 
                 HStack {
-                    Text("3 Days")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text("3 Days").font(.caption).foregroundStyle(.secondary)
                     Spacer()
-                    Text("7 Days")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text("7 Days").font(.caption).foregroundStyle(.secondary)
                     Spacer()
-                    Text("30 Days")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text("30 Days").font(.caption).foregroundStyle(.secondary)
                 }
 
-                Text("Results are usually subtle at first, but after 7 days, you can see real changes.")
+                Text("Based on TrainAI's analysis, physique changes are subtle at first, but after 7 days you can see real differences!")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.top, 4)
             }
             .padding(20)
             .background(
@@ -372,9 +444,13 @@ struct PotentialStepView: View {
                     .fill(Color.white)
                     .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
             )
+            .galaxyCard()
             .padding(.horizontal, 20)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
 
-            Spacer().frame(height: 24)
+            Spacer().frame(height: 20)
 
             HStack(spacing: 10) {
                 Image(systemName: "lock.shield.fill")
@@ -395,7 +471,10 @@ struct PotentialStepView: View {
             }
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 1.5).delay(0.3)) {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
+            withAnimation(.easeInOut(duration: 1.5).delay(0.4)) {
                 chartProgress = 1.0
             }
         }
@@ -404,7 +483,10 @@ struct PotentialStepView: View {
 
 struct ThankYouStepView: View {
     let viewModel: OnboardingViewModel
-    @State private var pulse: Bool = false
+    @State private var cardAppeared: Bool = false
+    @State private var bracketPulse: Bool = false
+    @State private var scanLineY: CGFloat = -60
+    @State private var shieldScale: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -412,25 +494,69 @@ struct ThankYouStepView: View {
 
             VStack(spacing: 20) {
                 ZStack {
-                    Circle()
-                        .fill(Color(red: 1, green: 0.9, blue: 0.9))
+                    ScanBrackets()
+                        .stroke(Color.black.opacity(0.7), style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
                         .frame(width: 120, height: 120)
+                        .scaleEffect(bracketPulse ? 1.04 : 1.0)
 
-                    Image(systemName: "heart.circle.fill")
-                        .font(.system(size: 60))
-                        .foregroundStyle(Color(red: 0.9, green: 0.3, blue: 0.3))
-                        .scaleEffect(pulse ? 1.05 : 1.0)
+                    Image(systemName: "shield.checkmark.fill")
+                        .font(.system(size: 56))
+                        .foregroundStyle(.black)
+                        .scaleEffect(shieldScale)
+
+                    Rectangle()
+                        .fill(
+                            LinearGradient(colors: [.clear, Color.black.opacity(0.15), .clear], startPoint: .leading, endPoint: .trailing)
+                        )
+                        .frame(width: 100, height: 2)
+                        .blur(radius: 1)
+                        .offset(y: scanLineY)
                 }
-
-                Text("Thank you for trusting us")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.primary)
-                    .multilineTextAlignment(.center)
-
-                Text("Now let's personalize TrainAI for you...")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                .frame(width: 120, height: 120)
             }
+            .galaxyCard()
+            .padding(.horizontal, 40)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
+
+            Spacer().frame(height: 24)
+
+            Text("Thank you for trusting us")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+
+            Text("Now let's personalize TrainAI for you...")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .padding(.top, 4)
+
+            Spacer().frame(height: 20)
+
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 0.91, green: 0.97, blue: 0.91))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "lock.shield.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Your data stays on your device.")
+                        .font(.caption.bold())
+                        .foregroundStyle(.primary)
+                    Text("We never share your body scan photos.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(14)
+            .background(Color.white)
+            .clipShape(.rect(cornerRadius: 14))
+            .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
+            .padding(.horizontal, 20)
 
             Spacer()
 
@@ -441,8 +567,28 @@ struct ThankYouStepView: View {
             }
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
-                pulse = true
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.5)) {
+                shieldScale = 1.0
+            }
+            withAnimation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true).delay(0.8)) {
+                bracketPulse = true
+            }
+            startScanLoop()
+        }
+    }
+
+    private func startScanLoop() {
+        Task {
+            try? await Task.sleep(for: .milliseconds(800))
+            while true {
+                scanLineY = -60
+                withAnimation(.linear(duration: 2.5)) {
+                    scanLineY = 60
+                }
+                try? await Task.sleep(for: .seconds(3))
             }
         }
     }
@@ -450,43 +596,95 @@ struct ThankYouStepView: View {
 
 struct AppleHealthStepView: View {
     let viewModel: OnboardingViewModel
+    @State private var cardAppeared: Bool = false
+    @State private var nodesVisible: [Bool] = [false, false, false]
+    @State private var linesDrawn: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Connect to Apple Health")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.primary)
-                    .padding(.top, 24)
-
-                Text("Sync your daily activity for the most thorough data.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-
             Spacer()
 
-            VStack(spacing: 16) {
-                Image(systemName: "heart.text.square.fill")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.red)
+            VStack(spacing: 0) {
+                ZStack {
+                    ForEach(0..<3, id: \.self) { i in
+                        let angle = Double(i) * 120 - 90
+                        let radius: CGFloat = 80
+                        let x = cos(angle * .pi / 180) * radius
+                        let y = sin(angle * .pi / 180) * radius
 
-                HStack(spacing: 20) {
-                    healthItem(icon: "figure.walk", label: "Walking")
-                    healthItem(icon: "figure.run", label: "Running")
-                    healthItem(icon: "heart.fill", label: "Heart")
-                    healthItem(icon: "bed.double.fill", label: "Sleep")
+                        Path { path in
+                            path.move(to: CGPoint(x: 130, y: 100))
+                            path.addLine(to: CGPoint(x: 130 + x, y: 100 + y))
+                        }
+                        .trim(from: 0, to: linesDrawn)
+                        .stroke(Color(.systemGray3), style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+
+                        VStack(spacing: 4) {
+                            Image(systemName: [
+                                "scalemass.fill", "dumbbell.fill", "bed.double.fill"
+                            ][i])
+                                .font(.system(size: 20))
+                                .foregroundStyle(Color(.secondaryLabel))
+                                .frame(width: 44, height: 44)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
+
+                            Text(["Body Metrics", "Workouts", "Recovery"][i])
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .offset(x: x, y: y)
+                        .opacity(nodesVisible[i] ? 1 : 0)
+                        .scaleEffect(nodesVisible[i] ? 1 : 0.5)
+                    }
+
+                    ZStack {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 60, height: 60)
+                            .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
+
+                        ZStack {
+                            ScanBrackets()
+                                .stroke(Color.black.opacity(0.7), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                                .frame(width: 32, height: 32)
+                            Image(systemName: "figure.strengthtraining.traditional")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.black)
+                        }
+                    }
+
+                    Image(systemName: "apple.logo")
+                        .font(.system(size: 28))
+                        .foregroundStyle(.black)
+                        .frame(width: 48, height: 48)
+                        .background(Color.white)
+                        .clipShape(.rect(cornerRadius: 12))
+                        .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
+                        .offset(y: -60)
                 }
+                .frame(width: 260, height: 240)
             }
-            .padding(24)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white)
-                    .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
-            )
+            .galaxyCard()
             .padding(.horizontal, 20)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
+
+            Spacer().frame(height: 24)
+
+            Text("Connect to Apple Health")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+
+            Text("Sync your workouts, body metrics, and recovery data for the most accurate physique analysis.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+                .padding(.top, 8)
 
             Spacer()
 
@@ -507,22 +705,25 @@ struct AppleHealthStepView: View {
             }
             .padding(.bottom, 16)
         }
-    }
-
-    private func healthItem(icon: String, label: String) -> some View {
-        VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(.secondary)
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
+            for i in 0..<3 {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.4 + Double(i) * 0.3)) {
+                    nodesVisible[i] = true
+                }
+            }
+            withAnimation(.easeOut(duration: 0.8).delay(0.6)) {
+                linesDrawn = 1.0
+            }
         }
     }
 }
 
 struct CaloriesBurnedStepView: View {
     @Bindable var viewModel: OnboardingViewModel
+    @State private var cardAppeared: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -537,75 +738,66 @@ struct CaloriesBurnedStepView: View {
 
             Spacer()
 
-            VStack(spacing: 12) {
-                HStack(spacing: 12) {
-                    VStack(spacing: 6) {
-                        Text("Today's Goal")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text("2500 Cal")
-                            .font(.title2.bold())
+            VStack(spacing: 16) {
+                ZStack {
+                    Image(systemName: "figure.run")
+                        .font(.system(size: 80))
+                        .foregroundStyle(.black.opacity(0.08))
+                        .offset(x: -12)
+
+                    Image(systemName: "figure.run")
+                        .font(.system(size: 80))
+                        .foregroundStyle(.black.opacity(0.15))
+                        .offset(x: -6)
+
+                    Image(systemName: "figure.run")
+                        .font(.system(size: 80))
+                        .foregroundStyle(.black)
+                }
+                .frame(height: 100)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Today's Goal")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    HStack(spacing: 8) {
+                        Image(systemName: "flame.fill")
+                            .font(.body)
                             .foregroundStyle(.primary)
+                        Text("500 Cals")
+                            .font(.system(size: 22, weight: .bold))
                     }
-
-                    Image(systemName: "plus")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-
-                    VStack(spacing: 6) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "figure.run")
-                                .font(.caption)
-                            Text("Running")
-                                .font(.caption)
-                        }
-                        .foregroundStyle(.secondary)
-
-                        Text("+200 Cal")
-                            .font(.title3.bold())
+                    HStack(spacing: 6) {
+                        Image(systemName: "figure.run")
+                            .font(.caption)
+                        Text("Running")
+                            .font(.caption)
+                        Text("+100 cals")
+                            .font(.caption.bold())
                             .foregroundStyle(.green)
                     }
+                    .foregroundStyle(.secondary)
                 }
-                .padding(20)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white)
-                        .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
-                )
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.white)
+                .clipShape(.rect(cornerRadius: 14))
+                .shadow(color: .black.opacity(0.04), radius: 6, y: 2)
             }
+            .galaxyCard()
             .padding(.horizontal, 20)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
 
-            Spacer().frame(height: 40)
+            Spacer().frame(height: 32)
 
             HStack(spacing: 12) {
-                Button {
-                    HapticManager.selection()
+                yesNoButton("No", selected: viewModel.wantsCaloriesBurnedBack == false) {
                     viewModel.wantsCaloriesBurnedBack = false
-                } label: {
-                    Text("No")
-                        .font(.headline)
-                        .foregroundStyle(viewModel.wantsCaloriesBurnedBack == false ? .white : .primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(viewModel.wantsCaloriesBurnedBack == false ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(red: 0.94, green: 0.94, blue: 0.95))
-                        )
                 }
-
-                Button {
-                    HapticManager.selection()
+                yesNoButton("Yes", selected: viewModel.wantsCaloriesBurnedBack == true) {
                     viewModel.wantsCaloriesBurnedBack = true
-                } label: {
-                    Text("Yes")
-                        .font(.headline)
-                        .foregroundStyle(viewModel.wantsCaloriesBurnedBack == true ? .white : .primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(viewModel.wantsCaloriesBurnedBack == true ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(red: 0.94, green: 0.94, blue: 0.95))
-                        )
                 }
             }
             .padding(.horizontal, 20)
@@ -618,11 +810,35 @@ struct CaloriesBurnedStepView: View {
                 }
             }
         }
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
+        }
+    }
+
+    private func yesNoButton(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button {
+            HapticManager.selection()
+            action()
+        } label: {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(selected ? .white : .primary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(selected ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(red: 0.94, green: 0.94, blue: 0.95))
+                )
+        }
     }
 }
 
 struct RolloverStepView: View {
     @Bindable var viewModel: OnboardingViewModel
+    @State private var cardAppeared: Bool = false
+    @State private var arrowDrawn: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -638,7 +854,7 @@ struct RolloverStepView: View {
                         .foregroundStyle(.secondary)
                     Text("200 cals")
                         .font(.subheadline.bold())
-                        .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21))
+                        .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -646,98 +862,81 @@ struct RolloverStepView: View {
 
             Spacer()
 
-            HStack(spacing: 16) {
-                VStack(spacing: 8) {
-                    Text("Yesterday")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
-                    ZStack {
-                        Circle()
-                            .stroke(Color(red: 0.9, green: 0.9, blue: 0.9), lineWidth: 4)
-                        Circle()
-                            .trim(from: 0, to: 0.7)
-                            .stroke(Color.green, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                            .rotationEffect(.degrees(-90))
+            ZStack {
+                HStack(spacing: 24) {
+                    VStack(spacing: 8) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "flame.fill").font(.caption).foregroundStyle(Color(red: 1, green: 0.42, blue: 0.42))
+                            Text("Yesterday").font(.caption.bold()).foregroundStyle(.secondary)
+                        }
+                        ZStack {
+                            Circle().stroke(Color(.systemGray5), lineWidth: 4)
+                            Circle().trim(from: 0, to: 0.7).stroke(Color.green, style: StrokeStyle(lineWidth: 4, lineCap: .round)).rotationEffect(.degrees(-90))
+                            Image(systemName: "flame.fill").font(.system(size: 10)).foregroundStyle(.primary)
+                        }
+                        .frame(width: 48, height: 48)
+                        Text("350/500").font(.subheadline.bold())
+                        Text("150 left")
+                            .font(.caption2.bold())
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.black)
+                            .clipShape(Capsule())
                     }
-                    .frame(width: 48, height: 48)
-                    Text("350/500")
-                        .font(.subheadline.bold())
-                        .foregroundStyle(.primary)
-                    Text("150 left")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    .padding(16)
+                    .background(Color.white)
+                    .clipShape(.rect(cornerRadius: 16))
+                    .shadow(color: .black.opacity(0.04), radius: 6, y: 2)
+                    .rotationEffect(.degrees(-3))
+                    .offset(x: -10, y: -15)
+
+                    VStack(spacing: 8) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "flame.fill").font(.caption).foregroundStyle(.primary)
+                            Text("Today").font(.caption.bold()).foregroundStyle(.primary)
+                        }
+                        ZStack {
+                            Circle().stroke(Color(.systemGray5), lineWidth: 4)
+                            Circle().trim(from: 0, to: 0.54).stroke(Color.green, style: StrokeStyle(lineWidth: 4, lineCap: .round)).rotationEffect(.degrees(-90))
+                            Image(systemName: "flame.fill").font(.system(size: 10)).foregroundStyle(.primary)
+                        }
+                        .frame(width: 48, height: 48)
+                        Text("350/650").font(.subheadline.bold())
+                        HStack(spacing: 2) {
+                            Image(systemName: "arrow.counterclockwise").font(.system(size: 8))
+                            Text("+150")
+                        }
+                        .font(.caption2.bold())
+                        .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
+                    }
+                    .padding(16)
+                    .background(Color.white)
+                    .clipShape(.rect(cornerRadius: 16))
+                    .shadow(color: .black.opacity(0.04), radius: 6, y: 2)
+                    .rotationEffect(.degrees(2))
+                    .offset(x: 10, y: 15)
                 }
-                .padding(16)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white)
-                        .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
-                )
 
                 Image(systemName: "arrow.right")
-                    .font(.title3)
-                    .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21))
-
-                VStack(spacing: 8) {
-                    Text("Today")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
-                    ZStack {
-                        Circle()
-                            .stroke(Color(red: 0.9, green: 0.9, blue: 0.9), lineWidth: 4)
-                        Circle()
-                            .trim(from: 0, to: 0.54)
-                            .stroke(Color.green, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                            .rotationEffect(.degrees(-90))
-                    }
-                    .frame(width: 48, height: 48)
-                    Text("350/650")
-                        .font(.subheadline.bold())
-                        .foregroundStyle(.primary)
-                    Text("+150 rollover")
-                        .font(.caption.bold())
-                        .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21))
-                }
-                .padding(16)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white)
-                        .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
-                )
+                    .font(.title3.bold())
+                    .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
+                    .opacity(arrowDrawn)
             }
+            .galaxyCard()
             .padding(.horizontal, 20)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
 
-            Spacer().frame(height: 40)
+            Spacer().frame(height: 32)
 
             HStack(spacing: 12) {
-                Button {
-                    HapticManager.selection()
+                yesNoButton("No", selected: viewModel.wantsRolloverCalories == false) {
                     viewModel.wantsRolloverCalories = false
-                } label: {
-                    Text("No")
-                        .font(.headline)
-                        .foregroundStyle(viewModel.wantsRolloverCalories == false ? .white : .primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(viewModel.wantsRolloverCalories == false ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(red: 0.94, green: 0.94, blue: 0.95))
-                        )
                 }
-
-                Button {
-                    HapticManager.selection()
+                yesNoButton("Yes", selected: viewModel.wantsRolloverCalories == true) {
                     viewModel.wantsRolloverCalories = true
-                } label: {
-                    Text("Yes")
-                        .font(.headline)
-                        .foregroundStyle(viewModel.wantsRolloverCalories == true ? .white : .primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(viewModel.wantsRolloverCalories == true ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(red: 0.94, green: 0.94, blue: 0.95))
-                        )
                 }
             }
             .padding(.horizontal, 20)
@@ -750,12 +949,38 @@ struct RolloverStepView: View {
                 }
             }
         }
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
+            withAnimation(.easeOut(duration: 0.5).delay(0.8)) {
+                arrowDrawn = 1.0
+            }
+        }
+    }
+
+    private func yesNoButton(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button {
+            HapticManager.selection()
+            action()
+        } label: {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(selected ? .white : .primary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(selected ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(red: 0.94, green: 0.94, blue: 0.95))
+                )
+        }
     }
 }
 
 struct AllDoneStepView: View {
     let viewModel: OnboardingViewModel
     @State private var checkScale: CGFloat = 0
+    @State private var cardAppeared: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -766,7 +991,6 @@ struct AllDoneStepView: View {
                     Circle()
                         .fill(Color(red: 0.91, green: 0.97, blue: 0.91))
                         .frame(width: 100, height: 100)
-
                     Image(systemName: "checkmark.seal.fill")
                         .font(.system(size: 48))
                         .foregroundStyle(.green)
@@ -782,21 +1006,28 @@ struct AllDoneStepView: View {
                     .foregroundStyle(.primary)
                     .multilineTextAlignment(.center)
             }
+            .galaxyCard()
+            .padding(.horizontal, 32)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
 
-            Spacer().frame(height: 40)
+            Spacer().frame(height: 32)
 
             VStack(alignment: .leading, spacing: 12) {
                 Text("Daily recommendation for:")
                     .font(.subheadline.bold())
-                    .foregroundStyle(.primary)
 
                 VStack(alignment: .leading, spacing: 8) {
-                    planItem("Calories")
-                    planItem("Carbs")
-                    planItem("Protein")
-                    planItem("Fats")
-                    planItem("Body Score")
-                    planItem("Workout Program")
+                    ForEach(["Calories", "Carbs", "Protein", "Fats", "Body Score", "Workout Program"], id: \.self) { item in
+                        HStack(spacing: 10) {
+                            Image(systemName: "checkmark")
+                                .font(.caption.bold())
+                                .foregroundStyle(.green)
+                            Text(item)
+                                .font(.subheadline)
+                        }
+                    }
                 }
             }
             .padding(20)
@@ -816,20 +1047,12 @@ struct AllDoneStepView: View {
             }
         }
         .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
             withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.2)) {
                 checkScale = 1.0
             }
-        }
-    }
-
-    private func planItem(_ text: String) -> some View {
-        HStack(spacing: 10) {
-            Circle()
-                .fill(Color.primary)
-                .frame(width: 4, height: 4)
-            Text(text)
-                .font(.subheadline)
-                .foregroundStyle(.primary)
         }
     }
 }
@@ -837,6 +1060,8 @@ struct AllDoneStepView: View {
 struct CongratulationsStepView: View {
     let viewModel: OnboardingViewModel
     @State private var ringsAnimated: Bool = false
+    @State private var cardAppeared: Bool = false
+    @State private var scoreProgress: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -858,15 +1083,46 @@ struct CongratulationsStepView: View {
                     .padding(.top, 4)
             }
 
-            Spacer().frame(height: 32)
+            Spacer().frame(height: 24)
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                macroTile(icon: "flame.fill", color: Color.black, label: "Calories", value: "2,583")
-                macroTile(icon: "c.circle.fill", color: Color(red: 1.0, green: 0.59, blue: 0.0), label: "Carbs", value: "300g")
-                macroTile(icon: "p.circle.fill", color: Color(red: 1.0, green: 0.23, blue: 0.19), label: "Protein", value: "184g")
-                macroTile(icon: "f.circle.fill", color: Color(red: 0.0, green: 0.48, blue: 1.0), label: "Fats", value: "71g")
+            VStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .stroke(Color(.systemGray5), lineWidth: 6)
+                    Circle()
+                        .trim(from: 0, to: scoreProgress)
+                        .stroke(Color(red: 1.0, green: 0.58, blue: 0.0), style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                    VStack(spacing: 2) {
+                        Text("5.7")
+                            .font(.system(size: 28, weight: .bold))
+                        Text("Body Score")
+                            .font(.system(size: 9))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .frame(width: 80, height: 80)
+
+                Text("High-Tier Chadlite")
+                    .font(.caption.bold())
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(Color.green)
+                    .clipShape(Capsule())
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    macroTile(icon: "flame.fill", color: Color.black, label: "Calories", value: "2,583")
+                    macroTile(icon: "p.circle.fill", color: Color(red: 1.0, green: 0.23, blue: 0.19), label: "Protein", value: "184g")
+                    macroTile(icon: "c.circle.fill", color: Color(red: 1.0, green: 0.58, blue: 0.0), label: "Carbs", value: "300g")
+                    macroTile(icon: "f.circle.fill", color: Color(red: 0.0, green: 0.48, blue: 1.0), label: "Fats", value: "71g")
+                }
             }
+            .galaxyCard()
             .padding(.horizontal, 20)
+            .blur(radius: cardAppeared ? 0 : 8)
+            .scaleEffect(cardAppeared ? 1 : 0.97)
+            .opacity(cardAppeared ? 1 : 0)
 
             Spacer()
 
@@ -876,42 +1132,37 @@ struct CongratulationsStepView: View {
                 }
             }
         }
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.85).delay(0.3)) {
+                cardAppeared = true
+            }
+            withAnimation(.easeOut(duration: 0.8).delay(0.6)) {
+                scoreProgress = 0.57
+            }
+            ringsAnimated = true
+        }
     }
 
     private func macroTile(icon: String, color: Color, label: String, value: String) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             ZStack {
-                Circle()
-                    .stroke(Color(red: 0.9, green: 0.9, blue: 0.9), lineWidth: 4)
+                Circle().stroke(Color(.systemGray5), lineWidth: 4)
                 Circle()
                     .trim(from: 0, to: ringsAnimated ? 0.75 : 0)
                     .stroke(color, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                    .animation(.spring(response: 1.0, dampingFraction: 0.8).delay(0.3), value: ringsAnimated)
-
-                Image(systemName: icon)
-                    .font(.caption)
-                    .foregroundStyle(color)
+                    .animation(.spring(response: 1.0, dampingFraction: 0.8).delay(0.8), value: ringsAnimated)
+                Image(systemName: icon).font(.caption).foregroundStyle(color)
             }
             .frame(width: 36, height: 36)
 
-            Text(value)
-                .font(.title3.bold())
-                .foregroundStyle(.primary)
-
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Text(value).font(.title3.bold())
+            Text(label).font(.caption).foregroundStyle(.secondary)
         }
-        .padding(16)
+        .padding(14)
         .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white)
-                .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
-        )
-        .onAppear {
-            ringsAnimated = true
-        }
+        .background(Color.white)
+        .clipShape(.rect(cornerRadius: 16))
+        .shadow(color: .black.opacity(0.04), radius: 6, y: 2)
     }
 }

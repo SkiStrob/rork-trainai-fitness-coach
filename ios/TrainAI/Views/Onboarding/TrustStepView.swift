@@ -3,82 +3,64 @@ import SwiftUI
 struct TrustStepView: View {
     let viewModel: OnboardingViewModel
     @State private var currentTestimonial: Int = 0
-    @State private var contentVisible: Bool = false
+    @State private var cardAppeared: Bool = false
+    @State private var starsAnimated: [Bool] = [false, false, false, false, false]
+    @State private var avatarsVisible: [Bool] = [false, false, false]
 
-    private let testimonials: [(String, String, String)] = [
-        ("Jake S.", "I was about to go on Ozempic but decided to give this app a shot. Down 15 lbs in 2 months and my body score went from 3.8 to 5.2.", "J"),
-        ("Maria C.", "The body scan feature is incredible. Seeing my ratios improve week over week keeps me so motivated.", "M"),
-        ("David P.", "Best fitness app I've ever used. The AI programs are perfectly tailored to my weak points.", "D"),
-        ("Sarah K.", "Finally an app that tracks both physique AND strength. The progress photos are a game changer.", "S"),
-        ("Mike T.", "The food scanner is insanely fast. Takes 3 seconds to log a meal. I actually stick with it now.", "M"),
+    private let testimonials: [(String, String, String, Color)] = [
+        ("Jake S.", "My body score went from 4.2 to 6.1 in 3 months. The ratio breakdown showed me exactly what to fix.", "J", Color(red: 0.3, green: 0.5, blue: 0.9)),
+        ("Sarah M.", "The physique analysis is incredible. Finally understand my proportions.", "S", Color(red: 0.9, green: 0.3, blue: 0.5)),
+        ("Chris R.", "Replaced my $200/month trainer. The AI programs are genuinely personalized.", "C", Color(red: 0.3, green: 0.7, blue: 0.4)),
+        ("Mike T.", "The food scanner is insanely fast. Takes 3 seconds to log a meal. I actually stick with it now.", "M", Color(red: 0.9, green: 0.5, blue: 0.2)),
     ]
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 24) {
-                    // Header - social proof, NOT asking for a rating
-                    VStack(spacing: 16) {
-                        Text("Trusted by athletes\nworldwide")
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundStyle(.primary)
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 24)
-                            .blur(radius: contentVisible ? 0 : 3)
-                            .opacity(contentVisible ? 1 : 0)
+                VStack(spacing: 20) {
+                    Text("Trusted by athletes\nworldwide")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 24)
 
-                        // Rating badge
-                        HStack(spacing: 10) {
-                            VStack(spacing: 2) {
-                                HStack(spacing: 4) {
-                                    Text("4.8")
-                                        .font(.system(size: 32, weight: .bold))
-                                        .foregroundStyle(.primary)
+                    VStack(spacing: 12) {
+                        HStack(spacing: 8) {
+                            Text("4.8")
+                                .font(.system(size: 28, weight: .bold))
+
+                            HStack(spacing: 2) {
+                                ForEach(0..<5, id: \.self) { i in
+                                    Image(systemName: "star.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
+                                        .scaleEffect(starsAnimated[i] ? 1.0 : 0)
                                 }
-                                HStack(spacing: 2) {
-                                    ForEach(0..<5, id: \.self) { _ in
-                                        Image(systemName: "star.fill")
-                                            .font(.caption)
-                                            .foregroundStyle(.orange)
-                                    }
-                                }
-                                Text("100K+ Ratings")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(20)
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color(.systemGray6))
-                        )
-                        .padding(.horizontal, 16)
-                        .blur(radius: contentVisible ? 0 : 3)
-                        .opacity(contentVisible ? 1 : 0)
-                    }
 
-                    // User avatars + count
-                    VStack(spacing: 12) {
-                        Text("TrainAI was made for\npeople like you")
-                            .font(.title3.bold())
-                            .foregroundStyle(.primary)
+                        Text("100K+ Ratings")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        Text("TrainAI was made for\nathletes like you")
+                            .font(.system(size: 17, weight: .bold))
                             .multilineTextAlignment(.center)
+                            .padding(.top, 4)
 
                         HStack(spacing: -12) {
                             ForEach(0..<3, id: \.self) { i in
                                 Circle()
                                     .fill(Color(.systemGray5))
-                                    .frame(width: 48, height: 48)
+                                    .frame(width: 44, height: 44)
                                     .overlay {
                                         Image(systemName: ["figure.strengthtraining.traditional", "figure.run", "figure.yoga"][i])
                                             .font(.body)
                                             .foregroundStyle(.secondary)
                                     }
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color(.systemBackground), lineWidth: 3)
-                                    )
+                                    .overlay(Circle().stroke(Color.white, lineWidth: 3))
+                                    .offset(x: avatarsVisible[i] ? 0 : -20)
+                                    .opacity(avatarsVisible[i] ? 1 : 0)
                             }
                         }
 
@@ -86,57 +68,22 @@ struct TrustStepView: View {
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                     }
-                    .blur(radius: contentVisible ? 0 : 3)
-                    .opacity(contentVisible ? 1 : 0)
+                    .galaxyCard()
+                    .padding(.horizontal, 20)
+                    .blur(radius: cardAppeared ? 0 : 8)
+                    .scaleEffect(cardAppeared ? 1 : 0.97)
+                    .opacity(cardAppeared ? 1 : 0)
 
-                    // Testimonials carousel
                     VStack(spacing: 12) {
                         TabView(selection: $currentTestimonial) {
                             ForEach(0..<testimonials.count, id: \.self) { i in
-                                VStack(alignment: .leading, spacing: 12) {
-                                    HStack(spacing: 10) {
-                                        Circle()
-                                            .fill(Color(.systemGray4))
-                                            .frame(width: 44, height: 44)
-                                            .overlay {
-                                                Text(testimonials[i].2)
-                                                    .font(.headline.bold())
-                                                    .foregroundStyle(.primary)
-                                            }
-
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(testimonials[i].0)
-                                                .font(.subheadline.bold())
-                                                .foregroundStyle(.primary)
-                                            HStack(spacing: 2) {
-                                                ForEach(0..<5, id: \.self) { _ in
-                                                    Image(systemName: "star.fill")
-                                                        .font(.system(size: 10))
-                                                        .foregroundStyle(.orange)
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    Text(testimonials[i].1)
-                                        .font(.subheadline)
-                                        .foregroundStyle(.primary)
-                                        .lineSpacing(3)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                                .padding(16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .fill(Color(.systemGray6))
-                                )
-                                .padding(.horizontal, 16)
-                                .tag(i)
+                                testimonialCard(i)
+                                    .tag(i)
                             }
                         }
                         .tabViewStyle(.page(indexDisplayMode: .never))
-                        .frame(height: 180)
+                        .frame(height: 170)
 
-                        // Custom page indicator - darker dots, positioned below reviews
                         HStack(spacing: 8) {
                             ForEach(0..<testimonials.count, id: \.self) { i in
                                 Circle()
@@ -145,10 +92,7 @@ struct TrustStepView: View {
                                     .animation(.spring(response: 0.3, dampingFraction: 0.85), value: currentTestimonial)
                             }
                         }
-                        .padding(.top, 16)
                     }
-
-                    Spacer().frame(height: 8)
                 }
             }
 
@@ -159,11 +103,60 @@ struct TrustStepView: View {
             }
         }
         .onAppear {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.85).delay(0.1)) {
-                contentVisible = true
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                cardAppeared = true
+            }
+            for i in 0..<5 {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.3 + Double(i) * 0.1)) {
+                    starsAnimated[i] = true
+                }
+            }
+            for i in 0..<3 {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.8 + Double(i) * 0.15)) {
+                    avatarsVisible[i] = true
+                }
             }
             startRotation()
         }
+    }
+
+    private func testimonialCard(_ i: Int) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Circle()
+                    .fill(testimonials[i].3.opacity(0.2))
+                    .frame(width: 40, height: 40)
+                    .overlay {
+                        Text(testimonials[i].2)
+                            .font(.headline.bold())
+                            .foregroundStyle(testimonials[i].3)
+                    }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(testimonials[i].0)
+                        .font(.subheadline.bold())
+                    HStack(spacing: 2) {
+                        ForEach(0..<5, id: \.self) { _ in
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 10))
+                                .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
+                        }
+                    }
+                }
+            }
+
+            Text(testimonials[i].1)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+                .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemGray6))
+        )
+        .padding(.horizontal, 20)
     }
 
     private func startRotation() {

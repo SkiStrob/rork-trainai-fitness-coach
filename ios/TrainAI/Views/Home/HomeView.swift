@@ -82,18 +82,18 @@ struct HomeView: View {
                         ZStack {
                             Circle()
                                 .fill(Color(red: 0.94, green: 0.94, blue: 0.95))
-                                .frame(width: 36, height: 36)
+                                .frame(width: 44, height: 44)
 
                             ZStack {
                                 ScanBrackets()
-                                    .stroke(Color.black.opacity(0.75), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
-                                    .frame(width: 24, height: 24)
+                                    .stroke(Color.black.opacity(0.85), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                                    .frame(width: 32, height: 32)
 
                                 Image(systemName: "figure.strengthtraining.traditional")
-                                    .font(.system(size: 11, weight: .medium))
+                                    .font(.system(size: 14, weight: .medium))
                                     .foregroundStyle(.black)
                             }
-                            .frame(width: 24, height: 24)
+                            .frame(width: 32, height: 32)
                         }
 
                         Text("TrainAI")
@@ -107,10 +107,10 @@ struct HomeView: View {
                             HStack(spacing: 3) {
                                 Image(systemName: "flame.fill")
                                     .font(.caption)
-                                    .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.0))
+                                    .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
                                 Text("\(streak)")
                                     .font(.subheadline.bold())
-                                    .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.0))
+                                    .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
                             }
                         }
 
@@ -153,9 +153,9 @@ struct HomeView: View {
 
                     Text("\(dayNum)")
                         .font(.subheadline.weight(isToday ? .bold : .regular))
-                        .foregroundStyle(isToday ? colors.selectedCardText : colors.primaryText)
+                        .foregroundStyle(isToday ? .white : colors.primaryText)
                         .frame(width: 32, height: 32)
-                        .background(isToday ? colors.selectedCard : Color.clear)
+                        .background(isToday ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color.clear)
                         .clipShape(Circle())
                 }
                 .frame(maxWidth: .infinity)
@@ -205,9 +205,7 @@ struct HomeView: View {
         .background(colors.cardBackground)
         .clipShape(.rect(cornerRadius: 20))
         .shadow(color: colors.cardShadow, radius: 8, y: 2)
-        .onAppear {
-            ringsAppeared = true
-        }
+        .onAppear { ringsAppeared = true }
     }
 
     private var macroCards: some View {
@@ -216,7 +214,7 @@ struct HomeView: View {
                 label: "Protein",
                 remaining: max(0, viewModel.proteinGoal - viewModel.todayProtein),
                 goal: viewModel.proteinGoal,
-                color: Color(red: 0.9, green: 0.3, blue: 0.3),
+                color: Color(red: 1.0, green: 0.23, blue: 0.19),
                 animated: ringsAppeared
             )
 
@@ -224,7 +222,7 @@ struct HomeView: View {
                 label: "Carbs",
                 remaining: max(0, 300 - Int(todayEntries.reduce(0.0) { $0 + $1.carbsGrams })),
                 goal: 300,
-                color: Color.orange,
+                color: Color(red: 1.0, green: 0.58, blue: 0.0),
                 animated: ringsAppeared
             )
 
@@ -232,7 +230,7 @@ struct HomeView: View {
                 label: "Fat",
                 remaining: max(0, 80 - Int(todayEntries.reduce(0.0) { $0 + $1.fatGrams })),
                 goal: 80,
-                color: Color(red: 0.3, green: 0.5, blue: 0.9),
+                color: Color(red: 0.0, green: 0.48, blue: 1.0),
                 animated: ringsAppeared
             )
         }
@@ -270,7 +268,7 @@ struct HomeView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color(red: 0.15, green: 0.15, blue: 0.15))
                             .frame(width: 60, height: 80)
-                        BodySilhouetteShape()
+                        RealisticSilhouetteShape()
                             .fill(Color.white.opacity(0.15))
                             .frame(width: 40, height: 60)
                     }
@@ -279,7 +277,7 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text(String(format: "%.1f", scan.overallScore))
-                            .font(.system(size: 32, weight: .bold))
+                            .font(.system(size: 28, weight: .bold))
                             .foregroundStyle(colors.primaryText)
                         Text("/10")
                             .font(.subheadline)
@@ -393,13 +391,13 @@ struct HomeView: View {
                     HStack(spacing: 6) {
                         Text("P:\(Int(entry.proteinGrams))g")
                             .font(.caption2.bold())
-                            .foregroundStyle(Color(red: 0.9, green: 0.3, blue: 0.3))
+                            .foregroundStyle(Color(red: 1.0, green: 0.23, blue: 0.19))
                         Text("C:\(Int(entry.carbsGrams))g")
                             .font(.caption2.bold())
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Color(red: 1.0, green: 0.58, blue: 0.0))
                         Text("F:\(Int(entry.fatGrams))g")
                             .font(.caption2.bold())
-                            .foregroundStyle(Color(red: 0.3, green: 0.5, blue: 0.9))
+                            .foregroundStyle(Color(red: 0.0, green: 0.48, blue: 1.0))
                     }
                 }
             }
@@ -505,3 +503,5 @@ extension View {
         modifier(BlurFadeModifier(visible: visible, delay: delay))
     }
 }
+
+
