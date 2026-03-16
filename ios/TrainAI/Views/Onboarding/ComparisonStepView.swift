@@ -9,7 +9,7 @@ struct ComparisonStepView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("TrainAI creates\nlong-term results")
+                Text("Fisique creates\nlong-term results")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.primary)
                     .padding(.top, 24)
@@ -52,7 +52,7 @@ struct ComparisonStepView: View {
                                     style: StrokeStyle(lineWidth: 2.5, lineCap: .round, dash: [6, 4])
                                 )
 
-                            TrainAICurveAreaPath(width: width, height: height)
+                            FisiqueCurveAreaPath(width: width, height: height)
                                 .fill(
                                     LinearGradient(
                                         colors: [Color.primary.opacity(0.08), .clear],
@@ -61,7 +61,7 @@ struct ComparisonStepView: View {
                                 )
                                 .opacity(chartProgress)
 
-                            TrainAICurvePath(width: width, height: height)
+                            FisiqueCurvePath(width: width, height: height)
                                 .trim(from: 0, to: chartProgress)
                                 .stroke(Color.primary, style: StrokeStyle(lineWidth: 3, lineCap: .round))
 
@@ -95,7 +95,7 @@ struct ComparisonStepView: View {
                 HStack(spacing: 24) {
                     HStack(spacing: 6) {
                         Circle().fill(Color.primary).frame(width: 6, height: 6)
-                        Text("TrainAI").font(.caption.bold()).foregroundStyle(.primary)
+                        Text("Fisique").font(.caption.bold()).foregroundStyle(.primary)
                     }
                     HStack(spacing: 6) {
                         Circle().fill(Color(red: 1, green: 0.42, blue: 0.42)).frame(width: 6, height: 6)
@@ -103,7 +103,7 @@ struct ComparisonStepView: View {
                     }
                 }
 
-                Text("80% of TrainAI users maintain their progress after 6 months")
+                Text("80% of Fisique users maintain their progress after 6 months")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -137,7 +137,7 @@ struct ComparisonStepView: View {
     }
 }
 
-struct TrainAICurvePath: Shape {
+struct FisiqueCurvePath: Shape {
     let width: CGFloat
     let height: CGFloat
     nonisolated func path(in rect: CGRect) -> Path {
@@ -152,7 +152,7 @@ struct TrainAICurvePath: Shape {
     }
 }
 
-struct TrainAICurveAreaPath: Shape {
+struct FisiqueCurveAreaPath: Shape {
     let width: CGFloat
     let height: CGFloat
     nonisolated func path(in rect: CGRect) -> Path {

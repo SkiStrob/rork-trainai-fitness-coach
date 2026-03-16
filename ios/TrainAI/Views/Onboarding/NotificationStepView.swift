@@ -38,7 +38,7 @@ struct NotificationStepView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
-                            Text("TrainAI").font(.caption.bold())
+                            Text("Fisique").font(.caption.bold())
                             Spacer()
                             Text("now").font(.caption2).foregroundStyle(.secondary)
                         }
@@ -62,7 +62,7 @@ struct NotificationStepView: View {
             .scaleEffect(cardAppeared ? 1 : 0.97)
             .opacity(cardAppeared ? 1 : 0)
 
-            Text("5M+ TrainAI Users")
+            Text("5M+ Fisique Users")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 16)

@@ -99,7 +99,7 @@ struct HomeView: View {
                             .frame(width: 32, height: 32)
                         }
 
-                        Text("TrainAI")
+                        Text("Fisique")
                             .font(.subheadline.bold())
                             .foregroundStyle(colors.primaryText)
                     }

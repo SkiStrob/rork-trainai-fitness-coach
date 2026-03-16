@@ -110,7 +110,7 @@ struct RealisticTargetStepView: View {
 
             Spacer().frame(height: 20)
 
-            Text("90% of users say the change is obvious after using TrainAI and it is not easy to plateau.")
+            Text("90% of users say the change is obvious after using Fisique and it is not easy to plateau.")
                 .font(.system(size: 14))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -282,7 +282,7 @@ struct DarkComparisonStepView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Gain twice as much with TrainAI vs on your own")
+                Text("Gain twice as much with Fisique vs on your own")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.primary)
                     .padding(.top, 24)
@@ -294,7 +294,7 @@ struct DarkComparisonStepView: View {
 
             HStack(spacing: 10) {
                 VStack(spacing: 12) {
-                    Text("Without TrainAI")
+                    Text("Without Fisique")
                         .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(.primary)
 
@@ -318,7 +318,7 @@ struct DarkComparisonStepView: View {
                 .clipShape(.rect(cornerRadius: 16))
 
                 VStack(spacing: 12) {
-                    Text("With TrainAI")
+                    Text("With Fisique")
                         .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(.primary)
 
@@ -349,7 +349,7 @@ struct DarkComparisonStepView: View {
 
             Spacer().frame(height: 16)
 
-            (Text("TrainAI makes it easy and holds ").foregroundStyle(.primary) + Text("you accountable.").foregroundStyle(.secondary))
+            (Text("Fisique makes it easy and holds ").foregroundStyle(.primary) + Text("you accountable.").foregroundStyle(.secondary))
                 .font(.subheadline)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
@@ -452,7 +452,7 @@ struct PotentialStepView: View {
                     Text("30 Days").font(.caption).foregroundStyle(.secondary)
                 }
 
-                Text("Based on TrainAI's analysis, physique changes are subtle at first, but after 7 days you can see real differences!")
+                Text("Based on Fisique's analysis, physique changes are subtle at first, but after 7 days you can see real differences!")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -545,7 +545,7 @@ struct ThankYouStepView: View {
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
 
-            Text("Now let's personalize TrainAI for you...")
+            Text("Now let's personalize Fisique for you...")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)

@@ -77,11 +77,11 @@ struct WelcomeStepView: View {
             }
             .frame(width: 100, height: 100)
 
-            Text("TrainAI")
+            Text("Fisique")
                 .font(.system(size: 38, weight: .bold))
                 .foregroundStyle(.black)
 
-            Text("Your personal AI training assistant")
+            Text("Body Score & AI Coach")
                 .font(.system(size: 16))
                 .foregroundStyle(Color(.secondaryLabel))
         }

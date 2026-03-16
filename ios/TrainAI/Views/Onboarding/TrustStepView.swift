@@ -43,7 +43,7 @@ struct TrustStepView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
-                        Text("TrainAI was made for\nathletes like you")
+                        Text("Fisique was made for\nathletes like you")
                             .font(.system(size: 17, weight: .bold))
                             .multilineTextAlignment(.center)
                             .padding(.top, 4)

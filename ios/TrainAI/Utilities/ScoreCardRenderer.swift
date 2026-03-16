@@ -11,7 +11,7 @@ enum ScoreCardRenderer {
             UIColor.black.setFill()
             context.fill(CGRect(origin: .zero, size: size))
 
-            let watermark = "TrainAI"
+            let watermark = "Fisique"
             let watermarkAttrs: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 36, weight: .bold),
                 .foregroundColor: UIColor.white.withAlphaComponent(0.5)

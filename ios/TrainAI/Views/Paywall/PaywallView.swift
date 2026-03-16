@@ -51,7 +51,7 @@ struct PaywallView: View {
 
             ScrollView {
                 VStack(spacing: 20) {
-                    Text("Unlock TrainAI to reach\nyour goals faster.")
+                    Text("Unlock Fisique to reach\nyour goals faster.")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundStyle(.primary)
                         .multilineTextAlignment(.center)
@@ -107,7 +107,7 @@ struct PaywallView: View {
                             .font(.system(size: 6))
                             .foregroundStyle(.primary)
                     }
-                    Text("TrainAI")
+                    Text("Fisique")
                         .font(.system(size: 9, weight: .bold))
                 }
 
