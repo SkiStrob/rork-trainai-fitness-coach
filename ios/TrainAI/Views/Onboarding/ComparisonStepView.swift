@@ -120,10 +120,8 @@ struct ComparisonStepView: View {
                                             .frame(width: 10, height: 10)
                                             .position(x: 0, y: height * 0.85)
 
-                                        // End dot for TrainAI
                                         Circle()
-                                            .stroke(Color.primary, lineWidth: 2)
-                                            .fill(Color(.systemBackground))
+                                            .fill(Color(red: 1.0, green: 0.59, blue: 0.21))
                                             .frame(width: 10, height: 10)
                                             .position(x: width, y: height * 0.12)
                                     }

@@ -19,16 +19,20 @@ struct BlockerStepView: View {
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(.primary)
                         .padding(.top, 24)
-                        .padding(.bottom, 24)
+
+                    Text("Select all that apply.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom, 16)
 
                     ForEach(options, id: \.0) { option in
                         Button {
                             HapticManager.selection()
-                            viewModel.selectedBlocker = option.0
+                            toggleBlocker(option.0)
                         } label: {
                             OnboardingOptionCard(
                                 title: option.0,
-                                isSelected: viewModel.selectedBlocker == option.0,
+                                isSelected: viewModel.selectedBlockers.contains(option.0),
                                 icon: option.1
                             )
                         }
@@ -37,11 +41,20 @@ struct BlockerStepView: View {
                 .padding(.horizontal, 16)
             }
 
-            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedBlocker.isEmpty) {
+            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedBlockers.isEmpty) {
+                viewModel.selectedBlocker = viewModel.selectedBlockers.first ?? ""
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                     viewModel.nextStep()
                 }
             }
+        }
+    }
+
+    private func toggleBlocker(_ blocker: String) {
+        if let idx = viewModel.selectedBlockers.firstIndex(of: blocker) {
+            viewModel.selectedBlockers.remove(at: idx)
+        } else {
+            viewModel.selectedBlockers.append(blocker)
         }
     }
 }

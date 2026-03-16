@@ -79,8 +79,7 @@ struct BodyAnalysisView: View {
                             .position(x: centerX, y: originY + silhouetteHeight / 2)
                             .blur(radius: selectedRatio != nil ? 12 : 0)
                     } else {
-                        BodySilhouetteShape()
-                            .stroke(Color.white.opacity(0.18), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                        RealisticBodySilhouette()
                             .frame(width: silhouetteWidth, height: silhouetteHeight)
                             .position(x: centerX, y: originY + silhouetteHeight / 2)
                             .blur(radius: selectedRatio != nil ? 12 : 0)
@@ -98,8 +97,7 @@ struct BodyAnalysisView: View {
                                 .position(x: centerX, y: originY + silhouetteHeight / 2)
                                 .mask(focusMask(in: geo.size, originY: originY))
                         } else {
-                            BodySilhouetteShape()
-                                .stroke(Color.white.opacity(0.18), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                            RealisticBodySilhouette()
                                 .frame(width: silhouetteWidth, height: silhouetteHeight)
                                 .position(x: centerX, y: originY + silhouetteHeight / 2)
                                 .mask(focusMask(in: geo.size, originY: originY))
@@ -472,7 +470,7 @@ struct MeasurementLine: View {
     }
 
     private var lineWidth: CGFloat {
-        highlighted && !dimmed ? 3 : 2
+        highlighted && !dimmed ? 3.5 : 2.5
     }
 
     var body: some View {
@@ -486,17 +484,17 @@ struct MeasurementLine: View {
                 path.move(to: CGPoint(x: startX, y: startY))
                 path.addLine(to: CGPoint(x: endX, y: endY))
             }
-            .stroke(Color.white.opacity(opacity), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+            .stroke(Color.white.opacity(opacity), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
 
             if dotsVisible {
                 Circle()
                     .fill(Color.white.opacity(opacity + 0.15))
-                    .frame(width: 6, height: 6)
+                    .frame(width: 7, height: 7)
                     .position(from)
 
                 Circle()
                     .fill(Color.white.opacity(opacity + 0.15))
-                    .frame(width: 6, height: 6)
+                    .frame(width: 7, height: 7)
                     .position(to)
             }
 
@@ -578,5 +576,24 @@ struct BodySilhouetteShape: Shape {
 
         path.closeSubpath()
         return path
+    }
+}
+
+struct RealisticBodySilhouette: View {
+    var body: some View {
+        ZStack {
+            BodySilhouetteShape()
+                .fill(Color(white: 0.2))
+
+            BodySilhouetteShape()
+                .stroke(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.15), Color.white.opacity(0.05)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round)
+                )
+        }
     }
 }

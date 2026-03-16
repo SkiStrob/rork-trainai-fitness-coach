@@ -10,7 +10,7 @@ struct RealisticTargetStepView: View {
                 let unit = viewModel.weightUnit
                 let action = viewModel.selectedGoal.contains("Lose") ? "Losing" : "Gaining"
 
-                Text("\(action) **\(diff) \(unit)** is a realistic target. It's not hard at all!")
+                (Text("\(action) ") + Text("\(diff) \(unit)").foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21)) + Text(" is a realistic target. It's not hard at all!"))
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.primary)
                     .padding(.top, 24)
@@ -55,11 +55,15 @@ struct RealisticTargetStepView: View {
 struct ProgressSpeedStepView: View {
     @Bindable var viewModel: OnboardingViewModel
 
-    private let speeds: [(Double, String, String)] = [
-        (0.25, "Slow & steady", "tortoise.fill"),
-        (0.8, "Moderate", "figure.walk"),
-        (1.5, "Aggressive", "hare.fill")
-    ]
+    private let minSpeed: Double = 0.1
+    private let maxSpeed: Double = 2.0
+
+    private var sliderColor: Color {
+        let pct = (viewModel.selectedProgressSpeed - minSpeed) / (maxSpeed - minSpeed)
+        if pct < 0.35 { return Color(red: 0.13, green: 0.77, blue: 0.37) }
+        if pct < 0.65 { return Color(red: 1.0, green: 0.59, blue: 0.21) }
+        return Color(red: 0.94, green: 0.27, blue: 0.27)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -90,45 +94,103 @@ struct ProgressSpeedStepView: View {
                     .foregroundStyle(.secondary)
             }
 
-            HStack(spacing: 0) {
-                ForEach(speeds, id: \.0) { speed in
-                    Button {
-                        HapticManager.selection()
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
-                            viewModel.selectedProgressSpeed = speed.0
-                        }
-                    } label: {
-                        VStack(spacing: 8) {
-                            Image(systemName: speed.2)
-                                .font(.title2)
-                                .foregroundStyle(viewModel.selectedProgressSpeed == speed.0 ? .white : .primary)
+            Spacer().frame(height: 40)
 
-                            Text(speed.1)
-                                .font(.caption.bold())
-                                .foregroundStyle(viewModel.selectedProgressSpeed == speed.0 ? .white : .secondary)
-
-                            if speed.0 == 0.8 {
-                                Text("Recommended")
-                                    .font(.system(size: 9, weight: .medium))
-                                    .foregroundStyle(viewModel.selectedProgressSpeed == speed.0 ? .white.opacity(0.7) : .secondary)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(
-                                        Capsule().fill(viewModel.selectedProgressSpeed == speed.0 ? Color.white.opacity(0.15) : Color(red: 0.9, green: 0.9, blue: 0.9))
-                                    )
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(viewModel.selectedProgressSpeed == speed.0 ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(red: 0.94, green: 0.94, blue: 0.95))
-                        )
-                    }
+            VStack(spacing: 16) {
+                HStack {
+                    Image(systemName: "tortoise.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Image(systemName: "figure.walk")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Image(systemName: "hare.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
+                .padding(.horizontal, 24)
+
+                GeometryReader { geo in
+                    let trackWidth = geo.size.width
+                    let pct = (viewModel.selectedProgressSpeed - minSpeed) / (maxSpeed - minSpeed)
+
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 0.13, green: 0.77, blue: 0.37),
+                                        Color(red: 1.0, green: 0.8, blue: 0.0),
+                                        Color(red: 1.0, green: 0.59, blue: 0.21),
+                                        Color(red: 0.94, green: 0.27, blue: 0.27)
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(height: 8)
+
+                        Circle()
+                            .fill(Color.black)
+                            .frame(width: 28, height: 28)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white, lineWidth: 3)
+                            )
+                            .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+                            .offset(x: trackWidth * pct - 14)
+                    }
+                    .frame(height: 28)
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                let pctVal = max(0, min(1, value.location.x / trackWidth))
+                                let raw = minSpeed + pctVal * (maxSpeed - minSpeed)
+                                let snapped = (raw * 10).rounded() / 10
+                                withAnimation(.interactiveSpring()) {
+                                    viewModel.selectedProgressSpeed = max(minSpeed, min(maxSpeed, snapped))
+                                }
+
+                                let snapPoints: [Double] = [0.25, 0.8, 1.5]
+                                for snap in snapPoints {
+                                    if abs(snapped - snap) < 0.1 && abs(viewModel.selectedProgressSpeed - snap) < 0.1 {
+                                        HapticManager.selection()
+                                        viewModel.selectedProgressSpeed = snap
+                                        break
+                                    }
+                                }
+                            }
+                    )
+                }
+                .frame(height: 28)
+                .padding(.horizontal, 20)
+
+                HStack {
+                    Text("Slow & steady")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    VStack(spacing: 2) {
+                        Text("Moderate")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Text("Recommended")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color(red: 1.0, green: 0.59, blue: 0.21))
+                            .clipShape(Capsule())
+                    }
+                    Spacer()
+                    Text("Aggressive")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 24)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 32)
 
             Spacer()
 
@@ -147,7 +209,7 @@ struct DarkComparisonStepView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("TrainAI makes it easy")
+                Text("Gain twice as much with TrainAI vs on your own")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.primary)
                     .padding(.top, 24)
@@ -174,7 +236,7 @@ struct DarkComparisonStepView: View {
 
                         Text("20%")
                             .font(.system(size: 36, weight: .semibold))
-                            .foregroundStyle(Color.white.opacity(0.4))
+                            .foregroundStyle(Color.white.opacity(0.35))
 
                         Text("success rate")
                             .font(.caption)
@@ -258,7 +320,7 @@ struct PotentialStepView: View {
                     Spacer()
                     Image(systemName: "target")
                         .font(.body)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21))
                 }
 
                 ZStack {
@@ -576,7 +638,7 @@ struct RolloverStepView: View {
                         .foregroundStyle(.secondary)
                     Text("200 cals")
                         .font(.subheadline.bold())
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -614,7 +676,7 @@ struct RolloverStepView: View {
 
                 Image(systemName: "arrow.right")
                     .font(.title3)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21))
 
                 VStack(spacing: 8) {
                     Text("Today")
@@ -633,8 +695,8 @@ struct RolloverStepView: View {
                         .font(.subheadline.bold())
                         .foregroundStyle(.primary)
                     Text("+150 rollover")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
+                        .font(.caption.bold())
+                        .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.21))
                 }
                 .padding(16)
                 .background(
@@ -799,10 +861,10 @@ struct CongratulationsStepView: View {
             Spacer().frame(height: 32)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                macroTile(icon: "flame.fill", color: .green, label: "Calories", value: "2,583", progress: 0.0)
-                macroTile(icon: "c.circle.fill", color: .orange, label: "Carbs", value: "300g", progress: 0.0)
-                macroTile(icon: "p.circle.fill", color: Color(red: 0.9, green: 0.3, blue: 0.3), label: "Protein", value: "184g", progress: 0.0)
-                macroTile(icon: "f.circle.fill", color: Color(red: 0.3, green: 0.5, blue: 0.9), label: "Fats", value: "71g", progress: 0.0)
+                macroTile(icon: "flame.fill", color: Color.black, label: "Calories", value: "2,583")
+                macroTile(icon: "c.circle.fill", color: Color(red: 1.0, green: 0.59, blue: 0.0), label: "Carbs", value: "300g")
+                macroTile(icon: "p.circle.fill", color: Color(red: 1.0, green: 0.23, blue: 0.19), label: "Protein", value: "184g")
+                macroTile(icon: "f.circle.fill", color: Color(red: 0.0, green: 0.48, blue: 1.0), label: "Fats", value: "71g")
             }
             .padding(.horizontal, 20)
 
@@ -816,7 +878,7 @@ struct CongratulationsStepView: View {
         }
     }
 
-    private func macroTile(icon: String, color: Color, label: String, value: String, progress: Double) -> some View {
+    private func macroTile(icon: String, color: Color, label: String, value: String) -> some View {
         VStack(spacing: 10) {
             ZStack {
                 Circle()

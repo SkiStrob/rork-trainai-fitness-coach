@@ -78,18 +78,23 @@ struct HomeView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         ZStack {
-                            ScanBrackets()
-                                .stroke(Color.primary.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
-                                .frame(width: 22, height: 22)
+                            Circle()
+                                .fill(Color(red: 0.94, green: 0.94, blue: 0.95))
+                                .frame(width: 36, height: 36)
 
-                            Image(systemName: "figure.strengthtraining.traditional")
-                                .font(.system(size: 9, weight: .medium))
-                                .foregroundStyle(.primary)
-                                .offset(x: 0, y: 0.5)
+                            ZStack {
+                                ScanBrackets()
+                                    .stroke(Color.black.opacity(0.75), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                                    .frame(width: 24, height: 24)
+
+                                Image(systemName: "figure.strengthtraining.traditional")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundStyle(.black)
+                            }
+                            .frame(width: 24, height: 24)
                         }
-                        .frame(width: 26, height: 26)
 
                         Text("TrainAI")
                             .font(.subheadline.bold())
@@ -102,10 +107,10 @@ struct HomeView: View {
                             HStack(spacing: 3) {
                                 Image(systemName: "flame.fill")
                                     .font(.caption)
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.0))
                                 Text("\(streak)")
                                     .font(.subheadline.bold())
-                                    .foregroundStyle(colors.primaryText)
+                                    .foregroundStyle(Color(red: 1.0, green: 0.59, blue: 0.0))
                             }
                         }
 
@@ -242,12 +247,14 @@ struct HomeView: View {
                     .font(.subheadline.bold())
                     .foregroundStyle(colors.secondaryText)
                 Spacer()
-                Text("View Analysis")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Image(systemName: "chevron.right")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 4) {
+                    Text("View Analysis")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color(red: 0.0, green: 0.48, blue: 1.0))
+                    Image(systemName: "chevron.right")
+                        .font(.caption2)
+                        .foregroundStyle(Color(red: 0.0, green: 0.48, blue: 1.0))
+                }
             }
 
             HStack(spacing: 16) {
@@ -261,11 +268,11 @@ struct HomeView: View {
                 } else {
                     ZStack {
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(.systemGray5))
+                            .fill(Color(red: 0.15, green: 0.15, blue: 0.15))
                             .frame(width: 60, height: 80)
-                        Image(systemName: "figure.stand")
-                            .font(.title2)
-                            .foregroundStyle(.secondary)
+                        BodySilhouetteShape()
+                            .fill(Color.white.opacity(0.15))
+                            .frame(width: 40, height: 60)
                     }
                 }
 

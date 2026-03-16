@@ -9,8 +9,10 @@ class OnboardingViewModel {
     var selectedAge: String = ""
     var selectedAttribution: String = ""
     var selectedGoal: String = ""
+    var selectedGoals: [String] = []
     var selectedExperience: String = ""
     var selectedBlocker: String = ""
+    var selectedBlockers: [String] = []
     var heightFeet: Int = 5
     var heightInches: Int = 10
     var weightLbs: String = "170"
@@ -57,10 +59,10 @@ class OnboardingViewModel {
         case 6: return true
         case 7: return true
         case 8: return true
-        case 9: return !selectedGoal.isEmpty
+        case 9: return !selectedGoals.isEmpty
         case 10: return true
         case 11...13: return true
-        case 14: return !selectedBlocker.isEmpty
+        case 14: return !selectedBlockers.isEmpty
         case 15...17: return true
         case 18: return wantsCaloriesBurnedBack != nil
         case 19: return wantsRolloverCalories != nil

@@ -10,6 +10,7 @@ struct TrustStepView: View {
         ("Maria C.", "The body scan feature is incredible. Seeing my ratios improve week over week keeps me so motivated.", "M"),
         ("David P.", "Best fitness app I've ever used. The AI programs are perfectly tailored to my weak points.", "D"),
         ("Sarah K.", "Finally an app that tracks both physique AND strength. The progress photos are a game changer.", "S"),
+        ("Mike T.", "The food scanner is insanely fast. Takes 3 seconds to log a meal. I actually stick with it now.", "M"),
     ]
 
     var body: some View {
@@ -70,7 +71,7 @@ struct TrustStepView: View {
                                     .fill(Color(.systemGray5))
                                     .frame(width: 48, height: 48)
                                     .overlay {
-                                        Image(systemName: ["person.fill", "figure.run", "figure.strengthtraining.traditional"][i])
+                                        Image(systemName: ["figure.strengthtraining.traditional", "figure.run", "figure.yoga"][i])
                                             .font(.body)
                                             .foregroundStyle(.secondary)
                                     }
@@ -139,12 +140,12 @@ struct TrustStepView: View {
                         HStack(spacing: 8) {
                             ForEach(0..<testimonials.count, id: \.self) { i in
                                 Circle()
-                                    .fill(i == currentTestimonial ? Color.primary : Color(.systemGray3))
-                                    .frame(width: 7, height: 7)
+                                    .fill(i == currentTestimonial ? Color.primary : Color(red: 0.8, green: 0.8, blue: 0.8))
+                                    .frame(width: 8, height: 8)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.85), value: currentTestimonial)
                             }
                         }
-                        .padding(.top, 4)
+                        .padding(.top, 16)
                     }
 
                     Spacer().frame(height: 8)
