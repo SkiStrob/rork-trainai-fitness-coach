@@ -38,35 +38,35 @@ class OnboardingViewModel {
     var referralCode: String = ""
     var hasCoach: Bool? = nil
 
-    let totalSteps: Int = 29
+    let totalSteps: Int = 28
 
     var progress: Double {
-        guard currentStep >= 2 else { return 0 }
-        return Double(currentStep - 2) / Double(totalSteps - 3)
+        guard currentStep >= 1 else { return 0 }
+        return Double(currentStep - 1) / Double(totalSteps - 2)
     }
 
     var showProgressBar: Bool {
-        currentStep >= 2 && currentStep <= 27
+        currentStep >= 1 && currentStep <= 26
     }
 
     var canContinue: Bool {
         switch currentStep {
-        case 0, 1: return true
-        case 2: return !selectedGender.isEmpty
-        case 3: return !selectedExperience.isEmpty
-        case 4: return !selectedAttribution.isEmpty
-        case 5: return hasTriedOtherApps != nil
+        case 0: return true
+        case 1: return !selectedGender.isEmpty
+        case 2: return !selectedExperience.isEmpty
+        case 3: return !selectedAttribution.isEmpty
+        case 4: return hasTriedOtherApps != nil
+        case 5: return true
         case 6: return true
         case 7: return true
-        case 8: return true
-        case 9: return !selectedGoals.isEmpty
-        case 10: return true
-        case 11...13: return true
-        case 14: return !selectedBlockers.isEmpty
-        case 15...17: return true
-        case 18: return wantsCaloriesBurnedBack != nil
-        case 19: return wantsRolloverCalories != nil
-        case 20...28: return true
+        case 8: return !selectedGoals.isEmpty
+        case 9: return true
+        case 10...12: return true
+        case 13: return !selectedBlockers.isEmpty
+        case 14...16: return true
+        case 17: return wantsCaloriesBurnedBack != nil
+        case 18: return wantsRolloverCalories != nil
+        case 19...27: return true
         default: return true
         }
     }
