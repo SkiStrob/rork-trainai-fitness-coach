@@ -7,10 +7,15 @@ struct ContentView: View {
     @State private var appViewModel = AppViewModel()
     @State private var showPaywall: Bool = false
     @State private var hasPopulatedMockData: Bool = UserDefaults.standard.bool(forKey: "hasPopulatedMockData")
+    @State private var showSplash: Bool = true
 
     var body: some View {
         Group {
-            if !appViewModel.hasCompletedOnboarding {
+            if showSplash {
+                SplashView {
+                    showSplash = false
+                }
+            } else if !appViewModel.hasCompletedOnboarding {
                 OnboardingView { scan in
                     appViewModel.hasCompletedOnboarding = true
                     showPaywall = true
