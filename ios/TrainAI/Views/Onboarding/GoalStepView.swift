@@ -2,6 +2,7 @@ import SwiftUI
 
 struct GoalStepView: View {
     @Bindable var viewModel: OnboardingViewModel
+    @State private var appeared: Bool = false
 
     private let options: [(String, String)] = [
         ("Build Muscle", "dumbbell.fill"),
@@ -14,44 +15,49 @@ struct GoalStepView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("What is your goal?")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .padding(.top, 24)
+            Spacer()
 
-                    Text("Select all that apply.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .padding(.bottom, 16)
+            VStack(spacing: 24) {
+                Text("\(displayName) what's your main goal?")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
 
-                    ForEach(options, id: \.0) { option in
+                VStack(spacing: 10) {
+                    ForEach(Array(options.enumerated()), id: \.element.0) { index, option in
                         Button {
                             HapticManager.selection()
-                            toggleGoal(option.0)
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+                                viewModel.selectedGoal = option.0
+                            }
                         } label: {
-                            OnboardingOptionCard(title: option.0, isSelected: viewModel.selectedGoals.contains(option.0), icon: option.1)
+                            OnboardingOptionCard(title: option.0, isSelected: viewModel.selectedGoal == option.0, icon: option.1)
                         }
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 12)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.82).delay(Double(index) * 0.08), value: appeared)
                     }
                 }
                 .padding(.horizontal, 16)
             }
 
-            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedGoals.isEmpty) {
-                viewModel.selectedGoal = viewModel.selectedGoals.first ?? ""
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+            Spacer()
+
+            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedGoal.isEmpty) {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
                     viewModel.nextStep()
                 }
             }
         }
+        .onAppear {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+                appeared = true
+            }
+        }
     }
 
-    private func toggleGoal(_ goal: String) {
-        if let idx = viewModel.selectedGoals.firstIndex(of: goal) {
-            viewModel.selectedGoals.remove(at: idx)
-        } else {
-            viewModel.selectedGoals.append(goal)
-        }
+    private var displayName: String {
+        viewModel.userName.isEmpty ? "" : viewModel.userName + ","
     }
 }

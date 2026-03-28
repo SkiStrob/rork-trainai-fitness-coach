@@ -2,133 +2,79 @@ import SwiftUI
 
 struct SignInStepView: View {
     let viewModel: OnboardingViewModel
+    @State private var appeared: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
 
             VStack(spacing: 24) {
-                Text("Save your progress")
+                Text("Sign in")
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.primary)
-                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
 
                 VStack(spacing: 12) {
                     Button {
                         HapticManager.light()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
                             viewModel.nextStep()
                         }
                     } label: {
                         HStack(spacing: 10) {
                             Image(systemName: "apple.logo")
-                                .font(.title3)
+                                .font(.system(size: 18))
                             Text("Sign in with Apple")
-                                .font(.headline)
+                                .font(.system(size: 17, weight: .semibold))
                         }
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
-                        .clipShape(.rect(cornerRadius: 14))
+                        .frame(height: 56)
+                        .background(Color(red: 0.1, green: 0.1, blue: 0.1))
+                        .clipShape(.rect(cornerRadius: 16))
                     }
 
                     Button {
                         HapticManager.light()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
                             viewModel.nextStep()
                         }
                     } label: {
                         HStack(spacing: 10) {
                             Text("G")
-                                .font(.title3.bold())
+                                .font(.system(size: 18, weight: .bold))
                                 .foregroundStyle(Color(red: 0.26, green: 0.52, blue: 0.96))
-                            Text("Sign in with Google")
-                                .font(.headline)
-                                .foregroundStyle(.primary)
+                            Text("Continue with Google")
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
+                        .frame(height: 56)
                         .background(Color.white)
-                        .clipShape(.rect(cornerRadius: 14))
+                        .clipShape(.rect(cornerRadius: 16))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color(.separator), lineWidth: 1)
                         )
                     }
                 }
-                .padding(.horizontal, 20)
-
-                Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                        viewModel.nextStep()
-                    }
-                } label: {
-                    HStack(spacing: 4) {
-                        Text("Would you like to sign in later?")
-                            .foregroundStyle(.secondary)
-                        Text("Skip")
-                            .fontWeight(.bold)
-                            .foregroundStyle(.primary)
-                    }
-                    .font(.subheadline)
-                }
+                .padding(.horizontal, 16)
             }
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared ? 0 : 12)
 
             Spacer()
+
+            Text("By continuing, you agree to our [Terms of Service](https://example.com) and [Privacy Policy](https://example.com)")
+                .font(.caption)
+                .foregroundStyle(Color(.tertiaryLabel))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+                .padding(.bottom, 32)
+                .opacity(appeared ? 1 : 0)
         }
-    }
-}
-
-struct ReferralStepView: View {
-    @Bindable var viewModel: OnboardingViewModel
-
-    var body: some View {
-        VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Enter referral code (optional)")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.primary)
-                    .padding(.top, 24)
-
-                Text("You can skip this step")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-
-            Spacer()
-
-            HStack(spacing: 8) {
-                TextField("Referral Code", text: $viewModel.referralCode)
-                    .font(.body)
-                    .padding(16)
-                    .background(Color(red: 0.94, green: 0.94, blue: 0.95))
-                    .clipShape(.rect(cornerRadius: 14))
-
-                if !viewModel.referralCode.isEmpty {
-                    Button {
-                        HapticManager.light()
-                    } label: {
-                        Text("Submit")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
-                            .clipShape(.rect(cornerRadius: 10))
-                    }
-                }
-            }
-            .padding(.horizontal, 20)
-
-            Spacer()
-
-            OnboardingCTAButton(title: "Skip", enabled: true) {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                    viewModel.nextStep()
-                }
+        .onAppear {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.82).delay(0.1)) {
+                appeared = true
             }
         }
     }

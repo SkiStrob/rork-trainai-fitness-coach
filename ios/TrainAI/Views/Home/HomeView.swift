@@ -99,7 +99,7 @@ struct HomeView: View {
                             .frame(width: 32, height: 32)
                         }
 
-                        Text("Fisique")
+                        Text("Trainity")
                             .font(.subheadline.bold())
                             .foregroundStyle(colors.primaryText)
                     }
@@ -287,7 +287,7 @@ struct HomeView: View {
                             .foregroundStyle(colors.secondaryText)
                     }
 
-                    TierBadgeView(tierInfo: tierInfo)
+                    TierBadgeView(tierInfo: tierInfo, large: false)
                 }
 
                 Spacer()

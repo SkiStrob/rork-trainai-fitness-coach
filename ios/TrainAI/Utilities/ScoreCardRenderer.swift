@@ -168,13 +168,13 @@ enum ScoreCardRenderer {
                 context.fillPath()
             }
 
-            // "Fisique" watermark
+            // "Trainity" watermark
             let watermarkAttrs: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 30, weight: .medium),
                 .foregroundColor: UIColor.white.withAlphaComponent(0.3)
             ]
-            let wSize = ("Fisique" as NSString).size(withAttributes: watermarkAttrs)
-            ("Fisique" as NSString).draw(at: CGPoint(x: centerX - wSize.width / 2, y: cardRect.maxY - 60), withAttributes: watermarkAttrs)
+            let wSize = ("Trainity" as NSString).size(withAttributes: watermarkAttrs)
+            ("Trainity" as NSString).draw(at: CGPoint(x: centerX - wSize.width / 2, y: cardRect.maxY - 60), withAttributes: watermarkAttrs)
 
             // Date
             let formatter = DateFormatter()

@@ -23,7 +23,7 @@ struct SplashView: View {
                 }
                 .frame(width: 50, height: 50)
 
-                Text("Fisique")
+                Text("Trainity")
                     .font(.system(size: 42, weight: .bold))
                     .foregroundStyle(.black)
             }

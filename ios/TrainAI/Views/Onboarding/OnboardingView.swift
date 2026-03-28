@@ -12,74 +12,65 @@ struct OnboardingView: View {
 
             VStack(spacing: 0) {
                 if viewModel.showProgressBar {
-                    VStack(spacing: 12) {
-                        HStack {
+                    HStack(spacing: 12) {
+                        if viewModel.showBackButton {
                             Button {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
                                     viewModel.previousStep()
                                 }
                                 HapticManager.light()
                             } label: {
                                 Image(systemName: "chevron.left")
-                                    .font(.title3.bold())
-                                    .foregroundStyle(.primary)
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
                                     .frame(width: 44, height: 44)
                             }
-
-                            GeometryReader { geo in
-                                ZStack(alignment: .leading) {
-                                    RoundedRectangle(cornerRadius: 1.5)
-                                        .fill(Color(red: 0.9, green: 0.9, blue: 0.91))
-                                        .frame(height: 3)
-                                    RoundedRectangle(cornerRadius: 1.5)
-                                        .fill(Color(red: 0.11, green: 0.11, blue: 0.12))
-                                        .frame(width: geo.size.width * viewModel.progress, height: 3)
-                                        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.progress)
-                                }
-                            }
-                            .frame(height: 3)
-
-                            Spacer().frame(width: 44)
                         }
+
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(Color(red: 0.9, green: 0.9, blue: 0.91))
+                                    .frame(height: 4)
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(Color(red: 0.1, green: 0.1, blue: 0.1))
+                                    .frame(width: max(0, geo.size.width * viewModel.progress), height: 4)
+                                    .animation(.spring(response: 0.4, dampingFraction: 0.82), value: viewModel.progress)
+                            }
+                        }
+                        .frame(height: 4)
+
+                        Spacer().frame(width: viewModel.showBackButton ? 44 : 0)
                     }
                     .padding(.horizontal, 16)
+                    .padding(.top, 8)
                 }
 
                 TabView(selection: $viewModel.currentStep) {
-                    WelcomeStepView(viewModel: viewModel).tag(0)
-                    GenderStepView(viewModel: viewModel).tag(1)
-                    ExperienceStepView(viewModel: viewModel).tag(2)
-                    AttributionStepView(viewModel: viewModel).tag(3)
-                    OtherAppsStepView(viewModel: viewModel).tag(4)
-                    ComparisonStepView(viewModel: viewModel).tag(5)
-                    StatsStepView(viewModel: viewModel).tag(6)
-                    AgeStepView(viewModel: viewModel).tag(7)
-                    GoalStepView(viewModel: viewModel).tag(8)
-                    TargetWeightStepView(viewModel: viewModel).tag(9)
-                    RealisticTargetStepView(viewModel: viewModel).tag(10)
-                    ProgressSpeedStepView(viewModel: viewModel).tag(11)
-                    DarkComparisonStepView(viewModel: viewModel).tag(12)
-                    BlockerStepView(viewModel: viewModel).tag(13)
-                    PotentialStepView(viewModel: viewModel).tag(14)
-                    ThankYouStepView(viewModel: viewModel).tag(15)
-                    AppleHealthStepView(viewModel: viewModel).tag(16)
-                    CaloriesBurnedStepView(viewModel: viewModel).tag(17)
-                    RolloverStepView(viewModel: viewModel).tag(18)
-                    TrustStepView(viewModel: viewModel).tag(19)
-                    NotificationStepView(viewModel: viewModel).tag(20)
-                    SignInStepView(viewModel: viewModel).tag(21)
-                    ReferralStepView(viewModel: viewModel).tag(22)
-                    AllDoneStepView(viewModel: viewModel).tag(23)
-                    LoadingStepView(viewModel: viewModel).tag(24)
-                    CongratulationsStepView(viewModel: viewModel).tag(25)
-                    ScanStepView(viewModel: viewModel).tag(26)
-                    ScoreResultsStepView(viewModel: viewModel) {
+                    CredibilitySplashStepView(viewModel: viewModel).tag(0)
+                    SignInStepView(viewModel: viewModel).tag(1)
+                    NameStepView(viewModel: viewModel).tag(2)
+                    GenderStepView(viewModel: viewModel).tag(3)
+                    BirthdayStepView(viewModel: viewModel).tag(4)
+                    HeightStepView(viewModel: viewModel).tag(5)
+                    WeightStepView(viewModel: viewModel).tag(6)
+                    GoalStepView(viewModel: viewModel).tag(7)
+                    ExperienceStepView(viewModel: viewModel).tag(8)
+                    ComparisonGraphStepView(viewModel: viewModel).tag(9)
+                    NotificationStepView(viewModel: viewModel).tag(10)
+                    ScanIntroStepView(viewModel: viewModel).tag(11)
+                    FrontPhotoStepView(viewModel: viewModel).tag(12)
+                    SidePhotoStepView(viewModel: viewModel).tag(13)
+                    AnalyzingStepView(viewModel: viewModel).tag(14)
+                    ResultsStepView(viewModel: viewModel).tag(15)
+                    PotentialStepView(viewModel: viewModel).tag(16)
+                    PaywallStepView(viewModel: viewModel) {
                         viewModel.saveProfile(context: modelContext)
                         onComplete(viewModel.scanResult)
-                    }.tag(27)
+                    }.tag(17)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.spring(response: 0.4, dampingFraction: 0.85), value: viewModel.currentStep)
+                .animation(.spring(response: 0.4, dampingFraction: 0.82), value: viewModel.currentStep)
             }
         }
     }
@@ -88,38 +79,38 @@ struct OnboardingView: View {
 struct OnboardingOptionCard: View {
     let title: String
     let isSelected: Bool
-    var subtitle: String? = nil
     var icon: String? = nil
 
     var body: some View {
         HStack(spacing: 14) {
             if let icon {
                 Image(systemName: icon)
-                    .font(.title3)
-                    .foregroundStyle(isSelected ? .white : .primary)
-                    .frame(width: 28)
+                    .font(.system(size: 18))
+                    .foregroundStyle(isSelected ? .white : Color(red: 0.1, green: 0.1, blue: 0.1))
+                    .frame(width: 24)
             }
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(isSelected ? .white : .primary)
-                if let subtitle {
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(isSelected ? .white.opacity(0.7) : .secondary)
-                }
-            }
+            Text(title)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(isSelected ? .white : Color(red: 0.1, green: 0.1, blue: 0.1))
 
             Spacer()
+
+            if isSelected {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(.white)
+                    .transition(.scale.combined(with: .opacity))
+            }
         }
-        .padding(16)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(isSelected ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(red: 0.94, green: 0.94, blue: 0.95))
+                .fill(isSelected ? Color(red: 0.1, green: 0.1, blue: 0.1) : Color(red: 0.93, green: 0.97, blue: 0.95))
         )
-        .scaleEffect(isSelected ? 1.01 : 1.0)
-        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: isSelected)
+        .scaleEffect(isSelected ? 1.0 : 1.0)
+        .animation(.spring(response: 0.4, dampingFraction: 0.82), value: isSelected)
     }
 }
 
@@ -134,15 +125,18 @@ struct OnboardingCTAButton: View {
             action()
         } label: {
             Text(title)
-                .font(.headline)
+                .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(enabled ? .white : Color(red: 0.6, green: 0.6, blue: 0.62))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(enabled ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(red: 0.88, green: 0.88, blue: 0.89))
-                .clipShape(.rect(cornerRadius: 14))
+                .frame(height: 56)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(enabled ? Color(red: 0.1, green: 0.1, blue: 0.1) : Color(red: 0.9, green: 0.9, blue: 0.91))
+                )
         }
         .disabled(!enabled)
-        .padding(.horizontal, 20)
-        .padding(.bottom, 16)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 32)
+        .animation(.spring(response: 0.4, dampingFraction: 0.82), value: enabled)
     }
 }
