@@ -5,61 +5,68 @@ import SwiftData
 @MainActor
 class OnboardingViewModel {
     var currentStep: Int = 0
-    var userName: String = ""
     var selectedGender: String = ""
-    var birthMonth: Int = 6
-    var birthYear: Int = 1998
+    var selectedAge: String = ""
+    var selectedAttribution: String = ""
+    var selectedGoal: String = ""
+    var selectedGoals: [String] = []
+    var selectedExperience: String = ""
+    var selectedBlocker: String = ""
+    var selectedBlockers: [String] = []
     var heightFeet: Int = 5
     var heightInches: Int = 10
-    var weightLbs: Int = 170
-    var heightCm: Int = 178
-    var weightKg: Int = 77
+    var weightLbs: String = "170"
+    var targetWeightLbs: String = "165"
+    var selectedGenderIndex: Int = -1
     var useMetric: Bool = false
-    var selectedGoal: String = ""
-    var selectedExperience: String = ""
+    var heightCm: Int = 178
+    var weightKg: String = "77"
+    var targetWeightKg: String = "75"
     var frontPhotoData: Data?
     var sidePhotoData: Data?
-    var isAnalyzing: Bool = false
-    var analysisProgress: Double = 0
-    var analysisComplete: Bool = false
+    var isScanning: Bool = false
+    var scanProgress: Double = 0
+    var scanComplete: Bool = false
     var scanResult: BodyScan?
-    var selectedPlan: String = "annual"
+    var userName: String = ""
+    var hasTriedOtherApps: Bool? = nil
+    var setupProgress: Double = 0
+    var isSettingUp: Bool = false
+    var selectedProgressSpeed: Double = 0.8
+    var wantsCaloriesBurnedBack: Bool? = nil
+    var wantsRolloverCalories: Bool? = nil
+    var referralCode: String = ""
+    var hasCoach: Bool? = nil
 
-    let totalSteps: Int = 18
+    let totalSteps: Int = 28
 
     var progress: Double {
-        guard currentStep >= 2 else { return 0 }
+        guard currentStep >= 1 else { return 0 }
         return Double(currentStep - 1) / Double(totalSteps - 2)
     }
 
     var showProgressBar: Bool {
-        currentStep >= 2 && currentStep <= 16
-    }
-
-    var showBackButton: Bool {
-        currentStep >= 2 && currentStep <= 16
+        currentStep >= 1 && currentStep <= 26
     }
 
     var canContinue: Bool {
         switch currentStep {
         case 0: return true
-        case 1: return true
-        case 2: return !userName.trimmingCharacters(in: .whitespaces).isEmpty
-        case 3: return !selectedGender.isEmpty
-        case 4: return true
+        case 1: return !selectedGender.isEmpty
+        case 2: return !selectedExperience.isEmpty
+        case 3: return !selectedAttribution.isEmpty
+        case 4: return hasTriedOtherApps != nil
         case 5: return true
         case 6: return true
-        case 7: return !selectedGoal.isEmpty
-        case 8: return !selectedExperience.isEmpty
+        case 7: return true
+        case 8: return !selectedGoals.isEmpty
         case 9: return true
-        case 10: return true
-        case 11: return true
-        case 12: return frontPhotoData != nil
-        case 13: return sidePhotoData != nil
-        case 14: return analysisComplete
-        case 15: return true
-        case 16: return true
-        case 17: return true
+        case 10...12: return true
+        case 13: return !selectedBlockers.isEmpty
+        case 14...16: return true
+        case 17: return wantsCaloriesBurnedBack != nil
+        case 18: return wantsRolloverCalories != nil
+        case 19...27: return true
         default: return true
         }
     }
@@ -73,16 +80,16 @@ class OnboardingViewModel {
 
     var weightInLbs: Double {
         if useMetric {
-            return Double(weightKg) * 2.20462
+            return (Double(weightKg) ?? 77) * 2.20462
         }
-        return Double(weightLbs)
+        return Double(weightLbs) ?? 170
     }
 
     var weightInKg: Double {
         if useMetric {
-            return Double(weightKg)
+            return Double(weightKg) ?? 77
         }
-        return Double(weightLbs) / 2.20462
+        return (Double(weightLbs) ?? 170) / 2.20462
     }
 
     var heightInCm: Double {
@@ -92,46 +99,48 @@ class OnboardingViewModel {
         return Double(heightInTotalInches) * 2.54
     }
 
-    var heightDisplayString: String {
+    var targetWeightInLbs: Double {
         if useMetric {
-            return "\(heightCm) cm"
+            return (Double(targetWeightKg) ?? 75) * 2.20462
         }
-        return "\(heightFeet)'\(heightInches)\""
+        return Double(targetWeightLbs) ?? 165
     }
 
-    var weightDisplayString: String {
-        if useMetric {
-            return "\(weightKg) kg"
-        }
-        return "\(weightLbs) lbs"
+    var weightDifference: Int {
+        let current = useMetric ? (Double(weightKg) ?? 77) : (Double(weightLbs) ?? 170)
+        let target = useMetric ? (Double(targetWeightKg) ?? 75) : (Double(targetWeightLbs) ?? 165)
+        return abs(Int(target - current))
     }
 
-    var ageYears: Int {
-        let calendar = Calendar.current
-        var components = DateComponents()
-        components.month = birthMonth
-        components.year = birthYear
-        components.day = 15
-        guard let birthday = calendar.date(from: components) else { return 25 }
-        return calendar.dateComponents([.year], from: birthday, to: Date()).year ?? 25
+    var weightUnit: String {
+        useMetric ? "kg" : "lbs"
+    }
+
+    var ageValue: Int {
+        let components = selectedAge.components(separatedBy: CharacterSet.decimalDigits.inverted)
+        for c in components {
+            if let val = Int(c), val > 10 && val < 100 {
+                return val
+            }
+        }
+        return 25
     }
 
     var calculatedBMR: Double {
         let w = weightInKg
         let h = heightInCm
-        let a = Double(ageYears)
+        let a = Double(ageValue)
         if selectedGender.lowercased() == "female" {
-            return (10.0 * w) + (6.25 * h) - (5.0 * a) - 161.0
+            return 447.593 + (9.247 * w) + (3.098 * h) - (4.330 * a)
         }
-        return (10.0 * w) + (6.25 * h) - (5.0 * a) + 5.0
+        return 88.362 + (13.397 * w) + (4.799 * h) - (5.677 * a)
     }
 
     var activityMultiplier: Double {
         switch selectedExperience {
-        case "Beginner (0-6 months)": return 1.375
-        case "Intermediate (6mo - 2yr)": return 1.55
-        case "Advanced (2+ years)": return 1.725
-        case "Coming back after a break": return 1.375
+        case "0-2": return 1.375
+        case "3-5": return 1.55
+        case "6+": return 1.725
         default: return 1.55
         }
     }
@@ -140,30 +149,27 @@ class OnboardingViewModel {
         calculatedBMR * activityMultiplier
     }
 
-    var goalCalorieAdjustment: Double {
-        switch selectedGoal {
-        case "Build Muscle": return 300
-        case "Lose Fat": return -500
-        case "Get Toned": return -200
-        case "Competition Prep": return -600
-        case "Stay Healthy": return 0
-        case "Get Stronger": return 200
-        default: return 0
-        }
+    var calorieAdjustment: Double {
+        let isLosing = selectedGoals.contains("Lose Fat")
+        let speedKg = useMetric ? selectedProgressSpeed : selectedProgressSpeed / 2.20462
+        let weeklyCalAdjust = speedKg * 7700
+        let dailyAdjust = weeklyCalAdjust / 7
+        return isLosing ? -dailyAdjust : dailyAdjust
     }
 
     var calculatedDailyCalories: Int {
-        let raw = calculatedTDEE + goalCalorieAdjustment
-        return max(1200, min(5000, Int(raw / 25) * 25))
+        let raw = calculatedTDEE + calorieAdjustment
+        return max(1200, Int(raw / 50) * 50)
     }
 
     var calculatedProtein: Int {
         let proteinPerKg: Double
-        switch selectedGoal {
-        case "Build Muscle", "Competition Prep": proteinPerKg = 2.2
-        case "Lose Fat": proteinPerKg = 2.0
-        case "Get Stronger": proteinPerKg = 1.8
-        default: proteinPerKg = 1.6
+        if selectedGoals.contains("Build Muscle") || selectedGoals.contains("Competition Prep") {
+            proteinPerKg = 2.2
+        } else if selectedGoals.contains("Lose Fat") {
+            proteinPerKg = 2.0
+        } else {
+            proteinPerKg = 1.8
         }
         return Int(weightInKg * proteinPerKg)
     }
@@ -192,17 +198,17 @@ class OnboardingViewModel {
         }
     }
 
-    func performAnalysis() {
-        isAnalyzing = true
-        analysisProgress = 0
+    func performScan() {
+        isScanning = true
+        scanProgress = 0
 
         Task {
-            for i in 1...180 {
-                try? await Task.sleep(for: .milliseconds(100))
-                analysisProgress = Double(i) / 180.0
+            for i in 1...20 {
+                try? await Task.sleep(for: .milliseconds(150))
+                scanProgress = Double(i) / 20.0
             }
-            isAnalyzing = false
-            analysisComplete = true
+            isScanning = false
+            scanComplete = true
 
             scanResult = BodyScan(
                 date: Date(),
@@ -215,7 +221,18 @@ class OnboardingViewModel {
                 frontPhotoData: frontPhotoData,
                 sidePhotoData: sidePhotoData
             )
+        }
+    }
 
+    func simulateSetup() {
+        isSettingUp = true
+        setupProgress = 0
+        Task {
+            for i in 1...100 {
+                try? await Task.sleep(for: .milliseconds(60))
+                setupProgress = Double(i) / 100.0
+            }
+            isSettingUp = false
             nextStep()
         }
     }
@@ -223,12 +240,13 @@ class OnboardingViewModel {
     func saveProfile(context: ModelContext) {
         let profile = UserProfile(
             name: userName.isEmpty ? "Athlete" : userName,
-            age: "\(ageYears)",
+            age: selectedAge,
             gender: selectedGender,
             heightInches: heightInTotalInches,
             weightLbs: weightInLbs,
-            goal: selectedGoal,
+            goal: selectedGoals.joined(separator: ", "),
             experience: selectedExperience,
+            attribution: selectedAttribution,
             dailyCalorieGoal: calculatedDailyCalories,
             dailyProteinGoal: calculatedProtein,
             dailyCarbsGoal: calculatedCarbs,

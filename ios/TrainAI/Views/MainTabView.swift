@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @Environment(\.appColors) private var colors
     @State private var selectedTab: Int = 0
     @State private var showScanner: Bool = false
     @State private var showSettings: Bool = false
@@ -11,15 +12,19 @@ struct MainTabView: View {
                 HomeView(showSettings: $showSettings)
                     .tag(0)
 
-                ProgressTabView()
+                ProgramView()
                     .tag(1)
 
                 Color.clear
                     .tag(2)
 
-                SettingsView()
+                ProgressTabView()
                     .tag(3)
+
+                FoodView()
+                    .tag(4)
             }
+            .tint(colors.tabBarTint)
             .onChange(of: selectedTab) { _, newValue in
                 if newValue == 2 {
                     selectedTab = 0
@@ -57,8 +62,7 @@ struct MainTabView: View {
 
             HStack(spacing: 0) {
                 tabItem(icon: "house", filledIcon: "house.fill", label: "Home", tag: 0)
-
-                tabItem(icon: "chart.line.uptrend.xyaxis", filledIcon: "chart.line.uptrend.xyaxis", label: "Progress", tag: 1)
+                tabItem(icon: "dumbbell", filledIcon: "dumbbell.fill", label: "Program", tag: 1)
 
                 Button {
                     HapticManager.light()
@@ -66,27 +70,26 @@ struct MainTabView: View {
                 } label: {
                     ZStack {
                         Circle()
-                            .fill(Color(red: 0.1, green: 0.1, blue: 0.1))
+                            .fill(colors.ctaBackground)
                             .frame(width: 52, height: 52)
                             .shadow(color: .black.opacity(0.10), radius: 6, y: 3)
 
                         Image(systemName: "plus")
                             .font(.title3.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(colors.ctaForeground)
                     }
                     .offset(y: -8)
                 }
                 .frame(maxWidth: .infinity)
 
-                tabItem(icon: "gearshape", filledIcon: "gearshape.fill", label: "Settings", tag: 3)
-
-                Spacer().frame(width: 1).frame(maxWidth: .infinity)
+                tabItem(icon: "chart.line.uptrend.xyaxis", filledIcon: "chart.line.uptrend.xyaxis", label: "Progress", tag: 3)
+                tabItem(icon: "fork.knife", filledIcon: "fork.knife", label: "Food", tag: 4)
             }
             .padding(.top, 6)
             .padding(.bottom, 4)
         }
         .background(
-            Color.white
+            colors.cardBackground
                 .ignoresSafeArea(.all, edges: .bottom)
         )
     }
@@ -102,7 +105,7 @@ struct MainTabView: View {
                 Text(label)
                     .font(.system(size: 10))
             }
-            .foregroundStyle(selectedTab == tag ? Color(red: 0.1, green: 0.1, blue: 0.1) : Color(.secondaryLabel))
+            .foregroundStyle(selectedTab == tag ? colors.primaryText : colors.secondaryText)
             .frame(maxWidth: .infinity)
         }
     }

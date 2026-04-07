@@ -2,47 +2,40 @@ import SwiftUI
 
 struct GenderStepView: View {
     @Bindable var viewModel: OnboardingViewModel
-    @State private var appeared: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Choose your Gender")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .padding(.top, 24)
 
-            VStack(spacing: 32) {
-                Text("What's your gender?")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
-                    .multilineTextAlignment(.center)
+                    Text("This will be used to calibrate your custom plan.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom, 24)
 
-                VStack(spacing: 10) {
-                    ForEach(Array(["Male", "Female", "Other"].enumerated()), id: \.element) { index, gender in
+                    ForEach(["Male", "Female", "Other"], id: \.self) { gender in
                         Button {
                             HapticManager.selection()
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
-                                viewModel.selectedGender = gender
-                            }
+                            viewModel.selectedGender = gender
                         } label: {
-                            OnboardingOptionCard(title: gender, isSelected: viewModel.selectedGender == gender)
+                            OnboardingOptionCard(
+                                title: gender,
+                                isSelected: viewModel.selectedGender == gender
+                            )
                         }
-                        .opacity(appeared ? 1 : 0)
-                        .offset(y: appeared ? 0 : 12)
-                        .animation(.spring(response: 0.4, dampingFraction: 0.82).delay(Double(index) * 0.08), value: appeared)
                     }
                 }
                 .padding(.horizontal, 16)
             }
 
-            Spacer()
-
             OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedGender.isEmpty) {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                     viewModel.nextStep()
                 }
-            }
-        }
-        .onAppear {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
-                appeared = true
             }
         }
     }

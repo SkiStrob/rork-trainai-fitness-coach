@@ -1,22 +1,21 @@
 import SwiftUI
 
-struct GoalStepView: View {
+struct BlockerStepView: View {
     @Bindable var viewModel: OnboardingViewModel
 
     private let options: [(String, String)] = [
-        ("Build Muscle", "dumbbell.fill"),
-        ("Lose Fat", "flame.fill"),
-        ("Get Toned", "figure.run"),
-        ("Competition Prep", "trophy.fill"),
-        ("Stay Healthy", "heart.fill"),
-        ("Get Stronger", "bolt.fill")
+        ("Lack of consistency", "chart.bar.fill"),
+        ("Unhealthy eating habits", "fork.knife"),
+        ("Lack of support", "person.2.fill"),
+        ("Busy schedule", "clock.fill"),
+        ("Lack of meal inspiration", "lightbulb.fill")
     ]
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("What is your goal?")
+                    Text("What's stopping you from reaching your goals?")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(.primary)
                         .padding(.top, 24)
@@ -29,17 +28,21 @@ struct GoalStepView: View {
                     ForEach(options, id: \.0) { option in
                         Button {
                             HapticManager.selection()
-                            toggleGoal(option.0)
+                            toggleBlocker(option.0)
                         } label: {
-                            OnboardingOptionCard(title: option.0, isSelected: viewModel.selectedGoals.contains(option.0), icon: option.1)
+                            OnboardingOptionCard(
+                                title: option.0,
+                                isSelected: viewModel.selectedBlockers.contains(option.0),
+                                icon: option.1
+                            )
                         }
                     }
                 }
                 .padding(.horizontal, 16)
             }
 
-            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedGoals.isEmpty) {
-                viewModel.selectedGoal = viewModel.selectedGoals.first ?? ""
+            OnboardingCTAButton(title: "Continue", enabled: !viewModel.selectedBlockers.isEmpty) {
+                viewModel.selectedBlocker = viewModel.selectedBlockers.first ?? ""
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                     viewModel.nextStep()
                 }
@@ -47,11 +50,11 @@ struct GoalStepView: View {
         }
     }
 
-    private func toggleGoal(_ goal: String) {
-        if let idx = viewModel.selectedGoals.firstIndex(of: goal) {
-            viewModel.selectedGoals.remove(at: idx)
+    private func toggleBlocker(_ blocker: String) {
+        if let idx = viewModel.selectedBlockers.firstIndex(of: blocker) {
+            viewModel.selectedBlockers.remove(at: idx)
         } else {
-            viewModel.selectedGoals.append(goal)
+            viewModel.selectedBlockers.append(blocker)
         }
     }
 }

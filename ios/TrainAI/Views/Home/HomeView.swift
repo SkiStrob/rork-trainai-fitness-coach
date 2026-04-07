@@ -287,7 +287,7 @@ struct HomeView: View {
                             .foregroundStyle(colors.secondaryText)
                     }
 
-                    TierBadgeView(tierInfo: tierInfo, large: false)
+                    TierBadgeView(tierInfo: tierInfo)
                 }
 
                 Spacer()
